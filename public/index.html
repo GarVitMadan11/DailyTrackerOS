@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DailyTracker - Performance OS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="icon-box brand">
+                    <i data-lucide="zap"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold gradient-text">DailyTracker</h1>
+                    <p class="text-xs text-muted">Performance OS</p>
+                </div>
+            </div>
+
+            <nav class="flex-1">
+                <a href="#" class="nav-item active">
+                    <i data-lucide="bar-chart-3"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="calendar"></i>
+                    <span class="font-medium">Daily View</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="bot"></i>
+                    <span class="font-medium">AI Coach</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="settings"></i>
+                    <span class="font-medium">Settings</span>
+                </a>
+            </nav>
+
+            <div class="mt-auto pt-6 border-t border-[hsl(var(--glass-border))]">
+                <div class="glass p-3 flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] flex items-center justify-center text-white text-xs font-bold">
+                        U
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">User</p>
+                        <p class="text-xs text-muted">Elite Performer</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content (Offset for sidebar) -->
+        <main class="main-content md:ml-72">
+            <!-- Header -->
+            <header class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">
+                    Performance <span class="gradient-text">Dashboard</span>
+                </h1>
+                <p class="text-muted">Master your time, focus, and energy.</p>
+            </header>
+
+            <!-- Views Container -->
+            <div id="view-container">
+                
+                <!-- DASHBOARD VIEW -->
+                <div id="view-dashboard" class="view-section active">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <!-- Stat 1 -->
+                        <div class="glass p-6 glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-sm text-muted">Weekly Efficiency</p>
+                                <div class="p-2 rounded-lg bg-[hsl(var(--color-success)/0.1)] text-[hsl(var(--color-success))]">
+                                    <i data-lucide="trending-up" size="16"></i>
+                                </div>
+                            </div>
+                            <p class="stat-value" id="stat-efficiency">0%</p>
+                            <p class="text-xs text-muted"><span class="text-[hsl(var(--color-success))]">↑</span> vs last week</p>
+                        </div>
+
+                        <!-- Stat 2 -->
+                        <div class="glass p-6 glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-sm text-muted">Deep Work</p>
+                                <div class="p-2 rounded-lg bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))]">
+                                    <i data-lucide="zap" size="16"></i>
+                                </div>
+                            </div>
+                            <p class="stat-value" id="stat-deep-work">0h</p>
+                            <p class="text-xs text-muted">Target: 40h</p>
+                        </div>
+
+                        <!-- Stat 3 -->
+                        <div class="glass p-6 glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-sm text-muted">Streak</p>
+                                <div class="p-2 rounded-lg bg-[hsl(var(--color-warning)/0.1)] text-[hsl(var(--color-warning))]">
+                                    <i data-lucide="flame" size="16"></i>
+                                </div>
+                            </div>
+                            <p class="stat-value" id="stat-streak">0</p>
+                            <p class="text-xs text-muted" id="stat-streak-label">Days above 80%</p>
+                        </div>
+                        
+                         <!-- Stat 4 -->
+                        <div class="glass p-6 glass-card">
+                            <div class="flex justify-between items-start mb-2">
+                                <p class="text-sm text-muted">Tasks</p>
+                                <div class="p-2 rounded-lg bg-[hsl(var(--color-accent)/0.1)] text-[hsl(var(--color-accent))]">
+                                    <i data-lucide="target" size="16"></i>
+                                </div>
+                            </div>
+                            <p class="stat-value" id="stat-tasks">0</p>
+                            <p class="text-xs text-muted">Completed today</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <!-- Main Chart -->
+                        <div class="glass p-6">
+                            <h3 class="text-lg font-bold mb-4">Weekly Focus</h3>
+                            <div style="height: 300px;">
+                                <canvas id="weeklyChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Distribution Chart -->
+                        <div class="glass p-6">
+                            <h3 class="text-lg font-bold mb-4">Work Distribution</h3>
+                            <div style="height: 300px; display: flex; justify-content: center;">
+                                <canvas id="distributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DAILY VIEW (Stack of Boxes) -->
+                <div id="view-daily" class="view-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Today's Timeline</h2>
+                        <div class="glass px-4 py-2 text-sm font-medium" id="current-date-display">
+                            <!-- JS will populate date -->
+                        </div>
+                    </div>
+                    
+                    <div class="hour-stack" id="hour-stack">
+                        <!-- JS will populate 24 hour boxes here -->
+                    </div>
+                </div>
+
+                    <!-- SETTINGS VIEW -->
+                <div id="view-settings" class="view-section hidden">
+                    <h2 class="text-xl font-bold mb-6">Preferences</h2>
+                    
+                    <div class="glass p-6 glass-card max-w-lg">
+                        <form id="settings-form">
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-muted mb-2">Daily Deep Work Target (Hours)</label>
+                                <input type="number" id="setting-target-hours" min="1" max="24" class="w-full glass-subtle p-3 rounded-xl focus:outline-none focus:ring-2 ring-[hsl(var(--color-primary))]" placeholder="4">
+                                <p class="text-xs text-muted mt-2">Goal for daily deep work sessions.</p>
+                            </div>
+
+                            <div class="mb-8">
+                                <label class="block text-sm font-medium text-muted mb-2">Streak Efficiency Threshold (%)</label>
+                                <div class="flex items-center gap-4">
+                                    <input type="range" id="setting-streak-threshold" min="0" max="100" step="5" class="w-full h-2 bg-[hsl(var(--glass-border))] rounded-lg appearance-none cursor-pointer accent-[hsl(var(--color-primary))]">
+                                    <span id="streak-threshold-value" class="font-bold w-12 text-right">80%</span>
+                                </div>
+                                <p class="text-xs text-muted mt-2">Minimum efficiency required to maintain streak.</p>
+                            </div>
+
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                                Save Preferences
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+
+    <!-- LOG MODAL -->
+    <div id="log-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">Log Activity</h3>
+                <button id="close-modal" class="p-1 hover:bg-black/5 rounded-full"><i data-lucide="x" size="20"></i></button>
+            </div>
+            
+            <form id="log-form">
+                <input type="hidden" id="log-hour">
+                
+                <div class="mb-4">
+                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-2">Category</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="category-radio">
+                            <input type="radio" name="category" value="DEEP_WORK" checked>
+                            <span class="radio-tile color-primary">
+                                <i data-lucide="zap" size="16"></i>
+                                <span>Deep Work</span>
+                            </span>
+                        </label>
+                        <label class="category-radio">
+                            <input type="radio" name="category" value="SHALLOW">
+                            <span class="radio-tile color-warning">
+                                <i data-lucide="check-square" size="16"></i>
+                                <span>Shallow</span>
+                            </span>
+                        </label>
+                        <label class="category-radio">
+                            <input type="radio" name="category" value="DISTRACTION">
+                            <span class="radio-tile color-danger">
+                                <i data-lucide="alert-circle" size="16"></i>
+                                <span>Distraction</span>
+                            </span>
+                        </label>
+                        <label class="category-radio">
+                            <input type="radio" name="category" value="REST">
+                            <span class="radio-tile color-accent">
+                                <i data-lucide="coffee" size="16"></i>
+                                <span>Rest</span>
+                            </span>
+                        </label>
+                        
+                        <label class="category-radio">
+                            <input type="radio" name="category" value="SLEEP">
+                            <span class="radio-tile color-sleep">
+                                <i data-lucide="moon" size="16"></i>
+                                <span>Sleep</span>
+                            </span>
+                        </label>
+
+                        <label class="category-radio">
+                            <input type="radio" name="category" value="EXERCISE">
+                            <span class="radio-tile color-exercise">
+                                <i data-lucide="dumbbell" size="16"></i>
+                                <span>Exercise</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-2">Task / Note</label>
+                    <textarea id="log-note" rows="3" class="w-full glass-subtle p-3 rounded-xl focus:outline-none focus:ring-2 ring-[hsl(var(--color-primary))]" placeholder="What did you work on?"></textarea>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                    Save Entry
+                </button>
+            </form>
+        </div>
+    </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
