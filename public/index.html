@@ -19,8 +19,8 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="flex items-center gap-3 mb-8">
-                <div class="icon-box brand">
-                    <i data-lucide="zap"></i>
+                <div class="logo-icon">
+                    <i data-lucide="target"></i>
                 </div>
                 <div>
                     <h1 class="text-lg font-bold gradient-text">DailyTracker</h1>
@@ -28,10 +28,14 @@
                 </div>
             </div>
 
-            <nav class="flex-1">
+            <nav class="flex-1 overflow-y-auto custom-scrollbar">
                 <a href="#" class="nav-item active">
                     <i data-lucide="bar-chart-3"></i>
                     <span class="font-medium">Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i data-lucide="check-square"></i>
+                    <span class="font-medium">Tasks</span>
                 </a>
                 <a href="#" class="nav-item">
                     <i data-lucide="calendar"></i>
@@ -143,6 +147,127 @@
                                 <canvas id="distributionChart"></canvas>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- TASKS VIEW -->
+                <div id="view-tasks" class="view-section hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Task Command Center</h2>
+                    </div>
+
+                    <!-- Task Input Form -->
+                    <div class="task-form">
+                        <div class="task-form-main">
+                            <input type="text" id="new-task-input" placeholder="What needs to be done?" class="task-input-field">
+                            <button id="add-task-btn" class="task-add-btn">
+                                <i data-lucide="plus" size="20"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="task-form-options">
+                            <!-- Due Time - Custom Time Picker -->
+                            <div class="task-option">
+                                <label><i data-lucide="clock" size="14"></i> Due</label>
+                                <div class="custom-time-picker" data-target="task-due-time">
+                                    <button type="button" class="time-trigger">
+                                        <span class="time-value">--:--</span>
+                                        <i data-lucide="chevron-down" size="14"></i>
+                                    </button>
+                                    <div class="time-menu">
+                                        <div class="time-columns">
+                                            <div class="time-column time-hours">
+                                                <div class="time-option" data-hour="00">12 AM</div>
+                                                <div class="time-option" data-hour="01">1 AM</div>
+                                                <div class="time-option" data-hour="02">2 AM</div>
+                                                <div class="time-option" data-hour="03">3 AM</div>
+                                                <div class="time-option" data-hour="04">4 AM</div>
+                                                <div class="time-option" data-hour="05">5 AM</div>
+                                                <div class="time-option" data-hour="06">6 AM</div>
+                                                <div class="time-option" data-hour="07">7 AM</div>
+                                                <div class="time-option" data-hour="08">8 AM</div>
+                                                <div class="time-option" data-hour="09">9 AM</div>
+                                                <div class="time-option" data-hour="10">10 AM</div>
+                                                <div class="time-option" data-hour="11">11 AM</div>
+                                                <div class="time-option" data-hour="12">12 PM</div>
+                                                <div class="time-option" data-hour="13">1 PM</div>
+                                                <div class="time-option" data-hour="14">2 PM</div>
+                                                <div class="time-option" data-hour="15">3 PM</div>
+                                                <div class="time-option" data-hour="16">4 PM</div>
+                                                <div class="time-option" data-hour="17">5 PM</div>
+                                                <div class="time-option" data-hour="18">6 PM</div>
+                                                <div class="time-option" data-hour="19">7 PM</div>
+                                                <div class="time-option" data-hour="20">8 PM</div>
+                                                <div class="time-option" data-hour="21">9 PM</div>
+                                                <div class="time-option" data-hour="22">10 PM</div>
+                                                <div class="time-option" data-hour="23">11 PM</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="task-due-time" value="">
+                            </div>
+                            
+                            <!-- Priority - Custom Dropdown -->
+                            <div class="task-option">
+                                <label><i data-lucide="flag" size="14"></i> Priority</label>
+                                <div class="custom-dropdown" data-target="task-priority">
+                                    <button type="button" class="dropdown-trigger">
+                                        <span class="dropdown-value">None</span>
+                                        <i data-lucide="chevron-down" size="14"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" data-value="">None</div>
+                                        <div class="dropdown-item" data-value="low"><span class="dot dot-low"></span> Low</div>
+                                        <div class="dropdown-item" data-value="medium"><span class="dot dot-medium"></span> Medium</div>
+                                        <div class="dropdown-item" data-value="high"><span class="dot dot-high"></span> High</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="task-priority" value="">
+                            </div>
+                            
+                            <!-- Duration - Custom Dropdown -->
+                            <div class="task-option">
+                                <label><i data-lucide="timer" size="14"></i> Duration</label>
+                                <div class="custom-dropdown" data-target="task-duration">
+                                    <button type="button" class="dropdown-trigger">
+                                        <span class="dropdown-value">-</span>
+                                        <i data-lucide="chevron-down" size="14"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" data-value="">-</div>
+                                        <div class="dropdown-item" data-value="15">15 min</div>
+                                        <div class="dropdown-item" data-value="30">30 min</div>
+                                        <div class="dropdown-item" data-value="60">1 hour</div>
+                                        <div class="dropdown-item" data-value="120">2 hours</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="task-duration" value="">
+                            </div>
+                            
+                            <!-- Tag - Custom Dropdown -->
+                            <div class="task-option">
+                                <label><i data-lucide="tag" size="14"></i> Tag</label>
+                                <div class="custom-dropdown" data-target="task-tag">
+                                    <button type="button" class="dropdown-trigger">
+                                        <span class="dropdown-value">None</span>
+                                        <i data-lucide="chevron-down" size="14"></i>
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item" data-value="">None</div>
+                                        <div class="dropdown-item" data-value="work"><span class="dot dot-work"></span> Work</div>
+                                        <div class="dropdown-item" data-value="personal"><span class="dot dot-personal"></span> Personal</div>
+                                        <div class="dropdown-item" data-value="health"><span class="dot dot-health"></span> Health</div>
+                                        <div class="dropdown-item" data-value="learning"><span class="dot dot-learning"></span> Learning</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="task-tag" value="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="tasks-list-container">
+                        <!-- Tasks injected here -->
                     </div>
                 </div>
 

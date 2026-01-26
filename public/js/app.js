@@ -12,6 +12,7 @@ class DailyTracker {
         try {
             this.currentDate = this.getDateKey(new Date()); // Use local date key
             this.data = this.loadData();
+            this.tasks = this.loadTasks(); // Load tasks
             this.settings = this.loadSettings();
             this.charts = {};
             
@@ -34,6 +35,9 @@ class DailyTracker {
         
         // 2. Settings
         try { this.initSettings(); } catch(e) { console.error('Settings Init Failed', e); }
+
+        // 2.5 Tasks (Sidebar)
+        try { this.initTasks(); } catch(e) { console.error('Tasks Init Failed', e); }
         
         // 3. Render Initial State
         try { this.renderDailyView(); } catch(e) { console.error('Daily View Render Failed', e); }
@@ -54,6 +58,11 @@ class DailyTracker {
         return JSON.parse(stored);
     }
 
+    loadTasks() {
+        const stored = localStorage.getItem(STORAGE_KEY + '_tasks');
+        return stored ? JSON.parse(stored) : [];
+    }
+
     loadSettings() {
         const stored = localStorage.getItem(STORAGE_KEY + '_settings');
         return stored ? JSON.parse(stored) : { targetHours: 4, streakThreshold: 80 };
@@ -67,6 +76,11 @@ class DailyTracker {
     saveData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
         this.renderDashboard(); // Update stats whenever data changes
+    }
+
+    saveTasks() {
+        localStorage.setItem(STORAGE_KEY + '_tasks', JSON.stringify(this.tasks));
+        this.renderDashboard(); // Update counts
     }
 
     getTodayLog() {
@@ -84,11 +98,285 @@ class DailyTracker {
         this.closeModal();
     }
 
+    // --- Tasks Logic (Dedicated View) ---
+    initTasks() {
+        const input = document.getElementById('new-task-input');
+        const addBtn = document.getElementById('add-task-btn');
+        
+        const handleAdd = () => {
+            const text = input.value.trim();
+            if (text) {
+                this.addTask(text);
+                input.value = '';
+            }
+        };
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleAdd();
+        });
+
+        addBtn.addEventListener('click', handleAdd);
+
+        // Initialize custom dropdowns
+        this.initCustomDropdowns();
+
+        this.renderTasksView();
+    }
+
+    initCustomDropdowns() {
+        const dropdowns = document.querySelectorAll('.custom-dropdown');
+        
+        dropdowns.forEach(dropdown => {
+            const trigger = dropdown.querySelector('.dropdown-trigger');
+            const menu = dropdown.querySelector('.dropdown-menu');
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            const valueDisplay = dropdown.querySelector('.dropdown-value');
+            const targetId = dropdown.dataset.target;
+            const hiddenInput = document.getElementById(targetId);
+            
+            // Toggle dropdown
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close other dropdowns
+                document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('open');
+                });
+                dropdown.classList.toggle('open');
+            });
+            
+            // Select item
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const value = item.dataset.value;
+                    const text = item.textContent.trim();
+                    
+                    // Update display
+                    valueDisplay.textContent = text;
+                    
+                    // Update hidden input
+                    if (hiddenInput) hiddenInput.value = value;
+                    
+                    // Mark selected
+                    items.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    // Close dropdown
+                    dropdown.classList.remove('open');
+                });
+            });
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                d.classList.remove('open');
+            });
+            document.querySelectorAll('.custom-time-picker.open').forEach(d => {
+                d.classList.remove('open');
+            });
+        });
+
+        // Initialize custom time pickers
+        this.initTimePickers();
+
+        // Re-initialize icons for dropdown arrows
+        lucide.createIcons();
+    }
+
+    initTimePickers() {
+        const pickers = document.querySelectorAll('.custom-time-picker');
+        
+        pickers.forEach(picker => {
+            const trigger = picker.querySelector('.time-trigger');
+            const menu = picker.querySelector('.time-menu');
+            const options = picker.querySelectorAll('.time-option');
+            const valueDisplay = picker.querySelector('.time-value');
+            const clearBtn = picker.querySelector('.time-clear');
+            const targetId = picker.dataset.target;
+            const hiddenInput = document.getElementById(targetId);
+            
+            // Toggle picker
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.querySelectorAll('.custom-time-picker.open').forEach(p => {
+                    if (p !== picker) p.classList.remove('open');
+                });
+                document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                    d.classList.remove('open');
+                });
+                picker.classList.toggle('open');
+            });
+            
+            // Select time option
+            options.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const hour = option.dataset.hour;
+                    const text = option.textContent.trim();
+                    
+                    valueDisplay.textContent = text;
+                    if (hiddenInput) hiddenInput.value = `${hour}:00`;
+                    
+                    options.forEach(o => o.classList.remove('selected'));
+                    option.classList.add('selected');
+                    
+                    picker.classList.remove('open');
+                });
+            });
+            
+            // Clear button
+            if (clearBtn) {
+                clearBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    valueDisplay.textContent = '--:--';
+                    if (hiddenInput) hiddenInput.value = '';
+                    options.forEach(o => o.classList.remove('selected'));
+                    picker.classList.remove('open');
+                });
+            }
+        });
+    }
+
+    addTask(text) {
+        // Get optional properties from form
+        const dueTime = document.getElementById('task-due-time')?.value || '';
+        const priority = document.getElementById('task-priority')?.value || '';
+        const duration = document.getElementById('task-duration')?.value || '';
+        const tag = document.getElementById('task-tag')?.value || '';
+
+        const task = {
+            id: Date.now(),
+            text: text,
+            completed: false,
+            completedAt: null,
+            dueTime: dueTime,
+            priority: priority,
+            duration: duration,
+            tag: tag
+        };
+        this.tasks.push(task);
+        this.saveTasks();
+        
+        // Reset form options
+        if (document.getElementById('task-due-time')) document.getElementById('task-due-time').value = '';
+        if (document.getElementById('task-priority')) document.getElementById('task-priority').value = '';
+        if (document.getElementById('task-duration')) document.getElementById('task-duration').value = '';
+        if (document.getElementById('task-tag')) document.getElementById('task-tag').value = '';
+        
+        // Reset custom dropdown displays
+        document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+            const valueDisplay = dropdown.querySelector('.dropdown-value');
+            const items = dropdown.querySelectorAll('.dropdown-item');
+            items.forEach(i => i.classList.remove('selected'));
+            items[0]?.classList.add('selected');
+            if (valueDisplay && items[0]) valueDisplay.textContent = items[0].textContent.trim();
+        });
+        
+        this.renderTasksView();
+    }
+
+    toggleTask(id) {
+        const task = this.tasks.find(t => t.id === id);
+        if (task) {
+            task.completed = !task.completed;
+            task.completedAt = task.completed ? this.getDateKey(new Date()) : null;
+            this.saveTasks();
+            this.renderTasksView();
+        }
+    }
+
+    deleteTask(id) {
+        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.saveTasks();
+        this.renderTasksView();
+    }
+
+    renderTasksView() {
+        const container = document.getElementById('tasks-list-container');
+        if (!container) return; // Guard
+        container.innerHTML = '';
+
+        // Sort: Incomplete first, then completed
+        const sortedTasks = [...this.tasks].sort((a, b) => {
+            if (a.completed === b.completed) return 0;
+            return a.completed ? 1 : -1;
+        });
+
+        if (sortedTasks.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i data-lucide="check-square" size="24"></i>
+                    </div>
+                    <p class="empty-state-text">No tasks yet. Stay focused!</p>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+
+        sortedTasks.forEach(task => {
+            const el = document.createElement('div');
+            el.className = 'task-item';
+            
+            // Build badges HTML
+            let badgesHtml = '';
+            
+            if (task.dueTime) {
+                const [h, m] = task.dueTime.split(':');
+                const hour = parseInt(h);
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const hour12 = hour % 12 || 12;
+                badgesHtml += `<span class="task-badge badge-time"><i data-lucide="clock" size="12"></i> ${hour12}:${m} ${ampm}</span>`;
+            }
+            
+            if (task.priority) {
+                badgesHtml += `<span class="task-badge badge-priority-${task.priority}">${task.priority}</span>`;
+            }
+            
+            if (task.duration) {
+                const mins = parseInt(task.duration);
+                const label = mins >= 60 ? `${mins/60}h` : `${mins}m`;
+                badgesHtml += `<span class="task-badge badge-duration"><i data-lucide="timer" size="12"></i> ${label}</span>`;
+            }
+            
+            if (task.tag) {
+                badgesHtml += `<span class="task-badge badge-tag-${task.tag}">${task.tag}</span>`;
+            }
+            
+            el.innerHTML = `
+                <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
+                <div class="task-content">
+                    <span class="task-text">${task.text}</span>
+                    ${badgesHtml ? `<div class="task-badges">${badgesHtml}</div>` : ''}
+                </div>
+                <button class="delete-task-btn">
+                    <i data-lucide="trash-2" size="16"></i>
+                </button>
+            `;
+
+            // Event Listeners
+            const checkbox = el.querySelector('.task-checkbox');
+            checkbox.onclick = () => this.toggleTask(task.id);
+
+            const deleteBtn = el.querySelector('.delete-task-btn');
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                this.deleteTask(task.id);
+            };
+
+            container.appendChild(el);
+        });
+        
+        lucide.createIcons();
+    }
+
     // --- Views ---
     initViews() {
         const navItems = document.querySelectorAll('.nav-item');
         const views = {
             'Dashboard': document.getElementById('view-dashboard'),
+            'Tasks': document.getElementById('view-tasks'),
             'Daily View': document.getElementById('view-daily'),
             'Settings': document.getElementById('view-settings')
         };
@@ -99,11 +387,16 @@ class DailyTracker {
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
+                // Check if it's the Tasks section (which is in nav but not a link) or just ignore clicks on non-a tags
+                if (item.tagName !== 'A') return;
+
                 const targetName = item.querySelector('span').textContent.trim();
 
                 if (views[targetName]) {
                     // Update Nav
-                    navItems.forEach(nav => nav.classList.remove('active'));
+                    navItems.forEach(nav => {
+                        if (nav.tagName === 'A') nav.classList.remove('active')
+                    });
                     item.classList.add('active');
 
                     // Update View
@@ -261,7 +554,6 @@ class DailyTracker {
         // Calculate Stats
         const todayData = this.getTodayLog();
         let deepWorkHours = 0;
-        let tasksCompleted = 0;
         let totalLogged = 0;
         let efficiencyPoints = 0;
         
@@ -270,7 +562,6 @@ class DailyTracker {
         Object.values(todayData).forEach(log => {
             totalLogged++;
             if (counts[log.category] !== undefined) counts[log.category]++;
-            if (log.note) tasksCompleted++;
             
             if (log.category === 'DEEP_WORK') {
                 deepWorkHours++;
@@ -289,6 +580,10 @@ class DailyTracker {
         });
 
         const efficiency = totalLogged > 0 ? Math.max(0, Math.round(efficiencyPoints / totalLogged)) : 0;
+        
+        // Count Tasks Completed Today
+        const todayKey = this.getDateKey(new Date());
+        const tasksCompleted = this.tasks.filter(t => t.completed && t.completedAt === todayKey).length;
 
         // Update DOM
         document.getElementById('stat-deep-work').textContent = `${deepWorkHours}h`;
