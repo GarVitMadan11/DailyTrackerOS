@@ -119,10 +119,11 @@ class DailyTracker {
             }
             if (avatarImg) avatarImg.style.display = 'none';
         } else {
-            // Show generated avatar image
+            // Show generated avatar image with style-specific parameters
             if (userInitialEl) userInitialEl.style.display = 'none';
             if (avatarImg) {
-                avatarImg.src = `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${encodeURIComponent(userName)}`;
+                const avatarUrl = this.getAvatarUrl(avatarStyle, userName);
+                avatarImg.src = avatarUrl;
                 avatarImg.style.display = 'block';
             }
         }
@@ -138,6 +139,23 @@ class DailyTracker {
         if (welcomeMsgEl) {
             welcomeMsgEl.innerHTML = `${greeting}, <span class="gradient-text" id="header-user-name">${userName}</span>`;
         }
+    }
+
+    getAvatarUrl(style, seed) {
+        const baseUrl = 'https://api.dicebear.com/7.x';
+        const encodedSeed = encodeURIComponent(seed);
+        
+        // Style-specific parameters for consistent look
+        const styleParams = {
+            'adventurer': `backgroundColor=ffd5dc,c0aede,d1d4f9`,
+            'big-smile': `backgroundColor=ffd5dc`,
+            'personas': ``,
+            'fun-emoji': ``,
+            'micah': `backgroundColor=ffd5dc,c0aede`
+        };
+        
+        const params = styleParams[style] || '';
+        return `${baseUrl}/${style}/svg?seed=${encodedSeed}${params ? '&' + params : ''}`;
     }
 
     // --- Tasks Logic ---
@@ -609,6 +627,33 @@ class DailyTracker {
         avatarOptions.forEach(option => {
             if (option.value === savedStyle) option.checked = true;
         });
+
+        // Update avatar previews based on user name
+        const updateAvatarPreviews = (name) => {
+            const seed = name || 'User';
+            const previewImages = document.querySelectorAll('.avatar-style-option img.avatar-style-preview');
+            previewImages.forEach(img => {
+                const input = img.previousElementSibling;
+                if (input && input.value && input.value !== 'initials') {
+                    img.src = this.getAvatarUrl(input.value, seed);
+                }
+            });
+            // Update initial letter preview
+            const initialPreview = document.querySelector('.avatar-style-option .avatar-style-preview:not(img)');
+            if (initialPreview) {
+                initialPreview.textContent = seed.charAt(0).toUpperCase();
+            }
+        };
+
+        // Initialize previews with saved name
+        updateAvatarPreviews(this.settings.userName);
+
+        // Update previews when name changes
+        if (userNameInput) {
+            userNameInput.addEventListener('input', (e) => {
+                updateAvatarPreviews(e.target.value.trim());
+            });
+        }
 
         if (form) {
             form.onsubmit = (e) => {
