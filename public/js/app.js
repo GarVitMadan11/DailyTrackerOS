@@ -1,24 +1,24 @@
-// --- Application Logic ---
+// --- DailyTracker Premium Application ---
 const STORAGE_KEY = 'daily_tracker_data_v1';
 
-// Global Error Handler for Manual Testing
+// Global Error Handler
 window.onerror = function(msg, url, lineNo, columnNo, error) {
-    alert(`Error: ${msg}\nLine: ${lineNo}`);
+    console.error(`Error: ${msg}\nLine: ${lineNo}`);
     return false;
 };
 
 class DailyTracker {
     constructor() {
         try {
-            this.currentDate = this.getDateKey(new Date()); // Use local date key
+            this.currentDate = this.getDateKey(new Date());
             this.data = this.loadData();
-            this.tasks = this.loadTasks(); // Load tasks
+            this.tasks = this.loadTasks();
             this.settings = this.loadSettings();
             this.charts = {};
             
             this.init();
         } catch (e) {
-            alert('Initialization Failed: ' + e.message);
+            console.error('Initialization Failed:', e);
         }
     }
 
@@ -30,32 +30,26 @@ class DailyTracker {
     }
 
     init() {
-        // 1. Views first (Critical for UI)
+        // Initialize in order
         try { this.initViews(); } catch(e) { console.error('View Init Failed', e); }
-        
-        // 2. Settings
         try { this.initSettings(); } catch(e) { console.error('Settings Init Failed', e); }
-
-        // 2.5 Tasks (Sidebar)
         try { this.initTasks(); } catch(e) { console.error('Tasks Init Failed', e); }
-        
-        // 3. Render Initial State
         try { this.renderDailyView(); } catch(e) { console.error('Daily View Render Failed', e); }
         try { this.renderDashboard(); } catch(e) { console.error('Dashboard Render Failed', e); }
         try { this.initModal(); } catch(e) { console.error('Modal Init Failed', e); }
+        try { this.updateWelcomeHeader(); } catch(e) { console.error('Welcome Header Failed', e); }
 
-        // 4. Heavy/External stuff last
-        try { this.initCharts(); } catch(e) { 
-            console.error('Chart Init Failed', e); 
-            // Silent fail for charts, don't break app
-        }
+        // Charts last (heavy)
+        setTimeout(() => {
+            try { this.initCharts(); } catch(e) { 
+                console.error('Chart Init Failed', e); 
+            }
+        }, 100);
     }
 
     loadData() {
         const stored = localStorage.getItem(STORAGE_KEY);
-        // Initialize if empty
-        if (!stored) return {};
-        return JSON.parse(stored);
+        return stored ? JSON.parse(stored) : {};
     }
 
     loadTasks() {
@@ -65,22 +59,27 @@ class DailyTracker {
 
     loadSettings() {
         const stored = localStorage.getItem(STORAGE_KEY + '_settings');
-        return stored ? JSON.parse(stored) : { targetHours: 4, streakThreshold: 80 };
+        return stored ? JSON.parse(stored) : { 
+            targetHours: 8, 
+            streakThreshold: 80,
+            userName: ''
+        };
     }
 
     saveSettings() {
         localStorage.setItem(STORAGE_KEY + '_settings', JSON.stringify(this.settings));
+        this.updateWelcomeHeader();
         this.renderDashboard();
     }
 
     saveData() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-        this.renderDashboard(); // Update stats whenever data changes
+        this.renderDashboard();
     }
 
     saveTasks() {
         localStorage.setItem(STORAGE_KEY + '_tasks', JSON.stringify(this.tasks));
-        this.renderDashboard(); // Update counts
+        this.renderDashboard();
     }
 
     getTodayLog() {
@@ -98,7 +97,50 @@ class DailyTracker {
         this.closeModal();
     }
 
-    // --- Tasks Logic (Dedicated View) ---
+    // --- Welcome Header & Avatar ---
+    updateWelcomeHeader() {
+        const userName = this.settings.userName || 'Champion';
+        const avatarStyle = this.settings.avatarStyle || 'initials';
+        
+        const welcomeEl = document.getElementById('header-user-name');
+        const userInitialEl = document.getElementById('user-initial');
+        const sidebarNameEl = document.getElementById('user-name');
+        const avatarImg = document.getElementById('user-avatar-img');
+        
+        if (welcomeEl) welcomeEl.textContent = userName;
+        if (sidebarNameEl) sidebarNameEl.textContent = userName;
+
+        // Handle avatar
+        if (avatarStyle === 'initials') {
+            // Show initial, hide image
+            if (userInitialEl) {
+                userInitialEl.textContent = userName.charAt(0).toUpperCase();
+                userInitialEl.style.display = 'flex';
+            }
+            if (avatarImg) avatarImg.style.display = 'none';
+        } else {
+            // Show generated avatar image
+            if (userInitialEl) userInitialEl.style.display = 'none';
+            if (avatarImg) {
+                avatarImg.src = `https://api.dicebear.com/7.x/${avatarStyle}/svg?seed=${encodeURIComponent(userName)}`;
+                avatarImg.style.display = 'block';
+            }
+        }
+
+        // Update greeting based on time of day
+        const hour = new Date().getHours();
+        const welcomeMsgEl = document.getElementById('welcome-message');
+        let greeting = 'Welcome back';
+        if (hour < 12) greeting = 'Good morning';
+        else if (hour < 17) greeting = 'Good afternoon';
+        else greeting = 'Good evening';
+        
+        if (welcomeMsgEl) {
+            welcomeMsgEl.innerHTML = `${greeting}, <span class="gradient-text" id="header-user-name">${userName}</span>`;
+        }
+    }
+
+    // --- Tasks Logic ---
     initTasks() {
         const input = document.getElementById('new-task-input');
         const addBtn = document.getElementById('add-task-btn');
@@ -111,15 +153,17 @@ class DailyTracker {
             }
         };
 
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleAdd();
-        });
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleAdd();
+            });
+        }
 
-        addBtn.addEventListener('click', handleAdd);
+        if (addBtn) {
+            addBtn.addEventListener('click', handleAdd);
+        }
 
-        // Initialize custom dropdowns
         this.initCustomDropdowns();
-
         this.renderTasksView();
     }
 
@@ -128,58 +172,42 @@ class DailyTracker {
         
         dropdowns.forEach(dropdown => {
             const trigger = dropdown.querySelector('.dropdown-trigger');
-            const menu = dropdown.querySelector('.dropdown-menu');
             const items = dropdown.querySelectorAll('.dropdown-item');
             const valueDisplay = dropdown.querySelector('.dropdown-value');
             const targetId = dropdown.dataset.target;
             const hiddenInput = document.getElementById(targetId);
             
-            // Toggle dropdown
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Close other dropdowns
-                document.querySelectorAll('.custom-dropdown.open').forEach(d => {
-                    if (d !== dropdown) d.classList.remove('open');
+            if (trigger) {
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('open');
+                    });
+                    dropdown.classList.toggle('open');
                 });
-                dropdown.classList.toggle('open');
-            });
+            }
             
-            // Select item
             items.forEach(item => {
                 item.addEventListener('click', () => {
                     const value = item.dataset.value;
                     const text = item.textContent.trim();
                     
-                    // Update display
-                    valueDisplay.textContent = text;
-                    
-                    // Update hidden input
+                    if (valueDisplay) valueDisplay.textContent = text;
                     if (hiddenInput) hiddenInput.value = value;
                     
-                    // Mark selected
                     items.forEach(i => i.classList.remove('selected'));
                     item.classList.add('selected');
-                    
-                    // Close dropdown
                     dropdown.classList.remove('open');
                 });
             });
         });
         
-        // Close dropdowns when clicking outside
         document.addEventListener('click', () => {
-            document.querySelectorAll('.custom-dropdown.open').forEach(d => {
-                d.classList.remove('open');
-            });
-            document.querySelectorAll('.custom-time-picker.open').forEach(d => {
-                d.classList.remove('open');
-            });
+            document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+            document.querySelectorAll('.custom-time-picker.open').forEach(d => d.classList.remove('open'));
         });
 
-        // Initialize custom time pickers
         this.initTimePickers();
-
-        // Re-initialize icons for dropdown arrows
         lucide.createIcons();
     }
 
@@ -188,57 +216,40 @@ class DailyTracker {
         
         pickers.forEach(picker => {
             const trigger = picker.querySelector('.time-trigger');
-            const menu = picker.querySelector('.time-menu');
             const options = picker.querySelectorAll('.time-option');
             const valueDisplay = picker.querySelector('.time-value');
-            const clearBtn = picker.querySelector('.time-clear');
             const targetId = picker.dataset.target;
             const hiddenInput = document.getElementById(targetId);
             
-            // Toggle picker
-            trigger.addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.querySelectorAll('.custom-time-picker.open').forEach(p => {
-                    if (p !== picker) p.classList.remove('open');
+            if (trigger) {
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.custom-time-picker.open').forEach(p => {
+                        if (p !== picker) p.classList.remove('open');
+                    });
+                    document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+                    picker.classList.toggle('open');
                 });
-                document.querySelectorAll('.custom-dropdown.open').forEach(d => {
-                    d.classList.remove('open');
-                });
-                picker.classList.toggle('open');
-            });
+            }
             
-            // Select time option
             options.forEach(option => {
                 option.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const hour = option.dataset.hour;
                     const text = option.textContent.trim();
                     
-                    valueDisplay.textContent = text;
+                    if (valueDisplay) valueDisplay.textContent = text;
                     if (hiddenInput) hiddenInput.value = `${hour}:00`;
                     
                     options.forEach(o => o.classList.remove('selected'));
                     option.classList.add('selected');
-                    
                     picker.classList.remove('open');
                 });
             });
-            
-            // Clear button
-            if (clearBtn) {
-                clearBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    valueDisplay.textContent = '--:--';
-                    if (hiddenInput) hiddenInput.value = '';
-                    options.forEach(o => o.classList.remove('selected'));
-                    picker.classList.remove('open');
-                });
-            }
         });
     }
 
     addTask(text) {
-        // Get optional properties from form
         const dueTime = document.getElementById('task-due-time')?.value || '';
         const priority = document.getElementById('task-priority')?.value || '';
         const duration = document.getElementById('task-duration')?.value || '';
@@ -257,19 +268,25 @@ class DailyTracker {
         this.tasks.push(task);
         this.saveTasks();
         
-        // Reset form options
-        if (document.getElementById('task-due-time')) document.getElementById('task-due-time').value = '';
-        if (document.getElementById('task-priority')) document.getElementById('task-priority').value = '';
-        if (document.getElementById('task-duration')) document.getElementById('task-duration').value = '';
-        if (document.getElementById('task-tag')) document.getElementById('task-tag').value = '';
+        // Reset form
+        ['task-due-time', 'task-priority', 'task-duration', 'task-tag'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
         
-        // Reset custom dropdown displays
+        // Reset dropdown displays
         document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
             const valueDisplay = dropdown.querySelector('.dropdown-value');
             const items = dropdown.querySelectorAll('.dropdown-item');
             items.forEach(i => i.classList.remove('selected'));
             items[0]?.classList.add('selected');
             if (valueDisplay && items[0]) valueDisplay.textContent = items[0].textContent.trim();
+        });
+
+        // Reset time picker
+        document.querySelectorAll('.custom-time-picker').forEach(picker => {
+            const valueDisplay = picker.querySelector('.time-value');
+            if (valueDisplay) valueDisplay.textContent = '--:--';
         });
         
         this.renderTasksView();
@@ -293,33 +310,38 @@ class DailyTracker {
 
     renderTasksView() {
         const container = document.getElementById('tasks-list-container');
-        if (!container) return; // Guard
+        if (!container) return;
         container.innerHTML = '';
 
-        // Sort: Incomplete first, then completed
         const sortedTasks = [...this.tasks].sort((a, b) => {
             if (a.completed === b.completed) return 0;
             return a.completed ? 1 : -1;
         });
 
+        // Update completed count
+        const tasksCompletedEl = document.getElementById('tasks-completed-count');
+        if (tasksCompletedEl) {
+            tasksCompletedEl.textContent = this.tasks.filter(t => t.completed).length;
+        }
+
         if (sortedTasks.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">
-                        <i data-lucide="check-square" size="24"></i>
+                        <i data-lucide="check-circle-2"></i>
                     </div>
-                    <p class="empty-state-text">No tasks yet. Stay focused!</p>
+                    <p class="empty-state-text">No tasks yet. Add one to get started!</p>
                 </div>
             `;
             lucide.createIcons();
             return;
         }
 
-        sortedTasks.forEach(task => {
+        sortedTasks.forEach((task, index) => {
             const el = document.createElement('div');
             el.className = 'task-item';
+            el.style.animationDelay = `${index * 0.05}s`;
             
-            // Build badges HTML
             let badgesHtml = '';
             
             if (task.dueTime) {
@@ -327,17 +349,18 @@ class DailyTracker {
                 const hour = parseInt(h);
                 const ampm = hour >= 12 ? 'PM' : 'AM';
                 const hour12 = hour % 12 || 12;
-                badgesHtml += `<span class="task-badge badge-time"><i data-lucide="clock" size="12"></i> ${hour12}:${m} ${ampm}</span>`;
+                badgesHtml += `<span class="task-badge badge-time"><i data-lucide="clock" size="10"></i> ${hour12}:${m || '00'} ${ampm}</span>`;
             }
             
             if (task.priority) {
-                badgesHtml += `<span class="task-badge badge-priority-${task.priority}">${task.priority}</span>`;
+                const priorityLabels = { low: 'Low', medium: 'Med', high: 'High' };
+                badgesHtml += `<span class="task-badge badge-priority-${task.priority}">${priorityLabels[task.priority]}</span>`;
             }
             
             if (task.duration) {
                 const mins = parseInt(task.duration);
                 const label = mins >= 60 ? `${mins/60}h` : `${mins}m`;
-                badgesHtml += `<span class="task-badge badge-duration"><i data-lucide="timer" size="12"></i> ${label}</span>`;
+                badgesHtml += `<span class="task-badge badge-duration"><i data-lucide="timer" size="10"></i> ${label}</span>`;
             }
             
             if (task.tag) {
@@ -355,7 +378,6 @@ class DailyTracker {
                 </button>
             `;
 
-            // Event Listeners
             const checkbox = el.querySelector('.task-checkbox');
             checkbox.onclick = () => this.toggleTask(task.id);
 
@@ -373,47 +395,84 @@ class DailyTracker {
 
     // --- Views ---
     initViews() {
-        const navItems = document.querySelectorAll('.nav-item');
+        const navItems = document.querySelectorAll('.nav-item[data-view]');
+        const quickActions = document.querySelectorAll('[data-view]');
+        
         const views = {
-            'Dashboard': document.getElementById('view-dashboard'),
-            'Tasks': document.getElementById('view-tasks'),
-            'Daily View': document.getElementById('view-daily'),
-            'Settings': document.getElementById('view-settings')
+            'dashboard': document.getElementById('view-dashboard'),
+            'tasks': document.getElementById('view-tasks'),
+            'daily': document.getElementById('view-daily'),
+            'settings': document.getElementById('view-settings')
         };
 
         // Date Display
-        document.getElementById('current-date-display').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        const dateDisplay = document.getElementById('current-date-display');
+        if (dateDisplay) {
+            const dateSpan = dateDisplay.querySelector('span') || dateDisplay;
+            dateSpan.textContent = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+        }
 
+        const switchView = (viewName) => {
+            if (views[viewName]) {
+                // Update Nav
+                navItems.forEach(nav => nav.classList.remove('active'));
+                const activeNav = document.querySelector(`.nav-item[data-view="${viewName}"]`);
+                if (activeNav) activeNav.classList.add('active');
+
+                // Update Views
+                Object.values(views).forEach(el => el && el.classList.add('hidden'));
+                views[viewName].classList.remove('hidden');
+
+                // Update Header
+                this.updateHeaderForView(viewName);
+            } else if (viewName === 'ai-coach') {
+                alert('AI Coach coming soon! 🤖');
+            }
+        };
+
+        // Nav items
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
-                // Check if it's the Tasks section (which is in nav but not a link) or just ignore clicks on non-a tags
-                if (item.tagName !== 'A') return;
-
-                const targetName = item.querySelector('span').textContent.trim();
-
-                if (views[targetName]) {
-                    // Update Nav
-                    navItems.forEach(nav => {
-                        if (nav.tagName === 'A') nav.classList.remove('active')
-                    });
-                    item.classList.add('active');
-
-                    // Update View
-                    Object.values(views).forEach(el => el && el.classList.add('hidden'));
-                    views[targetName].classList.remove('hidden');
-                } else {
-                    // Fallback for 'AI Coach' etc
-                    alert(`${targetName} is coming soon!`);
-                }
+                const viewName = item.dataset.view;
+                switchView(viewName);
             });
+        });
+
+        // Quick action cards
+        quickActions.forEach(item => {
+            if (!item.classList.contains('nav-item')) {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const viewName = item.dataset.view;
+                    switchView(viewName);
+                });
+            }
         });
     }
 
-    // --- Daily View (Stack of Boxes) ---
+    updateHeaderForView(viewName) {
+        const header = document.getElementById('page-header');
+        const quickStats = document.getElementById('quick-stats');
+        
+        if (viewName === 'dashboard') {
+            if (header) header.style.display = 'block';
+            if (quickStats) quickStats.style.display = 'flex';
+        } else {
+            if (quickStats) quickStats.style.display = 'none';
+        }
+    }
+
+    // --- Daily View ---
     renderDailyView() {
         const container = document.getElementById('hour-stack');
+        if (!container) return;
         container.innerHTML = '';
+        
         const todayData = this.getTodayLog();
         const now = new Date();
         const currentHour = now.getHours();
@@ -422,18 +481,16 @@ class DailyTracker {
             const hour = i;
             const log = todayData[hour];
             const isLogged = !!log;
-            
-            // Check if future
             const isFuture = hour > currentHour;
 
-            // Format time (e.g., 09:00 AM)
-            const timeLabel = new Date(0, 0, 0, hour).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            const timeLabel = new Date(0, 0, 0, hour).toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
 
             const box = document.createElement('div');
-            // Add 'future' class if applicable
             box.className = `hour-box ${isLogged ? log.category.toLowerCase().replace('_', '-') : ''} ${isFuture ? 'future' : ''}`;
             
-            // Only allow click if not future
             if (!isFuture) {
                 box.onclick = () => this.openModal(hour, log);
             } else {
@@ -443,17 +500,20 @@ class DailyTracker {
             let contentHtml = '';
             if (isLogged) {
                 const icon = this.getCategoryIcon(log.category);
+                const colorVar = this.getCategoryColorVar(log.category);
                 contentHtml = `
-                    <div class="p-2 rounded-lg bg-white/50 text-[hsl(var(--color-${this.getCategoryColorVar(log.category)}))]">
-                        <i data-lucide="${icon}" size="18"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-foreground">${this.formatCategory(log.category)}</p>
-                        ${log.note ? `<p class="text-xs text-muted truncate">${log.note}</p>` : ''}
+                    <div class="hour-content">
+                        <div style="width: 2.25rem; height: 2.25rem; border-radius: 10px; background: hsl(var(--color-${colorVar}) / 0.15); display: flex; align-items: center; justify-content: center; color: hsl(var(--color-${colorVar}));">
+                            <i data-lucide="${icon}" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <p style="font-weight: 600; font-size: 0.9375rem; color: hsl(var(--foreground));">${this.formatCategory(log.category)}</p>
+                            ${log.note ? `<p style="font-size: 0.8125rem; color: hsl(var(--foreground-muted)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px;">${log.note}</p>` : ''}
+                        </div>
                     </div>
                 `;
             } else {
-                contentHtml = `<div class="hour-content empty">Log activity...</div>`;
+                contentHtml = `<div class="hour-content empty">Click to log activity...</div>`;
             }
 
             box.innerHTML = `
@@ -461,97 +521,127 @@ class DailyTracker {
                 ${contentHtml}
             `;
 
-            // Add Current Time Line
-            const now = new Date();
-            if (hour === now.getHours()) {
+            // Current time indicator
+            if (hour === currentHour) {
                 const minutes = now.getMinutes();
                 const percent = (minutes / 60) * 100;
                 
                 const line = document.createElement('div');
                 line.className = 'current-time-line';
                 line.style.top = `${percent}%`;
-                line.title = `Current Time: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
                 box.appendChild(line);
             }
 
             container.appendChild(box);
         }
         
-        // Re-initialize icons
         lucide.createIcons();
     }
 
-    // --- Modal Logic ---
+    // --- Modal ---
     initModal() {
         const modal = document.getElementById('log-modal');
         const closeBtn = document.getElementById('close-modal');
         const form = document.getElementById('log-form');
 
-        closeBtn.onclick = () => this.closeModal();
+        if (closeBtn) closeBtn.onclick = () => this.closeModal();
         
-        // Close on click outside
-        modal.onclick = (e) => {
-            if (e.target === modal) this.closeModal();
-        };
+        if (modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) this.closeModal();
+            };
+        }
 
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            const hour = document.getElementById('log-hour').value;
-            const category = form.querySelector('input[name="category"]:checked').value;
-            const note = document.getElementById('log-note').value;
-            
-            this.logHour(hour, category, note);
-        };
-    }
-
-    // --- Settings Logic ---
-    initSettings() {
-        const form = document.getElementById('settings-form');
-        const targetInput = document.getElementById('setting-target-hours');
-        const thresholdInput = document.getElementById('setting-streak-threshold');
-        const thresholdDisplay = document.getElementById('streak-threshold-value');
-
-        // Load current values
-        targetInput.value = this.settings.targetHours;
-        thresholdInput.value = this.settings.streakThreshold;
-        thresholdDisplay.textContent = `${this.settings.streakThreshold}%`;
-
-        // Update display on slide
-        thresholdInput.oninput = (e) => {
-            thresholdDisplay.textContent = `${e.target.value}%`;
-        };
-
-        form.onsubmit = (e) => {
-            e.preventDefault();
-            this.settings.targetHours = parseInt(targetInput.value);
-            this.settings.streakThreshold = parseInt(thresholdInput.value);
-            this.saveSettings();
-            
-            // Show Feedback (could be a toast, but simple alert/log for now)
-            alert('Settings saved!');
-        };
+        if (form) {
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                const hour = document.getElementById('log-hour').value;
+                const category = form.querySelector('input[name="category"]:checked').value;
+                const note = document.getElementById('log-note').value;
+                this.logHour(hour, category, note);
+            };
+        }
     }
 
     openModal(hour, existingLog) {
         const modal = document.getElementById('log-modal');
-        document.getElementById('log-hour').value = hour;
-        document.getElementById('log-note').value = existingLog ? existingLog.note : '';
+        const hourInput = document.getElementById('log-hour');
+        const noteInput = document.getElementById('log-note');
         
-        // Select correct radio
+        if (hourInput) hourInput.value = hour;
+        if (noteInput) noteInput.value = existingLog ? existingLog.note : '';
+        
         const category = existingLog ? existingLog.category : 'DEEP_WORK';
         const radio = document.querySelector(`input[name="category"][value="${category}"]`);
         if (radio) radio.checked = true;
 
-        modal.classList.remove('hidden');
+        if (modal) modal.classList.remove('hidden');
     }
 
     closeModal() {
-        document.getElementById('log-modal').classList.add('hidden');
+        const modal = document.getElementById('log-modal');
+        if (modal) modal.classList.add('hidden');
     }
 
-    // --- Dashboard & Charts ---
+    // --- Settings ---
+    initSettings() {
+        const form = document.getElementById('settings-form');
+        const userNameInput = document.getElementById('setting-user-name');
+        const targetInput = document.getElementById('setting-target-hours');
+        const thresholdInput = document.getElementById('setting-streak-threshold');
+        const thresholdDisplay = document.getElementById('streak-threshold-value');
+
+        // Load values
+        if (userNameInput) userNameInput.value = this.settings.userName || '';
+        if (targetInput) targetInput.value = this.settings.targetHours;
+        if (thresholdInput) thresholdInput.value = this.settings.streakThreshold;
+        if (thresholdDisplay) thresholdDisplay.textContent = `${this.settings.streakThreshold}%`;
+
+        if (thresholdInput) {
+            thresholdInput.oninput = (e) => {
+                if (thresholdDisplay) thresholdDisplay.textContent = `${e.target.value}%`;
+            };
+        }
+
+        // Avatar style selection
+        const avatarOptions = document.querySelectorAll('input[name="avatar-style"]');
+        const savedStyle = this.settings.avatarStyle || 'initials';
+        avatarOptions.forEach(option => {
+            if (option.value === savedStyle) option.checked = true;
+        });
+
+        if (form) {
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                if (userNameInput) this.settings.userName = userNameInput.value.trim();
+                if (targetInput) this.settings.targetHours = parseInt(targetInput.value) || 8;
+                if (thresholdInput) this.settings.streakThreshold = parseInt(thresholdInput.value) || 80;
+                
+                // Save avatar style
+                const selectedAvatar = document.querySelector('input[name="avatar-style"]:checked');
+                if (selectedAvatar) this.settings.avatarStyle = selectedAvatar.value;
+                
+                this.saveSettings();
+                
+                // Visual feedback
+                const btn = form.querySelector('button[type="submit"]');
+                if (btn) {
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i data-lucide="check" style="width: 18px; height: 18px;"></i> Saved!';
+                    btn.style.background = 'hsl(var(--color-success))';
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '';
+                        lucide.createIcons();
+                    }, 2000);
+                }
+            };
+        }
+    }
+
+    // --- Dashboard ---
     renderDashboard() {
-        // Calculate Stats
         const todayData = this.getTodayLog();
         let deepWorkHours = 0;
         let totalLogged = 0;
@@ -570,10 +660,8 @@ class DailyTracker {
                 efficiencyPoints += 50;
             } else if (log.category === 'DISTRACTION') {
                 efficiencyPoints -= 50;
-            }
-            // Sleep is neutral/excluded from efficiency denominator
-            if (log.category === 'SLEEP') {
-                totalLogged--; 
+            } else if (log.category === 'SLEEP') {
+                totalLogged--;
             } else if (log.category === 'EXERCISE') {
                 efficiencyPoints += 50;
             }
@@ -581,31 +669,78 @@ class DailyTracker {
 
         const efficiency = totalLogged > 0 ? Math.max(0, Math.round(efficiencyPoints / totalLogged)) : 0;
         
-        // Count Tasks Completed Today
+        // Tasks completed today
         const todayKey = this.getDateKey(new Date());
-        const tasksCompleted = this.tasks.filter(t => t.completed && t.completedAt === todayKey).length;
-
-        // Update DOM
-        document.getElementById('stat-deep-work').textContent = `${deepWorkHours}h`;
-        document.querySelector('#stat-deep-work + p').textContent = `Target: ${this.settings.targetHours}h`;
-        
-        document.getElementById('stat-tasks').textContent = tasksCompleted;
-        document.getElementById('stat-efficiency').textContent = `${efficiency}%`;
-        
-        // Dynamic Streak Label
-        document.getElementById('stat-streak-label').textContent = `Days above ${this.settings.streakThreshold}%`;
-        
+        const tasksCompletedToday = this.tasks.filter(t => t.completed && t.completedAt === todayKey).length;
         const streak = this.calculateStreak();
-        document.getElementById('stat-streak').textContent = streak;
 
-        const weeklyStats = this.getWeeklyStats();
+        // Animate stats
+        this.animateValue('stat-efficiency', efficiency, '%');
+        this.animateValue('stat-deep-work', deepWorkHours, 'h');
+        this.animateValue('stat-streak', streak, '');
+        this.animateValue('stat-tasks', tasksCompletedToday, '');
+
+        // Quick stats
+        const totalHoursLogged = Object.keys(this.data).reduce((acc, date) => {
+            return acc + Object.keys(this.data[date]).length;
+        }, 0);
         
-        // Update Charts
+        this.updateQuickStat('qs-hours', totalHoursLogged);
+        this.updateQuickStat('qs-streak', streak);
+        this.updateQuickStat('qs-tasks', this.tasks.filter(t => t.completed).length);
+
+        // Progress bar
+        const progressBar = document.getElementById('deep-work-progress');
+        if (progressBar) {
+            const progressPercent = Math.min(100, (deepWorkHours / this.settings.targetHours) * 100);
+            progressBar.style.width = `${progressPercent}%`;
+        }
+
+        // Update target hours display
+        const targetDisplay = document.getElementById('deep-work-target');
+        if (targetDisplay) targetDisplay.textContent = `/ ${this.settings.targetHours}h`;
+
+        // Streak label
+        const streakLabel = document.getElementById('stat-streak-label');
+        if (streakLabel) streakLabel.textContent = `Days above ${this.settings.streakThreshold}%`;
+
+        // Update charts
+        const weeklyStats = this.getWeeklyStats();
         this.updateCharts(counts, weeklyStats);
     }
 
+    animateValue(elementId, endValue, suffix) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        
+        const startValue = parseInt(el.textContent) || 0;
+        const duration = 800;
+        const startTime = performance.now();
+        
+        const animate = (currentTime) => {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            // Ease out cubic
+            const easeOut = 1 - Math.pow(1 - progress, 3);
+            const currentValue = Math.round(startValue + (endValue - startValue) * easeOut);
+            
+            el.textContent = currentValue + suffix;
+            
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+        
+        requestAnimationFrame(animate);
+    }
+
+    updateQuickStat(elementId, value) {
+        const el = document.getElementById(elementId);
+        if (el) el.textContent = value;
+    }
+
     calculateStreak() {
-        // Get all dates with data
         const sortedDates = Object.keys(this.data).sort((a, b) => new Date(b) - new Date(a));
         if (sortedDates.length === 0) return 0;
 
@@ -614,24 +749,18 @@ class DailyTracker {
         const thresholdPercent = this.settings.streakThreshold / 100;
         const requiredHours = targetHours * thresholdPercent;
 
-        // Check from today backwards
-        // If today is not in list (not logged yet), check yesterday.
-        // But the user might be logging today right now.
-        
-        // Use a simple day-by-day check starting from today
         const today = new Date();
-        today.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
         
-        for (let i = 0; i < 365; i++) { // Check up to a year back
+        for (let i = 0; i < 365; i++) {
             const date = new Date(today);
             date.setDate(today.getDate() - i);
             const dateStr = this.getDateKey(date);
             
             const dayLog = this.data[dateStr];
-            if (!dayLog && i === 0) continue; // Skip today if empty, don't break streak yet
-            if (!dayLog) break; // Break if day is missing (gap)
+            if (!dayLog && i === 0) continue;
+            if (!dayLog) break;
 
-            // Calculate Deep Work for this day
             let deepWork = 0;
             Object.values(dayLog).forEach(log => {
                 if (log.category === 'DEEP_WORK') deepWork++;
@@ -640,103 +769,161 @@ class DailyTracker {
             if (deepWork >= requiredHours) {
                 streak++;
             } else {
-                if (i === 0) continue; // If today fails, it just doesn't add to streak yet (don't reset unless yesterday failed)
-                break; 
+                if (i === 0) continue;
+                break;
             }
         }
         return streak;
     }
 
     initCharts() {
-        // ... (existing initCharts code) ...
-        const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
-        const distCtx = document.getElementById('distributionChart').getContext('2d');
+        const weeklyCtx = document.getElementById('weeklyChart')?.getContext('2d');
+        const distCtx = document.getElementById('distributionChart')?.getContext('2d');
         
-        this.charts.weekly = new Chart(weeklyCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Deep Work',
-                    data: [0,0,0,0,0,0,0], 
-                    backgroundColor: 'hsl(14, 70%, 60%)',
-                    borderRadius: 4
-                }]
-            },
-            options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1,
-                            callback: function(value) { return value + 'h'; }
+        if (weeklyCtx) {
+            this.charts.weekly = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Deep Work Hours',
+                        data: [0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: (ctx) => {
+                            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280);
+                            gradient.addColorStop(0, 'hsl(18, 75%, 55%)');
+                            gradient.addColorStop(1, 'hsl(42, 85%, 55%)');
+                            return gradient;
                         },
-                        grid: {
-                            color: 'hsl(var(--glass-border))'
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 12,
+                            ticks: {
+                                stepSize: 2,
+                                callback: (value) => value + 'h',
+                                color: 'hsl(25, 10%, 50%)',
+                                font: { weight: 500 }
+                            },
+                            grid: {
+                                color: 'hsl(38, 25%, 92%)',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: 'hsl(25, 10%, 50%)',
+                                font: { weight: 500 }
+                            }
                         }
                     },
-                    x: {
-                        grid: {
-                            display: false
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'hsl(25, 15%, 12%)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            cornerRadius: 8,
+                            padding: 12
                         }
                     }
-                },
-                plugins: {
-                    legend: { display: false }
                 }
-            }
-        });
+            });
+        }
 
-        this.charts.distribution = new Chart(distCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Deep Work', 'Shallow', 'Distraction', 'Rest', 'Sleep', 'Exercise'],
-                datasets: [{
-                    data: [0,0,0,0,0,0],
-                    backgroundColor: [
-                        'hsl(14, 70%, 60%)',  // Deep Work
-                        'hsl(35, 80%, 60%)',  // Shallow
-                        'hsl(5, 60%, 60%)',   // Distraction
-                        'hsl(140, 30%, 50%)', // Rest
-                        'hsl(220, 20%, 40%)', // Sleep
-                        'hsl(25, 90%, 60%)'   // Exercise
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
-        });
+        if (distCtx) {
+            this.charts.distribution = new Chart(distCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Deep Work', 'Shallow', 'Distraction', 'Rest', 'Sleep', 'Exercise'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'hsl(18, 75%, 55%)',
+                            'hsl(38, 90%, 55%)',
+                            'hsl(0, 65%, 55%)',
+                            'hsl(145, 35%, 45%)',
+                            'hsl(235, 30%, 35%)',
+                            'hsl(28, 95%, 55%)'
+                        ],
+                        borderWidth: 0,
+                        borderRadius: 4,
+                        spacing: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '72%',
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: 'hsl(25, 10%, 40%)',
+                                font: { size: 12, weight: 500 },
+                                padding: 16,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'hsl(25, 15%, 12%)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            cornerRadius: 8,
+                            padding: 12
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial render
+        this.renderDashboard();
     }
 
     updateCharts(counts, weeklyData) {
         if (this.charts.distribution) {
             this.charts.distribution.data.datasets[0].data = [
-                counts.DEEP_WORK, 
-                counts.SHALLOW, 
-                counts.DISTRACTION, 
+                counts.DEEP_WORK,
+                counts.SHALLOW,
+                counts.DISTRACTION,
                 counts.REST,
                 counts.SLEEP,
                 counts.EXERCISE
             ];
-            this.charts.distribution.update();
+            this.charts.distribution.update('none');
         }
 
         if (this.charts.weekly && weeklyData) {
             this.charts.weekly.data.datasets[0].data = weeklyData;
-            this.charts.weekly.update();
+            this.charts.weekly.update('none');
         }
     }
 
     getWeeklyStats() {
         const today = new Date();
-        const dayOfWeek = today.getDay(); // 0 is Sunday
+        const dayOfWeek = today.getDay();
         const diffToMon = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         const monday = new Date(today);
         monday.setDate(today.getDate() + diffToMon);
         
-        const weeklyData = [0, 0, 0, 0, 0, 0, 0]; // Mon-Sun
+        const weeklyData = [0, 0, 0, 0, 0, 0, 0];
         
         for (let i = 0; i < 7; i++) {
             const currentDay = new Date(monday);
@@ -778,7 +965,7 @@ class DailyTracker {
             'SLEEP': 'sleep',
             'EXERCISE': 'exercise'
         };
-        return map[cat];
+        return map[cat] || 'primary';
     }
 
     formatCategory(cat) {

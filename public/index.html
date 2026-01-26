@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DailyTracker - Performance OS</title>
+    <meta name="description" content="Master your productivity with DailyTracker - Track time, focus, and energy for peak performance.">
     <link rel="stylesheet" href="css/style.css">
     <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js -->
@@ -16,7 +17,7 @@
 </head>
 <body>
     <div class="flex min-h-screen">
-        <!-- Sidebar -->
+        <!-- Premium Sidebar -->
         <aside class="sidebar">
             <div class="flex items-center gap-3 mb-8">
                 <div class="logo-icon">
@@ -29,49 +30,81 @@
             </div>
 
             <nav class="flex-1 overflow-y-auto custom-scrollbar">
-                <a href="#" class="nav-item active">
-                    <i data-lucide="bar-chart-3"></i>
-                    <span class="font-medium">Dashboard</span>
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i data-lucide="check-square"></i>
-                    <span class="font-medium">Tasks</span>
+                <a href="#" class="nav-item" data-view="tasks">
+                    <i data-lucide="check-circle-2"></i>
+                    <span>Tasks</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i data-lucide="calendar"></i>
-                    <span class="font-medium">Daily View</span>
+                <a href="#" class="nav-item" data-view="daily">
+                    <i data-lucide="calendar-days"></i>
+                    <span>Daily View</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i data-lucide="bot"></i>
-                    <span class="font-medium">AI Coach</span>
+                <a href="#" class="nav-item" data-view="ai-coach">
+                    <i data-lucide="sparkles"></i>
+                    <span>AI Coach</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="settings">
                     <i data-lucide="settings"></i>
-                    <span class="font-medium">Settings</span>
+                    <span>Settings</span>
                 </a>
             </nav>
 
-            <div class="mt-auto pt-6 border-t border-[hsl(var(--glass-border))]">
-                <div class="glass p-3 flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] flex items-center justify-center text-white text-xs font-bold">
-                        U
+            <div class="mt-auto pt-6" style="border-top: 1px solid hsl(38 25% 90% / 0.6);">
+                <div class="user-profile">
+                    <div class="user-avatar" id="user-avatar-container">
+                        <img id="user-avatar-img" src="" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;">
+                        <span id="user-initial">U</span>
                     </div>
-                    <div>
-                        <p class="text-sm font-medium">User</p>
-                        <p class="text-xs text-muted">Elite Performer</p>
+                    <div class="user-info">
+                        <p id="user-name">User</p>
+                        <p>Elite Performer</p>
                     </div>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content (Offset for sidebar) -->
+        <!-- Main Content -->
         <main class="main-content md:ml-72">
-            <!-- Header -->
-            <header class="mb-8">
-                <h1 class="text-3xl font-bold mb-2">
-                    Performance <span class="gradient-text">Dashboard</span>
+            <!-- Premium Header with Welcome Message -->
+            <header class="page-header" id="page-header">
+                <h1 id="welcome-message">
+                    Welcome back, <span class="gradient-text" id="header-user-name">Champion</span>
                 </h1>
-                <p class="text-muted">Master your time, focus, and energy.</p>
+                <p class="text-muted" id="header-subtitle">Here's your performance overview for today</p>
+                
+                <!-- Quick Stats Row (Crextio-style) -->
+                <div class="quick-stats" id="quick-stats">
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon">
+                            <i data-lucide="users"></i>
+                        </div>
+                        <div>
+                            <div class="quick-stat-value" id="qs-hours">0</div>
+                            <div class="quick-stat-label">Hours Tracked</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon">
+                            <i data-lucide="trophy"></i>
+                        </div>
+                        <div>
+                            <div class="quick-stat-value" id="qs-streak">0</div>
+                            <div class="quick-stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="quick-stat-icon">
+                            <i data-lucide="folder"></i>
+                        </div>
+                        <div>
+                            <div class="quick-stat-value" id="qs-tasks">0</div>
+                            <div class="quick-stat-label">Tasks Done</div>
+                        </div>
+                    </div>
+                </div>
             </header>
 
             <!-- Views Container -->
@@ -79,81 +112,145 @@
                 
                 <!-- DASHBOARD VIEW -->
                 <div id="view-dashboard" class="view-section active">
-                    <!-- Stats Grid -->
+                    <!-- Premium Stats Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        <!-- Stat 1 -->
-                        <div class="glass p-6 glass-card">
-                            <div class="flex justify-between items-start mb-2">
-                                <p class="text-sm text-muted">Weekly Efficiency</p>
-                                <div class="p-2 rounded-lg bg-[hsl(var(--color-success)/0.1)] text-[hsl(var(--color-success))]">
-                                    <i data-lucide="trending-up" size="16"></i>
+                        <!-- Stat Card 1: Efficiency -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <p class="stat-label">Weekly Efficiency</p>
+                                <div class="stat-icon success">
+                                    <i data-lucide="trending-up"></i>
                                 </div>
                             </div>
                             <p class="stat-value" id="stat-efficiency">0%</p>
-                            <p class="text-xs text-muted"><span class="text-[hsl(var(--color-success))]">↑</span> vs last week</p>
+                            <div>
+                                <span class="stat-change positive">
+                                    <i data-lucide="arrow-up" style="width: 12px; height: 12px;"></i>
+                                    <span id="efficiency-change">+0%</span>
+                                </span>
+                                <span class="stat-subtitle">vs last week</span>
+                            </div>
                         </div>
 
-                        <!-- Stat 2 -->
-                        <div class="glass p-6 glass-card">
-                            <div class="flex justify-between items-start mb-2">
-                                <p class="text-sm text-muted">Deep Work</p>
-                                <div class="p-2 rounded-lg bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))]">
-                                    <i data-lucide="zap" size="16"></i>
+                        <!-- Stat Card 2: Deep Work -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <p class="stat-label">Deep Work</p>
+                                <div class="stat-icon primary">
+                                    <i data-lucide="zap"></i>
                                 </div>
                             </div>
                             <p class="stat-value" id="stat-deep-work">0h</p>
-                            <p class="text-xs text-muted">Target: 40h</p>
+                            <div class="flex items-center gap-2">
+                                <!-- Mini Progress Bar -->
+                                <div style="flex: 1; height: 6px; background: hsl(var(--glass-border)); border-radius: 999px; overflow: hidden;">
+                                    <div id="deep-work-progress" style="height: 100%; background: linear-gradient(90deg, hsl(var(--color-primary)), hsl(var(--color-secondary))); border-radius: 999px; width: 0%; transition: width 1s ease-out;"></div>
+                                </div>
+                                <span class="stat-subtitle" id="deep-work-target">/ 8h</span>
+                            </div>
                         </div>
 
-                        <!-- Stat 3 -->
-                        <div class="glass p-6 glass-card">
-                            <div class="flex justify-between items-start mb-2">
-                                <p class="text-sm text-muted">Streak</p>
-                                <div class="p-2 rounded-lg bg-[hsl(var(--color-warning)/0.1)] text-[hsl(var(--color-warning))]">
-                                    <i data-lucide="flame" size="16"></i>
+                        <!-- Stat Card 3: Streak -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <p class="stat-label">Current Streak</p>
+                                <div class="stat-icon warning">
+                                    <i data-lucide="flame"></i>
                                 </div>
                             </div>
                             <p class="stat-value" id="stat-streak">0</p>
-                            <p class="text-xs text-muted" id="stat-streak-label">Days above 80%</p>
+                            <p class="stat-subtitle" id="stat-streak-label">Days above 80%</p>
                         </div>
                         
-                         <!-- Stat 4 -->
-                        <div class="glass p-6 glass-card">
-                            <div class="flex justify-between items-start mb-2">
-                                <p class="text-sm text-muted">Tasks</p>
-                                <div class="p-2 rounded-lg bg-[hsl(var(--color-accent)/0.1)] text-[hsl(var(--color-accent))]">
-                                    <i data-lucide="target" size="16"></i>
+                        <!-- Stat Card 4: Tasks -->
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <p class="stat-label">Tasks Completed</p>
+                                <div class="stat-icon accent">
+                                    <i data-lucide="check-circle-2"></i>
                                 </div>
                             </div>
                             <p class="stat-value" id="stat-tasks">0</p>
-                            <p class="text-xs text-muted">Completed today</p>
+                            <p class="stat-subtitle">Completed today</p>
                         </div>
                     </div>
 
                     <!-- Charts Section -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <!-- Main Chart -->
-                        <div class="glass p-6">
-                            <h3 class="text-lg font-bold mb-4">Weekly Focus</h3>
-                            <div style="height: 300px;">
+                        <!-- Weekly Focus Chart -->
+                        <div class="chart-card">
+                            <h3>
+                                <i data-lucide="bar-chart-3"></i>
+                                Weekly Focus Overview
+                            </h3>
+                            <div style="height: 280px;">
                                 <canvas id="weeklyChart"></canvas>
                             </div>
                         </div>
 
                         <!-- Distribution Chart -->
-                        <div class="glass p-6">
-                            <h3 class="text-lg font-bold mb-4">Work Distribution</h3>
-                            <div style="height: 300px; display: flex; justify-content: center;">
+                        <div class="chart-card">
+                            <h3>
+                                <i data-lucide="pie-chart"></i>
+                                Time Distribution
+                            </h3>
+                            <div style="height: 280px; display: flex; align-items: center; justify-content: center;">
                                 <canvas id="distributionChart"></canvas>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <a href="#" class="stat-card" data-view="daily" style="cursor: pointer;">
+                            <div class="flex items-center gap-4">
+                                <div class="stat-icon primary" style="width: 3rem; height: 3rem;">
+                                    <i data-lucide="clock"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">Log Today's Hours</p>
+                                    <p class="text-sm text-muted">Track your daily activities</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="stat-card" data-view="tasks" style="cursor: pointer;">
+                            <div class="flex items-center gap-4">
+                                <div class="stat-icon accent" style="width: 3rem; height: 3rem;">
+                                    <i data-lucide="list-todo"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">Manage Tasks</p>
+                                    <p class="text-sm text-muted">Organize your to-dos</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="stat-card" data-view="settings" style="cursor: pointer;">
+                            <div class="flex items-center gap-4">
+                                <div class="stat-icon warning" style="width: 3rem; height: 3rem;">
+                                    <i data-lucide="sliders"></i>
+                                </div>
+                                <div>
+                                    <p class="font-semibold">Customize Goals</p>
+                                    <p class="text-sm text-muted">Set your preferences</p>
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 </div>
 
                 <!-- TASKS VIEW -->
                 <div id="view-tasks" class="view-section hidden">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold">Task Command Center</h2>
+                        <div>
+                            <h2 class="text-xl font-bold">Task Command Center</h2>
+                            <p class="text-sm text-muted">Organize and conquer your to-dos</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="glass px-4 py-2 text-sm font-medium flex items-center gap-2">
+                                <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: hsl(var(--color-success));"></i>
+                                <span id="tasks-completed-count">0</span> completed
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Task Input Form -->
@@ -176,32 +273,30 @@
                                     </button>
                                     <div class="time-menu">
                                         <div class="time-columns">
-                                            <div class="time-column time-hours">
-                                                <div class="time-option" data-hour="00">12 AM</div>
-                                                <div class="time-option" data-hour="01">1 AM</div>
-                                                <div class="time-option" data-hour="02">2 AM</div>
-                                                <div class="time-option" data-hour="03">3 AM</div>
-                                                <div class="time-option" data-hour="04">4 AM</div>
-                                                <div class="time-option" data-hour="05">5 AM</div>
-                                                <div class="time-option" data-hour="06">6 AM</div>
-                                                <div class="time-option" data-hour="07">7 AM</div>
-                                                <div class="time-option" data-hour="08">8 AM</div>
-                                                <div class="time-option" data-hour="09">9 AM</div>
-                                                <div class="time-option" data-hour="10">10 AM</div>
-                                                <div class="time-option" data-hour="11">11 AM</div>
-                                                <div class="time-option" data-hour="12">12 PM</div>
-                                                <div class="time-option" data-hour="13">1 PM</div>
-                                                <div class="time-option" data-hour="14">2 PM</div>
-                                                <div class="time-option" data-hour="15">3 PM</div>
-                                                <div class="time-option" data-hour="16">4 PM</div>
-                                                <div class="time-option" data-hour="17">5 PM</div>
-                                                <div class="time-option" data-hour="18">6 PM</div>
-                                                <div class="time-option" data-hour="19">7 PM</div>
-                                                <div class="time-option" data-hour="20">8 PM</div>
-                                                <div class="time-option" data-hour="21">9 PM</div>
-                                                <div class="time-option" data-hour="22">10 PM</div>
-                                                <div class="time-option" data-hour="23">11 PM</div>
-                                            </div>
+                                            <div class="time-option" data-hour="00">12 AM</div>
+                                            <div class="time-option" data-hour="01">1 AM</div>
+                                            <div class="time-option" data-hour="02">2 AM</div>
+                                            <div class="time-option" data-hour="03">3 AM</div>
+                                            <div class="time-option" data-hour="04">4 AM</div>
+                                            <div class="time-option" data-hour="05">5 AM</div>
+                                            <div class="time-option" data-hour="06">6 AM</div>
+                                            <div class="time-option" data-hour="07">7 AM</div>
+                                            <div class="time-option" data-hour="08">8 AM</div>
+                                            <div class="time-option" data-hour="09">9 AM</div>
+                                            <div class="time-option" data-hour="10">10 AM</div>
+                                            <div class="time-option" data-hour="11">11 AM</div>
+                                            <div class="time-option" data-hour="12">12 PM</div>
+                                            <div class="time-option" data-hour="13">1 PM</div>
+                                            <div class="time-option" data-hour="14">2 PM</div>
+                                            <div class="time-option" data-hour="15">3 PM</div>
+                                            <div class="time-option" data-hour="16">4 PM</div>
+                                            <div class="time-option" data-hour="17">5 PM</div>
+                                            <div class="time-option" data-hour="18">6 PM</div>
+                                            <div class="time-option" data-hour="19">7 PM</div>
+                                            <div class="time-option" data-hour="20">8 PM</div>
+                                            <div class="time-option" data-hour="21">9 PM</div>
+                                            <div class="time-option" data-hour="22">10 PM</div>
+                                            <div class="time-option" data-hour="23">11 PM</div>
                                         </div>
                                     </div>
                                 </div>
@@ -274,9 +369,13 @@
                 <!-- DAILY VIEW (Stack of Boxes) -->
                 <div id="view-daily" class="view-section hidden">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold">Today's Timeline</h2>
-                        <div class="glass px-4 py-2 text-sm font-medium" id="current-date-display">
-                            <!-- JS will populate date -->
+                        <div>
+                            <h2 class="text-xl font-bold">Today's Timeline</h2>
+                            <p class="text-sm text-muted">Track every hour of your day</p>
+                        </div>
+                        <div class="glass px-5 py-3 font-semibold flex items-center gap-3" id="current-date-display">
+                            <i data-lucide="calendar" style="width: 18px; height: 18px; color: hsl(var(--color-primary));"></i>
+                            <span><!-- JS will populate date --></span>
                         </div>
                     </div>
                     
@@ -285,28 +384,70 @@
                     </div>
                 </div>
 
-                    <!-- SETTINGS VIEW -->
+                <!-- SETTINGS VIEW -->
                 <div id="view-settings" class="view-section hidden">
-                    <h2 class="text-xl font-bold mb-6">Preferences</h2>
+                    <div class="mb-6">
+                        <h2 class="text-xl font-bold">Preferences</h2>
+                        <p class="text-sm text-muted">Customize your DailyTracker experience</p>
+                    </div>
                     
-                    <div class="glass p-6 glass-card max-w-lg">
+                    <div class="settings-card max-w-lg">
                         <form id="settings-form">
                             <div class="mb-6">
-                                <label class="block text-sm font-medium text-muted mb-2">Daily Deep Work Target (Hours)</label>
-                                <input type="number" id="setting-target-hours" min="1" max="24" class="w-full glass-subtle p-3 rounded-xl focus:outline-none focus:ring-2 ring-[hsl(var(--color-primary))]" placeholder="4">
-                                <p class="text-xs text-muted mt-2">Goal for daily deep work sessions.</p>
+                                <label class="block text-sm font-semibold text-muted mb-3">Your Name</label>
+                                <input type="text" id="setting-user-name" class="settings-input" placeholder="Enter your name">
+                                <p class="text-xs text-muted mt-2">Personalize your welcome message and avatar</p>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-muted mb-3">Avatar Style</label>
+                                <div class="flex gap-3 flex-wrap" id="avatar-style-options">
+                                    <label class="avatar-style-option">
+                                        <input type="radio" name="avatar-style" value="initials" checked>
+                                        <div class="avatar-style-preview" style="background: linear-gradient(135deg, hsl(18, 75%, 55%), hsl(145, 35%, 45%)); color: white; font-weight: 700;">G</div>
+                                        <span>Initials</span>
+                                    </label>
+                                    <label class="avatar-style-option">
+                                        <input type="radio" name="avatar-style" value="avataaars">
+                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=demo" alt="Avataaars">
+                                        <span>Cartoon</span>
+                                    </label>
+                                    <label class="avatar-style-option">
+                                        <input type="radio" name="avatar-style" value="bottts">
+                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/bottts/svg?seed=demo" alt="Bottts">
+                                        <span>Robot</span>
+                                    </label>
+                                    <label class="avatar-style-option">
+                                        <input type="radio" name="avatar-style" value="lorelei">
+                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/lorelei/svg?seed=demo" alt="Lorelei">
+                                        <span>Artistic</span>
+                                    </label>
+                                    <label class="avatar-style-option">
+                                        <input type="radio" name="avatar-style" value="notionists">
+                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/notionists/svg?seed=demo" alt="Notionists">
+                                        <span>Minimal</span>
+                                    </label>
+                                </div>
+                                <p class="text-xs text-muted mt-2">Choose your avatar style</p>
+                            </div>
+
+                            <div class="mb-6">
+                                <label class="block text-sm font-semibold text-muted mb-3">Daily Deep Work Target (Hours)</label>
+                                <input type="number" id="setting-target-hours" min="1" max="24" class="settings-input" placeholder="8">
+                                <p class="text-xs text-muted mt-2">Goal for daily deep work sessions</p>
                             </div>
 
                             <div class="mb-8">
-                                <label class="block text-sm font-medium text-muted mb-2">Streak Efficiency Threshold (%)</label>
+                                <label class="block text-sm font-semibold text-muted mb-3">Streak Efficiency Threshold</label>
                                 <div class="flex items-center gap-4">
-                                    <input type="range" id="setting-streak-threshold" min="0" max="100" step="5" class="w-full h-2 bg-[hsl(var(--glass-border))] rounded-lg appearance-none cursor-pointer accent-[hsl(var(--color-primary))]">
-                                    <span id="streak-threshold-value" class="font-bold w-12 text-right">80%</span>
+                                    <input type="range" id="setting-streak-threshold" min="0" max="100" step="5" style="flex: 1;">
+                                    <span id="streak-threshold-value" class="font-bold text-lg" style="width: 50px; text-align: right;">80%</span>
                                 </div>
-                                <p class="text-xs text-muted mt-2">Minimum efficiency required to maintain streak.</p>
+                                <p class="text-xs text-muted mt-2">Minimum efficiency required to maintain streak</p>
                             </div>
 
-                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                            <button type="submit" class="btn-primary w-full">
+                                <i data-lucide="save" style="width: 18px; height: 18px;"></i>
                                 Save Preferences
                             </button>
                         </form>
@@ -314,46 +455,50 @@
                 </div>
 
             </div>
+        </main>
+    </div>
 
     <!-- LOG MODAL -->
     <div id="log-modal" class="modal hidden">
         <div class="modal-content glass">
-            <div class="flex justify-between items-center mb-4">
+            <div class="flex justify-between items-center mb-6">
                 <h3 class="text-lg font-bold">Log Activity</h3>
-                <button id="close-modal" class="p-1 hover:bg-black/5 rounded-full"><i data-lucide="x" size="20"></i></button>
+                <button id="close-modal" class="p-2 hover:bg-[hsl(var(--foreground)/0.05)] rounded-full transition-colors">
+                    <i data-lucide="x" size="20"></i>
+                </button>
             </div>
             
             <form id="log-form">
                 <input type="hidden" id="log-hour">
                 
-                <div class="mb-4">
-                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-2">Category</label>
-                    <div class="grid grid-cols-2 gap-2">
+                <div class="mb-6">
+                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-3">Category</label>
+                    <div class="grid grid-cols-2 gap-3">
                         <label class="category-radio">
                             <input type="radio" name="category" value="DEEP_WORK" checked>
                             <span class="radio-tile color-primary">
-                                <i data-lucide="zap" size="16"></i>
+                                <i data-lucide="zap" size="18"></i>
                                 <span>Deep Work</span>
                             </span>
                         </label>
                         <label class="category-radio">
                             <input type="radio" name="category" value="SHALLOW">
                             <span class="radio-tile color-warning">
-                                <i data-lucide="check-square" size="16"></i>
+                                <i data-lucide="check-square" size="18"></i>
                                 <span>Shallow</span>
                             </span>
                         </label>
                         <label class="category-radio">
                             <input type="radio" name="category" value="DISTRACTION">
                             <span class="radio-tile color-danger">
-                                <i data-lucide="alert-circle" size="16"></i>
+                                <i data-lucide="alert-circle" size="18"></i>
                                 <span>Distraction</span>
                             </span>
                         </label>
                         <label class="category-radio">
                             <input type="radio" name="category" value="REST">
                             <span class="radio-tile color-accent">
-                                <i data-lucide="coffee" size="16"></i>
+                                <i data-lucide="coffee" size="18"></i>
                                 <span>Rest</span>
                             </span>
                         </label>
@@ -361,7 +506,7 @@
                         <label class="category-radio">
                             <input type="radio" name="category" value="SLEEP">
                             <span class="radio-tile color-sleep">
-                                <i data-lucide="moon" size="16"></i>
+                                <i data-lucide="moon" size="18"></i>
                                 <span>Sleep</span>
                             </span>
                         </label>
@@ -369,7 +514,7 @@
                         <label class="category-radio">
                             <input type="radio" name="category" value="EXERCISE">
                             <span class="radio-tile color-exercise">
-                                <i data-lucide="dumbbell" size="16"></i>
+                                <i data-lucide="dumbbell" size="18"></i>
                                 <span>Exercise</span>
                             </span>
                         </label>
@@ -377,17 +522,16 @@
                 </div>
 
                 <div class="mb-6">
-                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-2">Task / Note</label>
-                    <textarea id="log-note" rows="3" class="w-full glass-subtle p-3 rounded-xl focus:outline-none focus:ring-2 ring-[hsl(var(--color-primary))]" placeholder="What did you work on?"></textarea>
+                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-3">Task / Note</label>
+                    <textarea id="log-note" rows="3" class="settings-input" style="resize: none;" placeholder="What did you work on?"></textarea>
                 </div>
 
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="check" style="width: 18px; height: 18px;"></i>
                     Save Entry
                 </button>
             </form>
         </div>
-    </div>
-        </main>
     </div>
 
     <!-- Scripts -->
