@@ -2661,3 +2661,180 @@ kbd {
   height: 2px;
   background: hsl(var(--color-primary));
 }
+
+/* --- ANALYTICS VIEW --- */
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-8);
+  padding: 0 var(--space-2);
+}
+
+.analytics-controls {
+  display: flex;
+  background: hsl(var(--surface));
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid hsl(var(--border));
+  box-shadow: var(--shadow-sm);
+}
+
+.analytics-range-btn {
+  padding: 6px 16px;
+  border: none;
+  background: transparent;
+  color: hsl(var(--foreground-muted));
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.analytics-range-btn:hover {
+  color: hsl(var(--foreground));
+}
+
+.analytics-range-btn.active {
+  background: hsl(var(--background));
+  color: hsl(var(--color-primary));
+  box-shadow: 0 2px 8px hsl(0 0% 0% / 0.05);
+}
+
+
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+/* Enhanced Chart Containers */
+.analytics-chart-container {
+  background: hsl(var(--glass-bg));
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  height: 420px; /* Increased from 350px/380px to accommodate axes/legend */
+  position: relative;
+  margin-bottom: var(--space-8);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: visible; /* Prevent clipping of tooltips */
+}
+
+.analytics-chart-container:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: hsl(var(--color-primary) / 0.3);
+}
+
+.analytics-chart-container h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: hsl(var(--foreground-muted));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-4); /* Reduced to give more room to chart */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.analytics-chart-container h3::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 16px;
+  background: hsl(var(--color-primary));
+  border-radius: 2px;
+}
+
+/* Ensure canvas takes remaining height correctly */
+.analytics-chart-container canvas {
+  max-height: 100%; 
+  width: 100% !important;
+}
+
+/* Wrapper for canvas to control height explicitly */
+.chart-wrapper {
+  height: 340px; /* Explicit height for the canvas wrapper */
+  position: relative;
+  width: 100%;
+}
+
+.analytics-chart-row {
+  display: grid;
+  grid-template-columns: 1.8fr 1.2fr;
+  gap: var(--space-8);
+  margin-bottom: var(--space-12); /* Extra bottom space for scrolling past FAB */
+  padding-bottom: var(--space-12); /* EXTRA PADDING FOR FAB */
+}
+
+/* Premium Heatmap */
+#analytics-heatmap {
+  background: hsl(var(--surface) / 0.5);
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  border: 1px solid hsl(var(--glass-border));
+  display: grid; /* Ensure grid layout */
+  /* Grid template is set via JS, but we can add default gap */
+  gap: 4px !important; 
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: 4px; /* Softer corners */
+  background: hsl(var(--surface));
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.3);
+  z-index: 10;
+  border: 2px solid hsl(var(--background));
+  box-shadow: 0 4px 12px hsl(0 0% 0% / 0.2);
+  border-radius: 6px;
+}
+
+/* Refined Intensity Colors */
+.intensity-0 { background: hsl(var(--surface-active)); opacity: 0.5; }
+.intensity-1 { background: hsl(18, 90%, 90%); } 
+.intensity-2 { background: hsl(18, 90%, 75%); }
+.intensity-3 { background: hsl(18, 90%, 60%); } 
+.intensity-4 { background: hsl(18, 90%, 45%); box-shadow: 0 0 8px hsl(18 90% 45% / 0.4); }
+
+[data-theme="dark"] .intensity-0 { background: hsl(var(--surface-active)); opacity: 0.3; }
+[data-theme="dark"] .intensity-1 { background: hsl(18, 80%, 20%); }
+[data-theme="dark"] .intensity-2 { background: hsl(18, 80%, 35%); }
+[data-theme="dark"] .intensity-3 { background: hsl(18, 80%, 50%); }
+[data-theme="dark"] .intensity-4 { background: hsl(18, 80%, 65%); box-shadow: 0 0 12px hsl(18 80% 65% / 0.4); }
+
+.heatmap-header {
+  color: hsl(var(--foreground-muted));
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.heatmap-day-label {
+  color: hsl(var(--foreground-muted));
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding-right: 8px;
+}
+
+/* Mobile Responsiveness for Analytics */
+@media (max-width: 768px) {
+  .analytics-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .analytics-chart-row {
+    grid-template-columns: 1fr;
+  }
+  .analytics-chart-container {
+    height: 300px;
+  }
+}

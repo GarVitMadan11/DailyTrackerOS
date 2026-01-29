@@ -1,0 +1,141 @@
+/* PREMIUM BADGE UI OVERRIDES */
+
+/* 1. Modal Header */
+.badge-modal-header {
+  padding: 1.5rem 2rem !important; /* var(--space-6) var(--space-8) */
+  background: hsl(var(--background)) !important;
+  border-bottom: 1px solid hsl(var(--border));
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky !important;
+  top: 0;
+  z-index: 50;
+}
+
+.badge-modal-header h2 {
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 !important;
+}
+
+/* Close Button */
+.badge-modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 999px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  color: hsl(var(--foreground-muted));
+  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
+}
+
+.badge-modal-close:hover {
+  background: hsl(var(--surface));
+  color: hsl(var(--foreground));
+}
+
+/* 2. Stats Dashboard */
+.badge-modal-stats {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 2rem !important;
+  padding: 2rem !important;
+  background: linear-gradient(to bottom, hsl(var(--surface)), hsl(var(--background))) !important;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.badge-stat {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative;
+  text-align: center;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Vertical divider between stats */
+.badge-stat:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -1rem;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: hsl(var(--border));
+}
+
+.badge-stat-value {
+  font-size: 2.5rem !important;
+  font-weight: 800 !important;
+  line-height: 1;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--foreground-muted)) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: hsl(var(--foreground)); /* Fallback */
+  display: block !important;
+}
+
+.badge-stat-label {
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700 !important;
+  color: hsl(var(--foreground-muted)) !important;
+}
+
+/* 3. Category Tabs */
+.badge-categories {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+  padding: 1rem !important;
+  background: hsl(var(--background)) !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  position: sticky !important;
+  top: 73px; /* Stick below header */
+  z-index: 40;
+  flex-wrap: wrap;
+}
+
+.badge-category-btn {
+  padding: 8px 20px !important;
+  border-radius: 999px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  border: 1px solid transparent !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: unset !important;
+}
+
+.badge-category-btn.active {
+  background: hsl(var(--foreground)) !important;
+  color: hsl(var(--background)) !important;
+  box-shadow: var(--shadow-md);
+}
+
+.badge-category-btn:not(.active) {
+  background: transparent !important;
+  color: hsl(var(--foreground-muted)) !important;
+}
+
+.badge-category-btn:not(.active):hover {
+  background: hsl(var(--surface)) !important;
+  color: hsl(var(--foreground)) !important;
+}

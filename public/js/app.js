@@ -691,7 +691,8 @@ class DailyTracker {
             'dashboard': document.getElementById('view-dashboard'),
             'tasks': document.getElementById('view-tasks'),
             'daily': document.getElementById('view-daily'),
-            'settings': document.getElementById('view-settings')
+            'settings': document.getElementById('view-settings'),
+            'analytics': document.getElementById('view-analytics')
         };
 
         // Date Display
@@ -718,6 +719,11 @@ class DailyTracker {
 
                 // Update Header
                 this.updateHeaderForView(viewName);
+
+                // Initialize Analytics if needed
+                if (viewName === 'analytics' && window.analyticsManager) {
+                    window.analyticsManager.render();
+                }
             } else if (viewName === 'achievements') {
                 if (window.openBadgeModal) {
                     window.openBadgeModal();

@@ -1,5 +1,5 @@
 // pyTron Service Worker
-const CACHE_NAME = 'pytron-v18'; // Updated for global scroll
+const CACHE_NAME = 'pytron-v25'; // Updated for Analytics grid layout fix
 const STATIC_ASSETS = [
   '/',
   '/index.html',
