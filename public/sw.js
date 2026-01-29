@@ -1,5 +1,5 @@
 // pyTron Service Worker
-const CACHE_NAME = 'pytron-v3'; // Updated for notifications feature
+const CACHE_NAME = 'pytron-v18'; // Updated for global scroll
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -7,6 +7,10 @@ const STATIC_ASSETS = [
   '/js/app.js',
   '/js/pomodoro.js',
   '/js/notifications.js',
+  '/js/goals.js',
+  '/js/badges.js',
+  '/js/badge-modal.js',
+  '/js/badge-viewer.js',
   '/manifest.json',
   'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js'

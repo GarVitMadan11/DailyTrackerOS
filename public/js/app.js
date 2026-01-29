@@ -718,8 +718,14 @@ class DailyTracker {
 
                 // Update Header
                 this.updateHeaderForView(viewName);
+            } else if (viewName === 'achievements') {
+                if (window.openBadgeModal) {
+                    window.openBadgeModal();
+                } else {
+                    console.error('Badge modal not loaded');
+                }
             } else if (viewName === 'ai-coach') {
-                alert('AI Coach coming soon! 🤖');
+                this.showToast('AI Coach coming in Phase 3! 🤖', 'info');
             }
         };
 

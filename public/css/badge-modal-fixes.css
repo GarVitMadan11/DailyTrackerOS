@@ -1,0 +1,86 @@
+/* Badge Showcase Modal (UI) */
+.badge-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: hsl(0 0% 0% / 0.6); /* Darkened overlay */
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+.badge-modal-content {
+  background: hsl(var(--background)); /* Ensure solid background */
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius-xl);
+  padding: 0;
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-2xl);
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.badge-modal-header {
+  padding: var(--space-6);
+  background: hsl(var(--surface));
+  border-bottom: 1px solid hsl(var(--border));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-6);
+  background: hsl(var(--surface-alt)); /* Slight contrast */
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.badge-categories {
+  display: flex;
+  justify-content: center; /* Center buttons */
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  flex-wrap: wrap; /* Allow wrapping on mobile */
+}
+
+/* Missing badges-container definition, adding it here */
+#badges-container {
+  padding: var(--space-6);
+  overflow-y: auto;
+  background: hsl(var(--background-subtle)); 
+  flex: 1; 
+  min-height: 0; /* CRITICAL: Enables scrolling in flex container */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.badge-category-btn {
+  padding: 8px 16px; /* Larger hit area */
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: hsl(var(--foreground-muted));
+  background: hsl(var(--surface));
+  border: 1px solid hsl(var(--border));
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-width: 80px; /* Prevent squashing */
+  text-align: center;
+}

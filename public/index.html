@@ -59,6 +59,10 @@
                     <i data-lucide="sparkles"></i>
                     <span>AI Coach</span>
                 </a>
+                <a href="#" class="nav-item" data-view="achievements">
+                    <i data-lucide="trophy"></i>
+                    <span>Achievements</span>
+                </a>
                 <a href="#" class="nav-item" data-view="settings">
                     <i data-lucide="settings"></i>
                     <span>Settings</span>
@@ -115,6 +119,15 @@
                         <div>
                             <div class="quick-stat-value" id="qs-tasks">0</div>
                             <div class="quick-stat-label">Tasks Done</div>
+                        </div>
+                    </div>
+                    <div class="quick-stat" id="badges-widget" style="cursor: pointer;" title="Click to view badges" onclick="window.openBadgeModal && window.openBadgeModal()">
+                        <div class="quick-stat-icon">
+                            <i data-lucide="trophy"></i>
+                        </div>
+                        <div>
+                            <div class="quick-stat-value" id="qs-badges">0/13</div>
+                            <div class="quick-stat-label">Badges</div>
                         </div>
                     </div>
                 </div>
@@ -679,9 +692,14 @@
 
 
 
+
     <!-- Scripts -->
     <script src="js/pomodoro.js"></script>
     <script src="js/notifications.js"></script>
+    <script src="js/goals.js"></script>
+    <script src="js/badges.js"></script>
+    <script src="js/badge-viewer.js"></script>
+    <script src="js/badge-modal.js"></script>
     <script src="js/app.js"></script>
     <script>
         // Initialize Icons
@@ -709,6 +727,42 @@
             } else {
                 console.log('[Init] Waiting for app for notifications... retrying in 100ms');
                 setTimeout(initNotifications, 100);
+            }
+        }
+        
+        // Initialize Goals & Badges
+        function initGoalsAndBadges() {
+            if (window.app) {
+                console.log('[Init] Initializing Goals & Badges');
+                window.goalsManager = new GoalsManager(window.app);
+                window.badgeSystem = new BadgeSystem(window.app);
+                
+                // Check for new badge unlocks on page load
+                window.badgeSystem.checkAllBadges();
+                
+                // Update all goal progress
+                window.goalsManager.updateAllGoalProgress();
+                
+                // Hook into data changes to check badges and goals
+                const originalSaveData = window.app.saveData;
+                window.app.saveData = function() {
+                    originalSaveData.call(window.app);
+                    
+                    // Check for badge unlocks
+                    if (window.badgeSystem) {
+                        window.badgeSystem.checkAllBadges();
+                    }
+                    
+                    // Update goal progress
+                    if (window.goalsManager) {
+                        window.goalsManager.updateAllGoalProgress();
+                    }
+                };
+                
+                console.log('[Goals & Badges] System active');
+            } else {
+                console.log('[Init] Waiting for app for goals/badges... retrying in 100ms');
+                setTimeout(initGoalsAndBadges, 100);
             }
         }
         
@@ -764,6 +818,7 @@
         // Wait a bit for DOMContentLoaded to finish
         setTimeout(initPomodoro, 300);
         setTimeout(initNotifications, 400);
+        setTimeout(initGoalsAndBadges, 500);
     </script>
 
 </body>
