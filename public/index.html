@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DailyTracker - Performance OS</title>
     <meta name="description" content="Master your productivity with DailyTracker - Track time, focus, and energy for peak performance.">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#D97741">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DailyTracker">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
+    
     <link rel="stylesheet" href="css/style.css">
     <!-- Inter Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -460,6 +473,59 @@
                                     <span id="streak-threshold-value" class="font-bold text-lg" style="width: 50px; text-align: right;">80%</span>
                                 </div>
                                 <p class="text-xs text-muted mt-2">Minimum efficiency required to maintain streak</p>
+                            </div>
+
+                            <!-- Theme Toggle -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-muted mb-3">Appearance</label>
+                                <div class="theme-toggle">
+                                    <div class="theme-icons">
+                                        <i data-lucide="sun" id="theme-icon-light"></i>
+                                    </div>
+                                    <div class="theme-switch" id="theme-switch"></div>
+                                    <div class="theme-icons">
+                                        <i data-lucide="moon" id="theme-icon-dark"></i>
+                                    </div>
+                                    <span class="text-sm text-muted ml-2" id="theme-label">Light Mode</span>
+                                </div>
+                                <p class="text-xs text-muted mt-2">Switch between light and dark themes</p>
+                            </div>
+
+                            <!-- Data Management -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-muted mb-3">Data Management</label>
+                                <div class="data-actions">
+                                    <button type="button" class="btn-outline" id="export-data-btn">
+                                        <i data-lucide="download"></i>
+                                        Export Data
+                                    </button>
+                                    <label class="btn-outline" for="import-data-input">
+                                        <i data-lucide="upload"></i>
+                                        Import Data
+                                    </label>
+                                    <input type="file" id="import-data-input" class="hidden-input" accept=".json">
+                                </div>
+                                <p class="text-xs text-muted mt-2">Backup or restore your data (JSON format)</p>
+                            </div>
+
+                            <!-- Keyboard Shortcuts Info -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-muted mb-3">Keyboard Shortcuts</label>
+                                <button type="button" class="btn-outline" id="show-shortcuts-btn">
+                                    <i data-lucide="keyboard"></i>
+                                    View All Shortcuts
+                                </button>
+                                <p class="text-xs text-muted mt-2">Press <kbd>?</kbd> anytime to see shortcuts</p>
+                            </div>
+
+                            <!-- Install App -->
+                            <div class="mb-8" id="install-app-section">
+                                <label class="block text-sm font-semibold text-muted mb-3">Install App</label>
+                                <button type="button" class="btn-outline" id="install-app-btn">
+                                    <i data-lucide="download"></i>
+                                    Install DailyTracker
+                                </button>
+                                <p class="text-xs text-muted mt-2">Install as a standalone app on your device</p>
                             </div>
 
                             <button type="submit" class="btn-primary w-full">

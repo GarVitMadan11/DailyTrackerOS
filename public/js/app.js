@@ -31,9 +31,12 @@ class DailyTracker {
 
     init() {
         // Initialize in order
+        try { this.initPWA(); } catch(e) { console.error('PWA Init Failed', e); }
+        try { this.initTheme(); } catch(e) { console.error('Theme Init Failed', e); }
         try { this.initViews(); } catch(e) { console.error('View Init Failed', e); }
         try { this.initSettings(); } catch(e) { console.error('Settings Init Failed', e); }
         try { this.initTasks(); } catch(e) { console.error('Tasks Init Failed', e); }
+        try { this.initKeyboardShortcuts(); } catch(e) { console.error('Keyboard Init Failed', e); }
         try { this.renderDailyView(); } catch(e) { console.error('Daily View Render Failed', e); }
         try { this.renderDashboard(); } catch(e) { console.error('Dashboard Render Failed', e); }
         try { this.initModal(); } catch(e) { console.error('Modal Init Failed', e); }
@@ -45,6 +48,242 @@ class DailyTracker {
                 console.error('Chart Init Failed', e); 
             }
         }, 100);
+    }
+
+    // --- PWA Support ---
+    initPWA() {
+        this.deferredPrompt = null;
+        
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('[PWA] Service worker registered'))
+                .catch(err => console.log('[PWA] Service worker registration failed:', err));
+        }
+
+        // Handle install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredPrompt = e;
+            this.showInstallButton();
+            console.log('[PWA] Install prompt captured');
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('[PWA] App installed successfully');
+            this.hideInstallButton();
+            this.showToast('App installed successfully!', 'success');
+        });
+
+        // Bind install button in Settings
+        const installBtn = document.getElementById('install-app-btn');
+        if (installBtn) {
+            installBtn.addEventListener('click', () => this.installApp());
+        }
+    }
+
+    installApp() {
+        if (this.deferredPrompt) {
+            this.deferredPrompt.prompt();
+            this.deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('[PWA] User accepted install');
+                }
+                this.deferredPrompt = null;
+            });
+        } else {
+            // Show instructions if install prompt not available
+            this.showToast('Use your browser menu to install this app', 'info');
+            console.log('[PWA] Install prompt not available. Browser may not support PWA or app is already installed.');
+        }
+    }
+
+    showInstallButton() {
+        // Show floating install button
+        let installBtn = document.getElementById('pwa-install-btn');
+        if (!installBtn) {
+            installBtn = document.createElement('button');
+            installBtn.id = 'pwa-install-btn';
+            installBtn.className = 'btn-primary';
+            installBtn.innerHTML = '<i data-lucide="download"></i> Install App';
+            installBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 12px 20px; font-size: 14px;';
+            
+            installBtn.addEventListener('click', () => this.installApp());
+
+            document.body.appendChild(installBtn);
+            lucide.createIcons();
+        }
+    }
+
+    hideInstallButton() {
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.remove();
+    }
+
+    // --- Theme / Dark Mode ---
+    initTheme() {
+        const savedTheme = localStorage.getItem('dailytracker_theme') || 'light';
+        this.setTheme(savedTheme);
+    }
+
+    setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('dailytracker_theme', theme);
+        
+        // Update theme-color meta tag
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+            metaTheme.content = theme === 'dark' ? '#1a1a1a' : '#D97741';
+        }
+    }
+
+    toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = current === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+        return newTheme;
+    }
+
+    // --- Keyboard Shortcuts ---
+    initKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            
+            // Ctrl/Cmd shortcuts
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 'd':
+                        e.preventDefault();
+                        this.switchView('dashboard');
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        this.switchView('tasks');
+                        setTimeout(() => document.getElementById('new-task-input')?.focus(), 100);
+                        break;
+                    case 'l':
+                        e.preventDefault();
+                        this.switchView('daily');
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        this.switchView('settings');
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        this.exportData();
+                        break;
+                }
+            }
+            
+            // Single key shortcuts
+            switch(e.key) {
+                case '?':
+                    this.showShortcutsModal();
+                    break;
+                case 'Escape':
+                    this.closeModal();
+                    this.closeShortcutsModal();
+                    break;
+            }
+        });
+    }
+
+    showShortcutsModal() {
+        let modal = document.getElementById('shortcuts-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'shortcuts-modal';
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 400px;">
+                    <div class="modal-header">
+                        <h3>Keyboard Shortcuts</h3>
+                        <button class="modal-close" onclick="document.getElementById('shortcuts-modal').classList.add('hidden')">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="shortcut-list">
+                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>D</kbd> <span>Dashboard</span></div>
+                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>T</kbd> <span>Tasks</span></div>
+                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>L</kbd> <span>Daily Log</span></div>
+                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>S</kbd> <span>Settings</span></div>
+                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>E</kbd> <span>Export Data</span></div>
+                            <div class="shortcut-item"><kbd>?</kbd> <span>Show Shortcuts</span></div>
+                            <div class="shortcut-item"><kbd>Esc</kbd> <span>Close Modal</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            lucide.createIcons();
+        }
+        modal.classList.remove('hidden');
+    }
+
+    closeShortcutsModal() {
+        const modal = document.getElementById('shortcuts-modal');
+        if (modal) modal.classList.add('hidden');
+    }
+
+    // --- Data Export ---
+    exportData() {
+        const exportData = {
+            version: '1.0',
+            exportDate: new Date().toISOString(),
+            data: this.data,
+            tasks: this.tasks,
+            settings: this.settings
+        };
+        
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dailytracker-backup-${this.getDateKey(new Date())}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        // Show success feedback
+        this.showToast('Data exported successfully!', 'success');
+    }
+
+    importData(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const imported = JSON.parse(e.target.result);
+                if (imported.data) this.data = imported.data;
+                if (imported.tasks) this.tasks = imported.tasks;
+                if (imported.settings) this.settings = imported.settings;
+                
+                this.saveData();
+                this.saveTasks();
+                this.saveSettings();
+                
+                this.showToast('Data imported successfully! Refreshing...', 'success');
+                setTimeout(() => location.reload(), 1500);
+            } catch (err) {
+                this.showToast('Failed to import data. Invalid file format.', 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    showToast(message, type = 'info') {
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            document.body.appendChild(toast);
+        }
+        
+        toast.textContent = message;
+        toast.className = `toast toast-${type} show`;
+        
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
     loadData() {
@@ -682,6 +921,51 @@ class DailyTracker {
                     }, 2000);
                 }
             };
+        }
+
+        // Theme toggle
+        const themeSwitch = document.getElementById('theme-switch');
+        const themeLabel = document.getElementById('theme-label');
+        const themeIconLight = document.getElementById('theme-icon-light');
+        const themeIconDark = document.getElementById('theme-icon-dark');
+        
+        const updateThemeUI = () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (themeSwitch) themeSwitch.classList.toggle('active', isDark);
+            if (themeLabel) themeLabel.textContent = isDark ? 'Dark Mode' : 'Light Mode';
+            if (themeIconLight) themeIconLight.classList.toggle('active', !isDark);
+            if (themeIconDark) themeIconDark.classList.toggle('active', isDark);
+        };
+        
+        updateThemeUI();
+        
+        if (themeSwitch) {
+            themeSwitch.addEventListener('click', () => {
+                this.toggleTheme();
+                updateThemeUI();
+            });
+        }
+
+        // Export data button
+        const exportBtn = document.getElementById('export-data-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => this.exportData());
+        }
+
+        // Import data input
+        const importInput = document.getElementById('import-data-input');
+        if (importInput) {
+            importInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    this.importData(e.target.files[0]);
+                }
+            });
+        }
+
+        // Shortcuts button
+        const shortcutsBtn = document.getElementById('show-shortcuts-btn');
+        if (shortcutsBtn) {
+            shortcutsBtn.addEventListener('click', () => this.showShortcutsModal());
         }
     }
 
