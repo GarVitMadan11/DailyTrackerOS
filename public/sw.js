@@ -1,11 +1,12 @@
 // pyTron Service Worker
-const CACHE_NAME = 'pytron-v2'; // Updated version to force cache refresh
+const CACHE_NAME = 'pytron-v3'; // Updated for notifications feature
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
   '/js/app.js',
   '/js/pomodoro.js',
+  '/js/notifications.js',
   '/manifest.json',
   'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js'

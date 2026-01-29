@@ -508,6 +508,75 @@
                                 <p class="text-xs text-muted mt-2">Backup or restore your data (JSON format)</p>
                             </div>
 
+                            <!-- Notifications Settings -->
+                            <div class="mb-8">
+                                <label class="block text-sm font-semibold text-muted mb-3">🔔 Notifications & Reminders</label>
+                                
+                                <!-- Enable Notifications -->
+                                <div class="mb-4 p-4 bg-surface rounded-xl border border-glass" style="background: hsl(var(--background)); border-color: hsl(var(--glass-border));">
+                                    <label class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">Enable Notifications</span>
+                                        <input type="checkbox" id="notifications-enabled">
+                                    </label>
+                                    <p class="text-xs text-muted mt-2">Get reminders to stay on track</p>
+                                    <button type="button" class="btn-outline mt-3 text-xs" id="request-notification-permission" style="font-size: 0.8125rem; padding: 8px 12px;">
+                                        <i data-lucide="bell"></i>
+                                        Request Permission
+                                    </button>
+                                    <button type="button" class="btn-outline mt-3 ml-2 text-xs" id="test-notification-btn" style="font-size: 0.8125rem; padding: 8px 12px; margin-left: 8px;">
+                                        <i data-lucide="volume-2"></i>
+                                        Test
+                                    </button>
+                                </div>
+
+                                <!-- Daily Reminder -->
+                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
+                                    <label class="flex items-center justify-between mb-3">
+                                        <span class="text-sm font-medium">Daily Log Reminder</span>
+                                        <input type="checkbox" id="daily-reminder-enabled">
+                                    </label>
+                                    <label class="block text-xs text-muted mb-2" style="color: hsl(var(--foreground-muted));">Reminder Time</label>
+                                    <input type="time" id="daily-reminder-time" class="settings-input" value="18:00">
+                                </div>
+
+                                <!-- Task Deadlines -->
+                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
+                                    <label class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">Task Deadline Alerts</span>
+                                        <input type="checkbox" id="task-deadlines-enabled">
+                                    </label>
+                                    <p class="text-xs text-muted mt-2">Get notified before tasks are due</p>
+                                </div>
+
+                                <!-- Streak Alerts -->
+                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
+                                    <label class="flex items-center justify-between">
+                                        <span class="text-sm font-medium">Streak Risk Alerts</span>
+                                        <input type="checkbox" id="streak-alerts-enabled">
+                                    </label>
+                                    <p class="text-xs text-muted mt-2">Alert when your streak is at risk</p>
+                                </div>
+
+                                <!-- Quiet Hours -->
+                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
+                                    <label class="flex items-center justify-between mb-3">
+                                        <span class="text-sm font-medium">Quiet Hours</span>
+                                        <input type="checkbox" id="quiet-hours-enabled">
+                                    </label>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div>
+                                            <label class="block text-xs text-muted mb-2">Start</label>
+                                            <input type="time" id="quiet-hours-start" class="settings-input" value="22:00">
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-muted mb-2">End</label>
+                                            <input type="time" id="quiet-hours-end" class="settings-input" value="08:00">
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-muted mt-2">No notifications during sleep hours</p>
+                                </div>
+                            </div>
+
 
 
                             <!-- Install App -->
@@ -609,8 +678,10 @@
     </div>
 
 
+
     <!-- Scripts -->
     <script src="js/pomodoro.js"></script>
+    <script src="js/notifications.js"></script>
     <script src="js/app.js"></script>
     <script>
         // Initialize Icons
@@ -627,8 +698,72 @@
             }
         }
         
+        // Initialize Notification Service
+        function initNotifications() {
+            if (window.app) {
+                console.log('[Init] Initializing Notification Service');
+                window.notificationService = new NotificationService(window.app);
+                
+                // Bind notification settings events
+                bindNotificationSettings();
+            } else {
+                console.log('[Init] Waiting for app for notifications... retrying in 100ms');
+                setTimeout(initNotifications, 100);
+            }
+        }
+        
+        function bindNotificationSettings() {
+            const service = window.notificationService;
+            
+            // Load settings
+            document.getElementById('notifications-enabled').checked = service.settings.enabled;
+            document.getElementById('daily-reminder-enabled').checked = service.settings.dailyReminderEnabled;
+            document.getElementById('daily-reminder-time').value = service.settings.dailyReminderTime;
+            document.getElementById('task-deadlines-enabled').checked = service.settings.taskDeadlinesEnabled;
+            document.getElementById('streak-alerts-enabled').checked = service.settings.streakAlertsEnabled;
+           document.getElementById('quiet-hours-enabled').checked = service.settings.quietHoursEnabled;
+            document.getElementById('quiet-hours-start').value = service.settings.quietHoursStart;
+            document.getElementById('quiet-hours-end').value = service.settings.quietHoursEnd;
+            
+            // Request permission button
+            document.getElementById('request-notification-permission').addEventListener('click', () => {
+                service.requestPermission();
+            });
+            
+            // Test notification button
+            document.getElementById('test-notification-btn').addEventListener('click', () => {
+                service.sendTestNotification();
+            });
+            
+            // Save on change
+            function saveNotificationSettings() {
+                service.updateSettings({
+                    enabled: document.getElementById('notifications-enabled').checked,
+                    dailyReminderEnabled: document.getElementById('daily-reminder-enabled').checked,
+                    dailyReminderTime: document.getElementById('daily-reminder-time').value,
+                    taskDeadlinesEnabled: document.getElementById('task-deadlines-enabled').checked,
+                    streakAlertsEnabled: document.getElementById('streak-alerts-enabled').checked,
+                    quietHoursEnabled: document.getElementById('quiet-hours-enabled').checked,
+                    quietHoursStart: document.getElementById('quiet-hours-start').value,
+                    quietHoursEnd: document.getElementById('quiet-hours-end').value
+                });
+                window.app.showToast('Notification settings saved!', 'success');
+            }
+            
+            // Add change listeners
+            document.getElementById('notifications-enabled').addEventListener('change', saveNotificationSettings);
+            document.getElementById('daily-reminder-enabled').addEventListener('change', saveNotificationSettings);
+            document.getElementById('daily-reminder-time').addEventListener('change', saveNotificationSettings);
+            document.getElementById('task-deadlines-enabled').addEventListener('change', saveNotificationSettings);
+            document.getElementById('streak-alerts-enabled').addEventListener('change', saveNotificationSettings);
+            document.getElementById('quiet-hours-enabled').addEventListener('change', saveNotificationSettings);
+            document.getElementById('quiet-hours-start').addEventListener('change', saveNotificationSettings);
+            document.getElementById('quiet-hours-end').addEventListener('change', saveNotificationSettings);
+        }
+        
         // Wait a bit for DOMContentLoaded to finish
         setTimeout(initPomodoro, 300);
+        setTimeout(initNotifications, 400);
     </script>
 
 </body>
