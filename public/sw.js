@@ -1,10 +1,11 @@
-// DailyTracker Service Worker
-const CACHE_NAME = 'dailytracker-v1';
+// pyTron Service Worker
+const CACHE_NAME = 'pytron-v2'; // Updated version to force cache refresh
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
   '/js/app.js',
+  '/js/pomodoro.js',
   '/manifest.json',
   'https://unpkg.com/lucide@latest/dist/umd/lucide.min.js',
   'https://cdn.jsdelivr.net/npm/chart.js'
@@ -40,7 +41,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - NETWORK FIRST for app files, cache for external resources
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
@@ -48,39 +49,55 @@ self.addEventListener('fetch', (event) => {
   // Skip chrome-extension and other non-http requests
   if (!event.request.url.startsWith('http')) return;
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          // Return cached version
-          return cachedResponse;
-        }
+  const isExternalResource = event.request.url.includes('unpkg.com') || 
+                             event.request.url.includes('jsdelivr.net');
 
-        // Fetch from network
-        return fetch(event.request)
-          .then((networkResponse) => {
-            // Don't cache if not a valid response
-            if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+  if (isExternalResource) {
+    // Cache first for external CDN resources (they don't change often)
+    event.respondWith(
+      caches.match(event.request)
+        .then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return fetch(event.request).then((networkResponse) => {
+            return caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, networkResponse.clone());
               return networkResponse;
-            }
-
-            // Clone and cache the response
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return networkResponse;
-          })
-          .catch(() => {
-            // Offline fallback for HTML pages
-            if (event.request.headers.get('accept').includes('text/html')) {
-              return caches.match('/index.html');
-            }
+            });
           });
-      })
-  );
+        })
+        .catch(() => caches.match(event.request))
+    );
+  } else {
+    // NETWORK FIRST for app files - always get latest version
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          // Cache the new version
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Fallback to cache if offline
+          return caches.match(event.request)
+            .then((cachedResponse) => {
+              if (cachedResponse) {
+                return cachedResponse;
+              }
+              // Offline fallback for HTML pages
+              if (event.request.headers.get('accept').includes('text/html')) {
+                return caches.match('/index.html');
+              }
+            });
+        })
+    );
+  }
 });
 
 // Background sync for offline data

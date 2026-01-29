@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DailyTracker - Performance OS</title>
-    <meta name="description" content="Master your productivity with DailyTracker - Track time, focus, and energy for peak performance.">
+    <title>pyTron - Performance OS</title>
+    <meta name="description" content="Master your productivity with pyTron - Track time, focus, and energy for peak performance.">
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#D97741">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="DailyTracker">
+    <meta name="apple-mobile-web-app-title" content="pyTron">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
     
     <!-- Favicon -->
@@ -37,7 +37,7 @@
                     <i data-lucide="target"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold gradient-text">DailyTracker</h1>
+                    <h1 class="text-lg font-bold gradient-text">pyTron</h1>
                     <p class="text-xs text-muted">Performance OS</p>
                 </div>
             </div>
@@ -412,7 +412,7 @@
                 <div id="view-settings" class="view-section hidden">
                     <div class="mb-6">
                         <h2 class="text-xl font-bold">Preferences</h2>
-                        <p class="text-sm text-muted">Customize your DailyTracker experience</p>
+                        <p class="text-sm text-muted">Customize your pyTron experience</p>
                     </div>
                     
                     <div class="settings-card max-w-lg">
@@ -508,22 +508,14 @@
                                 <p class="text-xs text-muted mt-2">Backup or restore your data (JSON format)</p>
                             </div>
 
-                            <!-- Keyboard Shortcuts Info -->
-                            <div class="mb-8">
-                                <label class="block text-sm font-semibold text-muted mb-3">Keyboard Shortcuts</label>
-                                <button type="button" class="btn-outline" id="show-shortcuts-btn">
-                                    <i data-lucide="keyboard"></i>
-                                    View All Shortcuts
-                                </button>
-                                <p class="text-xs text-muted mt-2">Press <kbd>?</kbd> anytime to see shortcuts</p>
-                            </div>
+
 
                             <!-- Install App -->
                             <div class="mb-8" id="install-app-section">
                                 <label class="block text-sm font-semibold text-muted mb-3">Install App</label>
                                 <button type="button" class="btn-outline" id="install-app-btn">
                                     <i data-lucide="download"></i>
-                                    Install DailyTracker
+                                    Install pyTron
                                 </button>
                                 <p class="text-xs text-muted mt-2">Install as a standalone app on your device</p>
                             </div>
@@ -616,11 +608,28 @@
         </div>
     </div>
 
+
     <!-- Scripts -->
+    <script src="js/pomodoro.js"></script>
     <script src="js/app.js"></script>
     <script>
         // Initialize Icons
         lucide.createIcons();
+        
+        // Initialize Pomodoro Timer - wait for app to be ready
+        function initPomodoro() {
+            if (window.app) {
+                console.log('[Init] Initializing Pomodoro Timer');
+                window.pomodoroTimer = new PomodoroTimer(window.app);
+            } else {
+                console.log('[Init] Waiting for app... retrying in 100ms');
+                setTimeout(initPomodoro, 100);
+            }
+        }
+        
+        // Wait a bit for DOMContentLoaded to finish
+        setTimeout(initPomodoro, 300);
     </script>
+
 </body>
 </html>

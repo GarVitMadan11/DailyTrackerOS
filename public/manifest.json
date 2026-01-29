@@ -1,6 +1,6 @@
 {
-  "name": "DailyTracker",
-  "short_name": "DailyTracker",
+  "name": "pyTron",
+  "short_name": "pyTron",
   "description": "Track your daily productivity, deep work hours, and tasks with style",
   "start_url": "/",
   "display": "standalone",

@@ -36,7 +36,7 @@ class DailyTracker {
         try { this.initViews(); } catch(e) { console.error('View Init Failed', e); }
         try { this.initSettings(); } catch(e) { console.error('Settings Init Failed', e); }
         try { this.initTasks(); } catch(e) { console.error('Tasks Init Failed', e); }
-        try { this.initKeyboardShortcuts(); } catch(e) { console.error('Keyboard Init Failed', e); }
+        // try { this.initKeyboardShortcuts(); } catch(e) { console.error('Keyboard Init Failed', e); }
         try { this.renderDailyView(); } catch(e) { console.error('Daily View Render Failed', e); }
         try { this.renderDashboard(); } catch(e) { console.error('Dashboard Render Failed', e); }
         try { this.initModal(); } catch(e) { console.error('Modal Init Failed', e); }
@@ -146,48 +146,80 @@ class DailyTracker {
 
     // --- Keyboard Shortcuts ---
     initKeyboardShortcuts() {
+        console.log('[Shortcuts] Initializing keyboard shortcuts...');
+        
         document.addEventListener('keydown', (e) => {
             // Ignore if typing in input
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
             
-            // Ctrl/Cmd shortcuts
-            if (e.ctrlKey || e.metaKey) {
+            console.log('[Shortcuts] Key pressed:', e.key, 'Alt:', e.altKey, 'Ctrl:', e.ctrlKey);
+            
+            // Ctrl+E for export (the only Ctrl shortcut that doesn't conflict)
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+                e.preventDefault();
+                this.exportData();
+                return;
+            }
+
+            // Alt key shortcuts (don't conflict with browser)
+            if (e.altKey && !e.ctrlKey) {
                 switch(e.key.toLowerCase()) {
                     case 'd':
                         e.preventDefault();
+                        console.log('[Shortcuts] Switching to Dashboard');
                         this.switchView('dashboard');
-                        break;
+                        return;
                     case 't':
                         e.preventDefault();
+                        console.log('[Shortcuts] Switching to Tasks');
                         this.switchView('tasks');
                         setTimeout(() => document.getElementById('new-task-input')?.focus(), 100);
-                        break;
+                        return;
                     case 'l':
                         e.preventDefault();
+                        console.log('[Shortcuts] Switching to Daily');
                         this.switchView('daily');
-                        break;
+                        return;
                     case 's':
                         e.preventDefault();
+                        console.log('[Shortcuts] Switching to Settings');
                         this.switchView('settings');
-                        break;
-                    case 'e':
-                        e.preventDefault();
-                        this.exportData();
-                        break;
+                        return;
                 }
             }
             
-            // Single key shortcuts
-            switch(e.key) {
-                case '?':
-                    this.showShortcutsModal();
-                    break;
-                case 'Escape':
-                    this.closeModal();
-                    this.closeShortcutsModal();
-                    break;
+            // Number key shortcuts (quick navigation) - no modifier keys
+            if (!e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+                switch(e.key) {
+                    case '1':
+                        console.log('[Shortcuts] Switching to Dashboard via 1');
+                        this.switchView('dashboard');
+                        return;
+                    case '2':
+                        console.log('[Shortcuts] Switching to Tasks via 2');
+                        this.switchView('tasks');
+                        return;
+                    case '3':
+                        console.log('[Shortcuts] Switching to Daily via 3');
+                        this.switchView('daily');
+                        return;
+                    case '4':
+                        console.log('[Shortcuts] Switching to Settings via 4');
+                        this.switchView('settings');
+                        return;
+                    case '?':
+                        console.log('[Shortcuts] Opening shortcuts modal');
+                        this.showShortcutsModal();
+                        return;
+                    case 'Escape':
+                        this.closeModal();
+                        this.closeShortcutsModal();
+                        return;
+                }
             }
         });
+        
+        console.log('[Shortcuts] Keyboard shortcuts initialized successfully');
     }
 
     showShortcutsModal() {
@@ -206,11 +238,11 @@ class DailyTracker {
                     </div>
                     <div class="modal-body">
                         <div class="shortcut-list">
-                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>D</kbd> <span>Dashboard</span></div>
-                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>T</kbd> <span>Tasks</span></div>
-                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>L</kbd> <span>Daily Log</span></div>
-                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>S</kbd> <span>Settings</span></div>
-                            <div class="shortcut-item"><kbd>Ctrl</kbd> + <kbd>E</kbd> <span>Export Data</span></div>
+                            <div class="shortcut-item"><kbd>1</kbd> or <kbd>Alt</kbd>+<kbd>D</kbd> <span>Dashboard</span></div>
+                            <div class="shortcut-item"><kbd>2</kbd> or <kbd>Alt</kbd>+<kbd>T</kbd> <span>Tasks</span></div>
+                            <div class="shortcut-item"><kbd>3</kbd> or <kbd>Alt</kbd>+<kbd>L</kbd> <span>Daily Log</span></div>
+                            <div class="shortcut-item"><kbd>4</kbd> or <kbd>Alt</kbd>+<kbd>S</kbd> <span>Settings</span></div>
+                            <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>E</kbd> <span>Export Data</span></div>
                             <div class="shortcut-item"><kbd>?</kbd> <span>Show Shortcuts</span></div>
                             <div class="shortcut-item"><kbd>Esc</kbd> <span>Close Modal</span></div>
                         </div>

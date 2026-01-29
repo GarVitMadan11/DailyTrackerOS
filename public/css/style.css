@@ -1,6 +1,6 @@
 /* ============================================
-   DailyTracker Premium Design System
-   Inspired by Crextio, Upstream & Sequence
+   pyTron Premium Design System
+   Warm & Vibrant Earth Tones
    ============================================ */
 
 :root {
@@ -48,13 +48,13 @@
   --glass-shadow: 25 20% 15% / 0.06;
   --glass-glow: 42 40% 98% / 0.8;
   
-  /* Enhanced Radii */
+  /* Softer Radii */
   --radius-xs: 6px;
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --radius-2xl: 36px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
   
   /* Spacing */
@@ -68,16 +68,16 @@
   --space-10: 40px;
   --space-12: 48px;
   
-  /* Premium Transitions */
+  /* Smooth Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-bounce: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 400ms cubic-bezier(0.34, 1.3, 0.64, 1);
   
-  /* Shadows */
-  --shadow-sm: 0 2px 8px -2px hsl(var(--glass-shadow));
-  --shadow-md: 0 8px 24px -8px hsl(var(--glass-shadow));
-  --shadow-lg: 0 16px 48px -12px hsl(var(--glass-shadow));
+  /* Softer Shadows */
+  --shadow-sm: 0 1px 3px 0 hsl(var(--glass-shadow)), 0 1px 2px 0 hsl(var(--glass-shadow));
+  --shadow-md: 0 4px 6px -1px hsl(var(--glass-shadow)), 0 2px 4px -1px hsl(var(--glass-shadow));
+  --shadow-lg: 0 10px 15px -3px hsl(var(--glass-shadow)), 0 4px 6px -2px hsl(var(--glass-shadow));
 }
 
 /* ===== Dark Mode Theme ===== */
@@ -121,12 +121,9 @@ html {
 
 body {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: 
-    radial-gradient(ellipse 80% 50% at 50% -20%, hsl(42 45% 95%) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 100% 100%, hsl(38 35% 93%) 0%, transparent 40%),
-    linear-gradient(175deg, hsl(var(--background)) 0%, hsl(38 30% 95%) 50%, hsl(35 25% 93%) 100%);
+  background: hsl(var(--background));
   color: hsl(var(--foreground));
-  line-height: 1.6;
+  line-height: 1.65;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -312,7 +309,7 @@ button {
 }
 
 .glass-subtle {
-  background: hsl(42 30% 99% / 0.5);
+  background: hsl(0 0% 100% / 0.5);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid hsl(var(--glass-border));
@@ -327,34 +324,31 @@ button {
 }
 
 .glass-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   box-shadow: 
     var(--shadow-lg),
-    0 0 0 1px hsl(var(--color-primary) / 0.08),
-    inset 0 1px 0 hsl(var(--glass-glow));
-  border-color: hsl(var(--color-primary) / 0.15);
+    0 0 0 1px hsl(var(--color-primary) / 0.1);
+  border-color: hsl(var(--color-primary) / 0.2);
 }
 
-/* ===== Premium Sidebar ===== */
+/* ===== Clean Sidebar ===== */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100%;
   width: 18rem;
-  background: 
-    linear-gradient(180deg, hsl(42 30% 99% / 0.95) 0%, hsl(38 25% 97% / 0.9) 100%);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
+  background: hsl(0 0% 98% / 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-right: 1px solid hsl(var(--glass-border));
   z-index: 100;
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 0 32px -8px hsl(var(--glass-shadow));
+  box-shadow: 1px 0 3px hsl(var(--glass-shadow));
 }
 
-/* Premium Logo */
 .logo-icon {
   width: 3rem;
   height: 3rem;
@@ -364,17 +358,13 @@ button {
   justify-content: center;
   background: linear-gradient(135deg, hsl(var(--color-primary)) 0%, hsl(var(--color-secondary)) 100%);
   color: white;
-  box-shadow: 
-    0 6px 20px -4px hsl(var(--color-primary) / 0.5),
-    inset 0 1px 0 hsl(50 100% 90% / 0.3);
-  transition: transform var(--transition-bounce), box-shadow var(--transition-base);
+  box-shadow: 0 2px 8px hsl(var(--color-primary) / 0.25);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 .logo-icon:hover {
-  transform: scale(1.05) rotate(-3deg);
-  box-shadow: 
-    0 8px 24px -4px hsl(var(--color-primary) / 0.6),
-    inset 0 1px 0 hsl(50 100% 90% / 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px hsl(var(--color-primary) / 0.35);
 }
 
 .logo-icon svg,
@@ -421,9 +411,7 @@ button {
 .nav-item.active {
   background: hsl(var(--foreground));
   color: hsl(var(--foreground-inverted));
-  box-shadow: 
-    0 4px 16px -4px hsl(var(--foreground) / 0.3),
-    inset 0 1px 0 hsl(40 20% 40% / 0.2);
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.15);
 }
 
 .nav-item.active svg,
@@ -597,18 +585,19 @@ button {
   animation: fadeUp var(--transition-slow) ease-out;
 }
 
-/* ===== Premium Stat Cards ===== */
+/* ===== Modern Stat Cards ===== */
 .stat-card {
   background: hsl(var(--glass-bg));
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid hsl(var(--glass-border));
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  box-shadow: var(--shadow-md), inset 0 1px 0 hsl(var(--glass-glow));
+  box-shadow: var(--shadow-sm);
   transition: 
-    transform var(--transition-bounce),
-    box-shadow var(--transition-base);
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
   position: relative;
   overflow: hidden;
 }
@@ -619,15 +608,16 @@ button {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 2px;
   background: linear-gradient(90deg, hsl(var(--color-primary)), hsl(var(--color-secondary)));
   opacity: 0;
   transition: opacity var(--transition-base);
 }
 
 .stat-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-xl), var(--shadow-glow);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: hsl(var(--color-primary) / 0.15);
 }
 
 .stat-card:hover::before {
@@ -1550,9 +1540,7 @@ button {
   border-radius: var(--radius-lg);
   border: none;
   cursor: pointer;
-  box-shadow: 
-    0 4px 16px -4px hsl(var(--color-primary) / 0.4),
-    inset 0 1px 0 hsl(50 100% 90% / 0.2);
+  box-shadow: 0 2px 8px hsl(var(--color-primary) / 0.25);
   transition: all var(--transition-base);
   position: relative;
   overflow: hidden;
@@ -1562,16 +1550,14 @@ button {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 0%, hsl(50 100% 90% / 0.15) 100%);
+  background: linear-gradient(135deg, transparent 0%, hsl(0 0% 100% / 0.1) 100%);
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 24px -4px hsl(var(--color-primary) / 0.5),
-    inset 0 1px 0 hsl(50 100% 90% / 0.3);
+  box-shadow: 0 4px 12px hsl(var(--color-primary) / 0.35);
 }
 
 .btn-primary:hover::before {
@@ -2146,4 +2132,163 @@ kbd {
 /* Hidden file input */
 .hidden-input {
   display: none;
+}
+
+/* ===== Pomodoro Timer ===== */
+.pomodoro-widget {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-6);
+}
+
+.pomodoro-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.pomodoro-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.pomodoro-ring svg {
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: hsl(var(--glass-border));
+  stroke-width: 6;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: hsl(var(--color-primary));
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 226;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.3s ease, stroke 0.3s ease;
+}
+
+.pomodoro-time {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+  font-variant-numeric: tabular-nums;
+}
+
+.pomodoro-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pomodoro-status {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: hsl(var(--foreground-muted));
+}
+
+.pomodoro-session {
+  font-size: 0.8125rem;
+  color: hsl(var(--foreground-muted));
+}
+
+.pomodoro-controls {
+  display: flex;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.pomodoro-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid hsl(var(--glass-border));
+  background: transparent;
+  color: hsl(var(--foreground));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.pomodoro-btn:hover {
+  background: hsl(var(--glass-bg));
+  border-color: hsl(var(--color-primary));
+  color: hsl(var(--color-primary));
+  transform: translateY(-2px);
+}
+
+.pomodoro-btn-start {
+  background: linear-gradient(135deg, hsl(var(--color-primary)), hsl(var(--color-secondary)));
+  color: white;
+  border: none;
+}
+
+.pomodoro-btn-start:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px hsl(var(--color-primary) / 0.3);
+}
+
+.pomodoro-btn-pause {
+  background: hsl(var(--color-warning) / 0.1);
+  border-color: hsl(var(--color-warning));
+  color: hsl(var(--color-warning));
+}
+
+.pomodoro-btn i {
+  width: 18px;
+  height: 18px;
+}
+
+/* Settings input for Pomodoro modal */
+.settings-input {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius-md);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.9375rem;
+  transition: all var(--transition-base);
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: hsl(var(--color-primary));
+  box-shadow: 0 0 0 3px hsl(var(--color-primary) / 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pomodoro-widget {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .pomodoro-display {
+    justify-content: center;
+  }
+  
+  .pomodoro-controls {
+    margin-left: 0;
+    justify-content: center;
+  }
 }
