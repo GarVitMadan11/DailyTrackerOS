@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: dailytracker-os
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        sync: false
