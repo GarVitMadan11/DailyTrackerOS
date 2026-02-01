@@ -1,768 +1,1299 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>pyTron - Performance OS</title>
-    <meta name="description" content="Master your productivity with pyTron - Track time, focus, and energy for peak performance.">
-    
+    <meta
+      name="description"
+      content="Master your productivity with pyTron - Track time, focus, and energy for peak performance."
+    />
+
     <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#D97741">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="pyTron">
-    <link rel="apple-touch-icon" href="/icons/icon-192.png">
-    
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#D97741" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="pyTron" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
-    
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/premium-badges.css">
-    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
+
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/premium-badges.css" />
+    <link rel="stylesheet" href="css/achievements.css" />
+    <link rel="manifest" href="manifest.json" />
     <!-- Inter Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+    <!-- PDF Export Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </head>
+  <body>
     <div class="flex min-h-screen">
-        <!-- Premium Sidebar -->
-        <aside class="sidebar">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="logo-icon">
-                    <i data-lucide="target"></i>
+      <!-- Premium Sidebar -->
+      <aside class="sidebar">
+        <div class="flex items-center gap-3 mb-8">
+          <div class="logo-icon">
+            <i data-lucide="target"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-bold gradient-text">pyTron</h1>
+            <p class="text-xs text-muted">Performance OS</p>
+          </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto custom-scrollbar">
+          <a href="#" class="nav-item active" data-view="dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="#" class="nav-item" data-view="tasks">
+            <i data-lucide="check-circle-2"></i>
+            <span>Tasks</span>
+          </a>
+          <a href="#" class="nav-item" data-view="daily">
+            <i data-lucide="calendar-days"></i>
+            <span>Daily View</span>
+          </a>
+          <a href="#" class="nav-item" data-view="analytics">
+            <i data-lucide="bar-chart-2"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="#" class="nav-item" data-view="ai-coach">
+            <i data-lucide="sparkles"></i>
+            <span>AI Coach</span>
+          </a>
+          <a href="#" class="nav-item" data-view="achievements">
+            <i data-lucide="trophy"></i>
+            <span>Achievements</span>
+          </a>
+          <a href="#" class="nav-item" data-view="settings">
+            <i data-lucide="settings"></i>
+            <span>Settings</span>
+          </a>
+        </nav>
+
+        <div
+          class="mt-auto pt-6"
+          style="border-top: 1px solid hsl(38 25% 90% / 0.6)"
+        >
+          <div class="user-profile">
+            <div class="user-avatar" id="user-avatar-container">
+              <img
+                id="user-avatar-img"
+                src=""
+                alt="Avatar"
+                style="
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  border-radius: 50%;
+                  display: none;
+                "
+              />
+              <span id="user-initial">U</span>
+            </div>
+            <div class="user-info">
+              <p id="user-name">User</p>
+              <p>Elite Performer</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content md:ml-72">
+        <!-- Premium Header with Welcome Message -->
+        <header class="page-header" id="page-header">
+          <h1 id="welcome-message">
+            Welcome back,
+            <span class="gradient-text" id="header-user-name">Champion</span>
+          </h1>
+          <p class="text-muted" id="header-subtitle">
+            Here's your performance overview for today
+          </p>
+
+          <!-- Quick Stats Row (Crextio-style) -->
+          <div class="quick-stats" id="quick-stats">
+            <div class="quick-stat">
+              <div class="quick-stat-icon">
+                <i data-lucide="hourglass"></i>
+              </div>
+              <div>
+                <div class="quick-stat-value" id="qs-hours">0</div>
+                <div class="quick-stat-label">Hours Tracked</div>
+              </div>
+            </div>
+            <div class="quick-stat">
+              <div class="quick-stat-icon">
+                <i data-lucide="flame"></i>
+              </div>
+              <div>
+                <div class="quick-stat-value" id="qs-streak">0</div>
+                <div class="quick-stat-label">Day Streak</div>
+              </div>
+            </div>
+            <div class="quick-stat">
+              <div class="quick-stat-icon">
+                <i data-lucide="circle-check-big"></i>
+              </div>
+              <div>
+                <div class="quick-stat-value" id="qs-tasks">0</div>
+                <div class="quick-stat-label">Tasks Done</div>
+              </div>
+            </div>
+            <div
+              class="quick-stat"
+              id="badges-widget"
+              style="cursor: pointer"
+              title="Click to view badges"
+              onclick="window.openBadgeModal && window.openBadgeModal()"
+            >
+              <div class="quick-stat-icon">
+                <i data-lucide="trophy"></i>
+              </div>
+              <div>
+                <div class="quick-stat-value" id="qs-badges">0/13</div>
+                <div class="quick-stat-label">Badges</div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Views Container -->
+        <div id="view-container">
+          <!-- DASHBOARD VIEW -->
+          <div id="view-dashboard" class="view-section active">
+            <!-- Premium Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <!-- Stat Card 1: Efficiency -->
+              <div class="stat-card">
+                <div class="stat-header">
+                  <p class="stat-label">Weekly Efficiency</p>
+                  <div class="stat-icon success">
+                    <i data-lucide="trending-up"></i>
+                  </div>
+                </div>
+                <p class="stat-value" id="stat-efficiency">0%</p>
+                <div>
+                  <span class="stat-change positive">
+                    <i
+                      data-lucide="arrow-up"
+                      style="width: 12px; height: 12px"
+                    ></i>
+                    <span id="efficiency-change">+0%</span>
+                  </span>
+                  <span class="stat-subtitle">vs last week</span>
+                </div>
+              </div>
+
+              <!-- Stat Card 2: Deep Work -->
+              <div class="stat-card">
+                <div class="stat-header">
+                  <p class="stat-label">Deep Work</p>
+                  <div class="stat-icon primary">
+                    <i data-lucide="zap"></i>
+                  </div>
+                </div>
+                <p class="stat-value" id="stat-deep-work">0h</p>
+                <div class="flex items-center gap-2">
+                  <!-- Mini Progress Bar -->
+                  <div
+                    style="
+                      flex: 1;
+                      height: 6px;
+                      background: hsl(var(--glass-border));
+                      border-radius: 999px;
+                      overflow: hidden;
+                    "
+                  >
+                    <div
+                      id="deep-work-progress"
+                      style="
+                        height: 100%;
+                        background: linear-gradient(
+                          90deg,
+                          hsl(var(--color-primary)),
+                          hsl(var(--color-secondary))
+                        );
+                        border-radius: 999px;
+                        width: 0%;
+                        transition: width 1s ease-out;
+                      "
+                    ></div>
+                  </div>
+                  <span class="stat-subtitle" id="deep-work-target">/ 8h</span>
+                </div>
+              </div>
+
+              <!-- Stat Card 3: Streak -->
+              <div class="stat-card">
+                <div class="stat-header">
+                  <p class="stat-label">Current Streak</p>
+                  <div class="stat-icon warning">
+                    <i data-lucide="flame"></i>
+                  </div>
+                </div>
+                <p class="stat-value" id="stat-streak">0</p>
+                <p class="stat-subtitle" id="stat-streak-label">
+                  Days above 80%
+                </p>
+              </div>
+
+              <!-- Stat Card 4: Tasks -->
+              <div class="stat-card">
+                <div class="stat-header">
+                  <p class="stat-label">Tasks Completed</p>
+                  <div class="stat-icon accent">
+                    <i data-lucide="check-circle-2"></i>
+                  </div>
+                </div>
+                <p class="stat-value" id="stat-tasks">0</p>
+                <p class="stat-subtitle">Completed today</p>
+              </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <!-- Weekly Focus Chart -->
+              <div class="chart-card">
+                <h3>
+                  <i data-lucide="bar-chart-3"></i>
+                  Weekly Focus Overview
+                </h3>
+                <div style="height: 280px">
+                  <canvas id="weeklyChart"></canvas>
+                </div>
+              </div>
+
+              <!-- Distribution Chart -->
+              <div class="chart-card">
+                <h3>
+                  <i data-lucide="pie-chart"></i>
+                  Time Distribution
+                </h3>
+                <div
+                  style="
+                    height: 280px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <canvas id="distributionChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <a
+                href="#"
+                class="stat-card"
+                data-view="daily"
+                style="cursor: pointer"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="stat-icon primary"
+                    style="width: 3rem; height: 3rem"
+                  >
+                    <i data-lucide="clock"></i>
+                  </div>
+                  <div>
+                    <p class="font-semibold">Log Today's Hours</p>
+                    <p class="text-sm text-muted">
+                      Track your daily activities
+                    </p>
+                  </div>
+                </div>
+              </a>
+              <a
+                href="#"
+                class="stat-card"
+                data-view="tasks"
+                style="cursor: pointer"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="stat-icon accent"
+                    style="width: 3rem; height: 3rem"
+                  >
+                    <i data-lucide="list-todo"></i>
+                  </div>
+                  <div>
+                    <p class="font-semibold">Manage Tasks</p>
+                    <p class="text-sm text-muted">Organize your to-dos</p>
+                  </div>
+                </div>
+              </a>
+              <a
+                href="#"
+                class="stat-card"
+                data-view="settings"
+                style="cursor: pointer"
+              >
+                <div class="flex items-center gap-4">
+                  <div
+                    class="stat-icon warning"
+                    style="width: 3rem; height: 3rem"
+                  >
+                    <i data-lucide="sliders"></i>
+                  </div>
+                  <div>
+                    <p class="font-semibold">Customize Goals</p>
+                    <p class="text-sm text-muted">Set your preferences</p>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- TASKS VIEW -->
+          <div id="view-tasks" class="view-section hidden">
+            <div class="flex justify-between items-center mb-6">
+              <div>
+                <h2 class="text-xl font-bold">Task Command Center</h2>
+                <p class="text-sm text-muted">
+                  Organize and conquer your to-dos
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <div
+                  class="glass px-4 py-2 text-sm font-medium flex items-center gap-2"
+                >
+                  <i
+                    data-lucide="check-circle-2"
+                    style="
+                      width: 16px;
+                      height: 16px;
+                      color: hsl(var(--color-success));
+                    "
+                  ></i>
+                  <span id="tasks-completed-count">0</span> completed
+                </div>
+              </div>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="tasks-layout">
+              <!-- Left: Add Task Panel -->
+              <div class="task-form-panel">
+                <div class="task-form-header">
+                  <i
+                    data-lucide="plus-circle"
+                    style="width: 20px; height: 20px"
+                  ></i>
+                  <span>Add New Task</span>
+                </div>
+
+                <div class="task-form-body">
+                  <input
+                    type="text"
+                    id="new-task-input"
+                    placeholder="What needs to be done?"
+                    class="task-input-field"
+                  />
+
+                  <div class="task-form-options-vertical">
+                    <!-- Due Time -->
+                    <div class="task-option-row">
+                      <label
+                        ><i data-lucide="clock" size="14"></i> Due Time</label
+                      >
+                      <div
+                        class="custom-time-picker"
+                        data-target="task-due-time"
+                      >
+                        <button type="button" class="time-trigger">
+                          <span class="time-value">--:--</span>
+                          <i data-lucide="chevron-down" size="14"></i>
+                        </button>
+                        <div class="time-menu">
+                          <div class="time-columns">
+                            <div class="time-option" data-hour="06">6 AM</div>
+                            <div class="time-option" data-hour="07">7 AM</div>
+                            <div class="time-option" data-hour="08">8 AM</div>
+                            <div class="time-option" data-hour="09">9 AM</div>
+                            <div class="time-option" data-hour="10">10 AM</div>
+                            <div class="time-option" data-hour="11">11 AM</div>
+                            <div class="time-option" data-hour="12">12 PM</div>
+                            <div class="time-option" data-hour="13">1 PM</div>
+                            <div class="time-option" data-hour="14">2 PM</div>
+                            <div class="time-option" data-hour="15">3 PM</div>
+                            <div class="time-option" data-hour="16">4 PM</div>
+                            <div class="time-option" data-hour="17">5 PM</div>
+                            <div class="time-option" data-hour="18">6 PM</div>
+                            <div class="time-option" data-hour="19">7 PM</div>
+                            <div class="time-option" data-hour="20">8 PM</div>
+                            <div class="time-option" data-hour="21">9 PM</div>
+                            <div class="time-option" data-hour="22">10 PM</div>
+                            <div class="time-option" data-hour="23">11 PM</div>
+                          </div>
+                        </div>
+                      </div>
+                      <input type="hidden" id="task-due-time" value="" />
+                    </div>
+
+                    <!-- Priority -->
+                    <div class="task-option-row">
+                      <label
+                        ><i data-lucide="flag" size="14"></i> Priority</label
+                      >
+                      <div class="custom-dropdown" data-target="task-priority">
+                        <button type="button" class="dropdown-trigger">
+                          <span class="dropdown-value">None</span>
+                          <i data-lucide="chevron-down" size="14"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                          <div class="dropdown-item" data-value="">None</div>
+                          <div class="dropdown-item" data-value="low">
+                            <span class="dot dot-low"></span> Low
+                          </div>
+                          <div class="dropdown-item" data-value="medium">
+                            <span class="dot dot-medium"></span> Medium
+                          </div>
+                          <div class="dropdown-item" data-value="high">
+                            <span class="dot dot-high"></span> High
+                          </div>
+                        </div>
+                      </div>
+                      <input type="hidden" id="task-priority" value="" />
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="task-option-row">
+                      <label
+                        ><i data-lucide="timer" size="14"></i> Duration</label
+                      >
+                      <div class="custom-dropdown" data-target="task-duration">
+                        <button type="button" class="dropdown-trigger">
+                          <span class="dropdown-value">-</span>
+                          <i data-lucide="chevron-down" size="14"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                          <div class="dropdown-item" data-value="">-</div>
+                          <div class="dropdown-item" data-value="15">
+                            15 min
+                          </div>
+                          <div class="dropdown-item" data-value="30">
+                            30 min
+                          </div>
+                          <div class="dropdown-item" data-value="60">
+                            1 hour
+                          </div>
+                          <div class="dropdown-item" data-value="120">
+                            2 hours
+                          </div>
+                        </div>
+                      </div>
+                      <input type="hidden" id="task-duration" value="" />
+                    </div>
+
+                    <!-- Tag -->
+                    <div class="task-option-row">
+                      <label><i data-lucide="tag" size="14"></i> Tag</label>
+                      <div class="custom-dropdown" data-target="task-tag">
+                        <button type="button" class="dropdown-trigger">
+                          <span class="dropdown-value">None</span>
+                          <i data-lucide="chevron-down" size="14"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                          <div class="dropdown-item" data-value="">None</div>
+                          <div class="dropdown-item" data-value="work">
+                            <span class="dot dot-work"></span> Work
+                          </div>
+                          <div class="dropdown-item" data-value="personal">
+                            <span class="dot dot-personal"></span> Personal
+                          </div>
+                          <div class="dropdown-item" data-value="health">
+                            <span class="dot dot-health"></span> Health
+                          </div>
+                          <div class="dropdown-item" data-value="learning">
+                            <span class="dot dot-learning"></span> Learning
+                          </div>
+                        </div>
+                      </div>
+                      <input type="hidden" id="task-tag" value="" />
+                    </div>
+                  </div>
+
+                  <button
+                    id="add-task-btn"
+                    class="btn-primary w-full"
+                    style="margin-top: 1rem"
+                  >
+                    <i data-lucide="plus" size="18"></i>
+                    Add Task
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right: Task List -->
+              <div class="task-list-panel">
+                <div class="task-list-header">
+                  <i
+                    data-lucide="list-todo"
+                    style="width: 20px; height: 20px"
+                  ></i>
+                  <span>Your Tasks</span>
+                </div>
+                <div id="tasks-list-container" class="task-list-body">
+                  <!-- Tasks injected here -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DAILY VIEW (Stack of Boxes) -->
+          <div id="view-daily" class="view-section hidden">
+            <div class="flex justify-between items-center mb-6">
+              <div>
+                <h2 class="text-xl font-bold">Today's Timeline</h2>
+                <p class="text-sm text-muted">Track every hour of your day</p>
+              </div>
+              <div
+                class="glass px-5 py-3 font-semibold flex items-center gap-3"
+                id="current-date-display"
+              >
+                <i
+                  data-lucide="calendar"
+                  style="
+                    width: 18px;
+                    height: 18px;
+                    color: hsl(var(--color-primary));
+                  "
+                ></i>
+                <span><!-- JS will populate date --></span>
+              </div>
+            </div>
+
+            <div class="hour-stack" id="hour-stack">
+              <!-- JS will populate 24 hour boxes here -->
+            </div>
+          </div>
+
+          <!-- SETTINGS VIEW -->
+          <div id="view-settings" class="view-section hidden">
+            <div class="mb-6">
+              <h2 class="text-xl font-bold">Preferences</h2>
+              <p class="text-sm text-muted">Customize your pyTron experience</p>
+            </div>
+
+            <div class="settings-card max-w-lg">
+              <form id="settings-form">
+                <div class="mb-6">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Your Name</label
+                  >
+                  <input
+                    type="text"
+                    id="setting-user-name"
+                    class="settings-input"
+                    placeholder="Enter your name"
+                  />
+                  <p class="text-xs text-muted mt-2">
+                    Personalize your welcome message and avatar
+                  </p>
+                </div>
+
+                <div class="mb-6">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Avatar Style</label
+                  >
+                  <div class="flex gap-3 flex-wrap" id="avatar-style-options">
+                    <label class="avatar-style-option">
+                      <input
+                        type="radio"
+                        name="avatar-style"
+                        value="initials"
+                        checked
+                      />
+                      <div
+                        class="avatar-style-preview"
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            hsl(18, 75%, 55%),
+                            hsl(145, 35%, 45%)
+                          );
+                          color: white;
+                          font-weight: 700;
+                        "
+                      >
+                        G
+                      </div>
+                      <span>Initials</span>
+                    </label>
+                    <label class="avatar-style-option">
+                      <input
+                        type="radio"
+                        name="avatar-style"
+                        value="adventurer"
+                      />
+                      <img
+                        class="avatar-style-preview"
+                        src="https://api.dicebear.com/7.x/adventurer/svg?seed=Garvit&backgroundColor=ffd5dc,c0aede,d1d4f9"
+                        alt="Adventurer"
+                      />
+                      <span>Adventurer</span>
+                    </label>
+                    <label class="avatar-style-option">
+                      <input
+                        type="radio"
+                        name="avatar-style"
+                        value="big-smile"
+                      />
+                      <img
+                        class="avatar-style-preview"
+                        src="https://api.dicebear.com/7.x/big-smile/svg?seed=Garvit&backgroundColor=ffd5dc"
+                        alt="Big Smile"
+                      />
+                      <span>Big Smile</span>
+                    </label>
+                    <label class="avatar-style-option">
+                      <input
+                        type="radio"
+                        name="avatar-style"
+                        value="personas"
+                      />
+                      <img
+                        class="avatar-style-preview"
+                        src="https://api.dicebear.com/7.x/personas/svg?seed=Garvit"
+                        alt="Personas"
+                      />
+                      <span>Personas</span>
+                    </label>
+                    <label class="avatar-style-option">
+                      <input
+                        type="radio"
+                        name="avatar-style"
+                        value="fun-emoji"
+                      />
+                      <img
+                        class="avatar-style-preview"
+                        src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=Garvit"
+                        alt="Fun Emoji"
+                      />
+                      <span>Fun Emoji</span>
+                    </label>
+                    <label class="avatar-style-option">
+                      <input type="radio" name="avatar-style" value="micah" />
+                      <img
+                        class="avatar-style-preview"
+                        src="https://api.dicebear.com/7.x/micah/svg?seed=Garvit&backgroundColor=ffd5dc,c0aede"
+                        alt="Micah"
+                      />
+                      <span>Modern</span>
+                    </label>
+                  </div>
+                  <p class="text-xs text-muted mt-2">
+                    Choose your avatar style
+                  </p>
+                </div>
+
+                <div class="mb-6">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Daily Deep Work Target (Hours)</label
+                  >
+                  <input
+                    type="number"
+                    id="setting-target-hours"
+                    min="1"
+                    max="24"
+                    class="settings-input"
+                    placeholder="8"
+                  />
+                  <p class="text-xs text-muted mt-2">
+                    Goal for daily deep work sessions
+                  </p>
+                </div>
+
+                <div class="mb-8">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Streak Efficiency Threshold</label
+                  >
+                  <div class="flex items-center gap-4">
+                    <input
+                      type="range"
+                      id="setting-streak-threshold"
+                      min="0"
+                      max="100"
+                      step="5"
+                      style="flex: 1"
+                    />
+                    <span
+                      id="streak-threshold-value"
+                      class="font-bold text-lg"
+                      style="width: 50px; text-align: right"
+                      >80%</span
+                    >
+                  </div>
+                  <p class="text-xs text-muted mt-2">
+                    Minimum efficiency required to maintain streak
+                  </p>
+                </div>
+
+                <!-- Theme Toggle -->
+                <div class="mb-8">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Appearance</label
+                  >
+                  <div class="theme-toggle">
+                    <div class="theme-icons">
+                      <i data-lucide="sun" id="theme-icon-light"></i>
+                    </div>
+                    <div class="theme-switch" id="theme-switch"></div>
+                    <div class="theme-icons">
+                      <i data-lucide="moon" id="theme-icon-dark"></i>
+                    </div>
+                    <span class="text-sm text-muted ml-2" id="theme-label"
+                      >Light Mode</span
+                    >
+                  </div>
+                  <p class="text-xs text-muted mt-2">
+                    Switch between light and dark themes
+                  </p>
+                </div>
+
+                <!-- Data Management -->
+                <div class="mb-8">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Data Management</label
+                  >
+                  <div class="data-actions">
+                    <button
+                      type="button"
+                      class="btn-outline"
+                      id="export-data-btn"
+                    >
+                      <i data-lucide="download"></i>
+                      Export Data
+                    </button>
+                    <label class="btn-outline" for="import-data-input">
+                      <i data-lucide="upload"></i>
+                      Import Data
+                    </label>
+                    <input
+                      type="file"
+                      id="import-data-input"
+                      class="hidden-input"
+                      accept=".json"
+                    />
+                  </div>
+                  <p class="text-xs text-muted mt-2">
+                    Backup or restore your data (JSON format)
+                  </p>
+                </div>
+
+                <!-- Notifications Settings -->
+                <div class="mb-8">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >🔔 Notifications & Reminders</label
+                  >
+
+                  <!-- Enable Notifications -->
+                  <div
+                    class="mb-4 p-4 bg-surface rounded-xl border border-glass"
+                    style="
+                      background: hsl(var(--background));
+                      border-color: hsl(var(--glass-border));
+                    "
+                  >
+                    <label class="flex items-center justify-between">
+                      <span class="text-sm font-medium"
+                        >Enable Notifications</span
+                      >
+                      <input type="checkbox" id="notifications-enabled" />
+                    </label>
+                    <p class="text-xs text-muted mt-2">
+                      Get reminders to stay on track
+                    </p>
+                    <button
+                      type="button"
+                      class="btn-outline mt-3 text-xs"
+                      id="request-notification-permission"
+                      style="font-size: 0.8125rem; padding: 8px 12px"
+                    >
+                      <i data-lucide="bell"></i>
+                      Request Permission
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-outline mt-3 ml-2 text-xs"
+                      id="test-notification-btn"
+                      style="
+                        font-size: 0.8125rem;
+                        padding: 8px 12px;
+                        margin-left: 8px;
+                      "
+                    >
+                      <i data-lucide="volume-2"></i>
+                      Test
+                    </button>
+                  </div>
+
+                  <!-- Daily Reminder -->
+                  <div
+                    class="mb-4 p-4"
+                    style="
+                      background: hsl(var(--background));
+                      border: 1px solid hsl(var(--glass-border));
+                      border-radius: var(--radius-lg);
+                    "
+                  >
+                    <label class="flex items-center justify-between mb-3">
+                      <span class="text-sm font-medium"
+                        >Daily Log Reminder</span
+                      >
+                      <input type="checkbox" id="daily-reminder-enabled" />
+                    </label>
+                    <label
+                      class="block text-xs text-muted mb-2"
+                      style="color: hsl(var(--foreground-muted))"
+                      >Reminder Time</label
+                    >
+                    <input
+                      type="time"
+                      id="daily-reminder-time"
+                      class="settings-input"
+                      value="18:00"
+                    />
+                  </div>
+
+                  <!-- Task Deadlines -->
+                  <div
+                    class="mb-4 p-4"
+                    style="
+                      background: hsl(var(--background));
+                      border: 1px solid hsl(var(--glass-border));
+                      border-radius: var(--radius-lg);
+                    "
+                  >
+                    <label class="flex items-center justify-between">
+                      <span class="text-sm font-medium"
+                        >Task Deadline Alerts</span
+                      >
+                      <input type="checkbox" id="task-deadlines-enabled" />
+                    </label>
+                    <p class="text-xs text-muted mt-2">
+                      Get notified before tasks are due
+                    </p>
+                  </div>
+
+                  <!-- Streak Alerts -->
+                  <div
+                    class="mb-4 p-4"
+                    style="
+                      background: hsl(var(--background));
+                      border: 1px solid hsl(var(--glass-border));
+                      border-radius: var(--radius-lg);
+                    "
+                  >
+                    <label class="flex items-center justify-between">
+                      <span class="text-sm font-medium"
+                        >Streak Risk Alerts</span
+                      >
+                      <input type="checkbox" id="streak-alerts-enabled" />
+                    </label>
+                    <p class="text-xs text-muted mt-2">
+                      Alert when your streak is at risk
+                    </p>
+                  </div>
+
+                  <!-- Quiet Hours -->
+                  <div
+                    class="mb-4 p-4"
+                    style="
+                      background: hsl(var(--background));
+                      border: 1px solid hsl(var(--glass-border));
+                      border-radius: var(--radius-lg);
+                    "
+                  >
+                    <label class="flex items-center justify-between mb-3">
+                      <span class="text-sm font-medium">Quiet Hours</span>
+                      <input type="checkbox" id="quiet-hours-enabled" />
+                    </label>
+                    <div
+                      style="
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 12px;
+                      "
+                    >
+                      <div>
+                        <label class="block text-xs text-muted mb-2"
+                          >Start</label
+                        >
+                        <input
+                          type="time"
+                          id="quiet-hours-start"
+                          class="settings-input"
+                          value="22:00"
+                        />
+                      </div>
+                      <div>
+                        <label class="block text-xs text-muted mb-2">End</label>
+                        <input
+                          type="time"
+                          id="quiet-hours-end"
+                          class="settings-input"
+                          value="08:00"
+                        />
+                      </div>
+                    </div>
+                    <p class="text-xs text-muted mt-2">
+                      No notifications during sleep hours
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Install App -->
+                <div class="mb-8" id="install-app-section">
+                  <label class="block text-sm font-semibold text-muted mb-3"
+                    >Install App</label
+                  >
+                  <button
+                    type="button"
+                    class="btn-outline"
+                    id="install-app-btn"
+                  >
+                    <i data-lucide="download"></i>
+                    Install pyTron
+                  </button>
+                  <p class="text-xs text-muted mt-2">
+                    Install as a standalone app on your device
+                  </p>
+                </div>
+
+                <button type="submit" class="btn-primary w-full">
+                  <i data-lucide="save" style="width: 18px; height: 18px"></i>
+                  Save Preferences
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+          <!-- ANALYTICS VIEW -->
+          <div id="view-analytics" class="view-section hidden">
+          <!-- Header -->
+          <div class="flex justify-between items-center mb-2">
+            <div>
+              <h2 class="text-xl font-bold">
+                <i data-lucide="bar-chart-3" style="width: 20px; height: 20px"></i>
+                Analytics & Insights
+              </h2>
+              <p class="text-sm text-muted">Deep dive into your productivity patterns</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="flex bg-surface p-1 rounded-lg border">
+                <button class="analytics-range-btn active px-3 py-1 text-sm rounded-md" data-range="7">7 Days</button>
+                <button class="analytics-range-btn px-3 py-1 text-sm rounded-md" data-range="30">30 Days</button>
+              </div>
+              <button class="btn-primary text-sm px-4 py-2" id="export-analytics-pdf">
+                <i data-lucide="download" style="width: 14px; height: 14px"></i>
+                Export
+              </button>
+            </div>
+          </div>
+
+          <!-- Key Metrics -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-0">
+            <div class="stat-card">
+              <div class="stat-header">
+                <p class="stat-label">Total Deep Work</p>
+                <div class="stat-icon primary"><i data-lucide="zap"></i></div>
+              </div>
+              <p class="stat-value" id="analytics-total-deep">0h</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <p class="stat-label">Avg Efficiency</p>
+                <div class="stat-icon success"><i data-lucide="activity"></i></div>
+              </div>
+              <p class="stat-value" id="analytics-avg-efficiency">0%</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <p class="stat-label">Focus Sessions</p>
+                <div class="stat-icon accent"><i data-lucide="target"></i></div>
+              </div>
+              <p class="stat-value" id="analytics-focus-sessions">0</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <p class="stat-label">Productivity Score</p>
+                <div class="stat-icon warning"><i data-lucide="award"></i></div>
+              </div>
+              <p class="stat-value" id="analytics-productivity-score">0</p>
+              <p class="stat-subtitle text-xs">Quality × Quantity</p>
+            </div>
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8" style="margin-top: 1.5rem;">
+            <!-- Trend Chart -->
+            <div class="chart-card first-chart">
+              <h3 class="mb-4">
+                <i data-lucide="trending-up" style="width: 16px; height: 16px"></i>
+                Productivity Trend
+              </h3>
+              <div style="height: 280px">
+                <canvas id="analytics-trend-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- Breakdown Chart -->
+            <div class="chart-card first-chart">
+              <h3 class="mb-4">
+                <i data-lucide="pie-chart" style="width: 16px; height: 16px"></i>
+                Time Distribution
+              </h3>
+              <div style="height: 280px; display: flex; align-items: center; justify-content: center;">
+                <canvas id="analytics-breakdown-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secondary Charts -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Category History -->
+            <div class="chart-card">
+              <h3 class="mb-4">
+                <i data-lucide="bar-chart-2" style="width: 16px; height: 16px"></i>
+                Weekly Breakdown
+              </h3>
+              <div style="height: 280px">
+                <canvas id="analytics-category-history-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- Priority Chart -->
+            <div class="chart-card">
+              <h3 class="mb-4">
+                <i data-lucide="filter" style="width: 16px; height: 16px"></i>
+                Task Priority
+              </h3>
+              <div style="height: 280px">
+                <canvas id="analytics-priority-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insights and Heatmap -->
+          <div class="grid grid-cols-1 gap-8 mb-8">
+            <!-- AI Insights -->
+            <div class="insights-card">
+              <div class="insights-header">
+                <div class="insights-icon">
+                  <i data-lucide="lightbulb"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold gradient-text">pyTron</h1>
-                    <p class="text-xs text-muted">Performance OS</p>
+                  <h3 class="insights-title">AI Insights</h3>
+                  <p class="insights-subtitle">Smart productivity analysis</p>
                 </div>
+              </div>
+              <div id="analytics-insights" class="insights-content">
+                <!-- Insights will be dynamically inserted here -->
+              </div>
             </div>
 
-            <nav class="flex-1 overflow-y-auto custom-scrollbar">
-                <a href="#" class="nav-item active" data-view="dashboard">
-                    <i data-lucide="layout-dashboard"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item" data-view="tasks">
-                    <i data-lucide="check-circle-2"></i>
-                    <span>Tasks</span>
-                </a>
-                <a href="#" class="nav-item" data-view="daily">
-                    <i data-lucide="calendar-days"></i>
-                    <span>Daily View</span>
-                </a>
-                <a href="#" class="nav-item" data-view="analytics">
-                    <i data-lucide="bar-chart-2"></i>
-                    <span>Analytics</span>
-                </a>
-                <a href="#" class="nav-item" data-view="ai-coach">
-                    <i data-lucide="sparkles"></i>
-                    <span>AI Coach</span>
-                </a>
-                <a href="#" class="nav-item" data-view="achievements">
-                    <i data-lucide="trophy"></i>
-                    <span>Achievements</span>
-                </a>
-                <a href="#" class="nav-item" data-view="settings">
-                    <i data-lucide="settings"></i>
-                    <span>Settings</span>
-                </a>
-            </nav>
-
-            <div class="mt-auto pt-6" style="border-top: 1px solid hsl(38 25% 90% / 0.6);">
-                <div class="user-profile">
-                    <div class="user-avatar" id="user-avatar-container">
-                        <img id="user-avatar-img" src="" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none;">
-                        <span id="user-initial">U</span>
-                    </div>
-                    <div class="user-info">
-                        <p id="user-name">User</p>
-                        <p>Elite Performer</p>
-                    </div>
+            <!-- Focus Heatmap -->
+            <div class="heatmap-card">
+              <div class="heatmap-header">
+                <div class="heatmap-icon">
+                  <i data-lucide="grid-3x3"></i>
                 </div>
+                <div>
+                  <h3 class="heatmap-title">Focus Heatmap</h3>
+                  <p class="heatmap-subtitle">Your productivity patterns</p>
+                </div>
+              </div>
+              <div class="heatmap-container">
+                <div id="analytics-heatmap" class="heatmap-grid"></div>
+              </div>
             </div>
-        </aside>
+          </div>
 
-        <!-- Main Content -->
-        <main class="main-content md:ml-72">
-            <!-- Premium Header with Welcome Message -->
-            <header class="page-header" id="page-header">
-                <h1 id="welcome-message">
-                    Welcome back, <span class="gradient-text" id="header-user-name">Champion</span>
-                </h1>
-                <p class="text-muted" id="header-subtitle">Here's your performance overview for today</p>
-                
-                <!-- Quick Stats Row (Crextio-style) -->
-                <div class="quick-stats" id="quick-stats">
-                    <div class="quick-stat">
-                        <div class="quick-stat-icon">
-                            <i data-lucide="hourglass"></i>
-                        </div>
-                        <div>
-                            <div class="quick-stat-value" id="qs-hours">0</div>
-                            <div class="quick-stat-label">Hours Tracked</div>
-                        </div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-icon">
-                            <i data-lucide="flame"></i>
-                        </div>
-                        <div>
-                            <div class="quick-stat-value" id="qs-streak">0</div>
-                            <div class="quick-stat-label">Day Streak</div>
-                        </div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-icon">
-                            <i data-lucide="circle-check-big"></i>
-                        </div>
-                        <div>
-                            <div class="quick-stat-value" id="qs-tasks">0</div>
-                            <div class="quick-stat-label">Tasks Done</div>
-                        </div>
-                    </div>
-                    <div class="quick-stat" id="badges-widget" style="cursor: pointer;" title="Click to view badges" onclick="window.openBadgeModal && window.openBadgeModal()">
-                        <div class="quick-stat-icon">
-                            <i data-lucide="trophy"></i>
-                        </div>
-                        <div>
-                            <div class="quick-stat-value" id="qs-badges">0/13</div>
-                            <div class="quick-stat-label">Badges</div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Views Container -->
-            <div id="view-container">
-                
-                <!-- DASHBOARD VIEW -->
-                <div id="view-dashboard" class="view-section active">
-                    <!-- Premium Stats Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                        <!-- Stat Card 1: Efficiency -->
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Weekly Efficiency</p>
-                                <div class="stat-icon success">
-                                    <i data-lucide="trending-up"></i>
-                                </div>
-                            </div>
-                            <p class="stat-value" id="stat-efficiency">0%</p>
-                            <div>
-                                <span class="stat-change positive">
-                                    <i data-lucide="arrow-up" style="width: 12px; height: 12px;"></i>
-                                    <span id="efficiency-change">+0%</span>
-                                </span>
-                                <span class="stat-subtitle">vs last week</span>
-                            </div>
-                        </div>
-
-                        <!-- Stat Card 2: Deep Work -->
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Deep Work</p>
-                                <div class="stat-icon primary">
-                                    <i data-lucide="zap"></i>
-                                </div>
-                            </div>
-                            <p class="stat-value" id="stat-deep-work">0h</p>
-                            <div class="flex items-center gap-2">
-                                <!-- Mini Progress Bar -->
-                                <div style="flex: 1; height: 6px; background: hsl(var(--glass-border)); border-radius: 999px; overflow: hidden;">
-                                    <div id="deep-work-progress" style="height: 100%; background: linear-gradient(90deg, hsl(var(--color-primary)), hsl(var(--color-secondary))); border-radius: 999px; width: 0%; transition: width 1s ease-out;"></div>
-                                </div>
-                                <span class="stat-subtitle" id="deep-work-target">/ 8h</span>
-                            </div>
-                        </div>
-
-                        <!-- Stat Card 3: Streak -->
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Current Streak</p>
-                                <div class="stat-icon warning">
-                                    <i data-lucide="flame"></i>
-                                </div>
-                            </div>
-                            <p class="stat-value" id="stat-streak">0</p>
-                            <p class="stat-subtitle" id="stat-streak-label">Days above 80%</p>
-                        </div>
-                        
-                        <!-- Stat Card 4: Tasks -->
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Tasks Completed</p>
-                                <div class="stat-icon accent">
-                                    <i data-lucide="check-circle-2"></i>
-                                </div>
-                            </div>
-                            <p class="stat-value" id="stat-tasks">0</p>
-                            <p class="stat-subtitle">Completed today</p>
-                        </div>
-                    </div>
-
-                    <!-- Charts Section -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                        <!-- Weekly Focus Chart -->
-                        <div class="chart-card">
-                            <h3>
-                                <i data-lucide="bar-chart-3"></i>
-                                Weekly Focus Overview
-                            </h3>
-                            <div style="height: 280px;">
-                                <canvas id="weeklyChart"></canvas>
-                            </div>
-                        </div>
-
-                        <!-- Distribution Chart -->
-                        <div class="chart-card">
-                            <h3>
-                                <i data-lucide="pie-chart"></i>
-                                Time Distribution
-                            </h3>
-                            <div style="height: 280px; display: flex; align-items: center; justify-content: center;">
-                                <canvas id="distributionChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <a href="#" class="stat-card" data-view="daily" style="cursor: pointer;">
-                            <div class="flex items-center gap-4">
-                                <div class="stat-icon primary" style="width: 3rem; height: 3rem;">
-                                    <i data-lucide="clock"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold">Log Today's Hours</p>
-                                    <p class="text-sm text-muted">Track your daily activities</p>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="#" class="stat-card" data-view="tasks" style="cursor: pointer;">
-                            <div class="flex items-center gap-4">
-                                <div class="stat-icon accent" style="width: 3rem; height: 3rem;">
-                                    <i data-lucide="list-todo"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold">Manage Tasks</p>
-                                    <p class="text-sm text-muted">Organize your to-dos</p>
-                                </div>
-                            </div>
-                        </a>
-                        <a href="#" class="stat-card" data-view="settings" style="cursor: pointer;">
-                            <div class="flex items-center gap-4">
-                                <div class="stat-icon warning" style="width: 3rem; height: 3rem;">
-                                    <i data-lucide="sliders"></i>
-                                </div>
-                                <div>
-                                    <p class="font-semibold">Customize Goals</p>
-                                    <p class="text-sm text-muted">Set your preferences</p>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- TASKS VIEW -->
-                <div id="view-tasks" class="view-section hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold">Task Command Center</h2>
-                            <p class="text-sm text-muted">Organize and conquer your to-dos</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="glass px-4 py-2 text-sm font-medium flex items-center gap-2">
-                                <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: hsl(var(--color-success));"></i>
-                                <span id="tasks-completed-count">0</span> completed
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Two Column Layout -->
-                    <div class="tasks-layout">
-                        <!-- Left: Add Task Panel -->
-                        <div class="task-form-panel">
-                            <div class="task-form-header">
-                                <i data-lucide="plus-circle" style="width: 20px; height: 20px;"></i>
-                                <span>Add New Task</span>
-                            </div>
-                            
-                            <div class="task-form-body">
-                                <input type="text" id="new-task-input" placeholder="What needs to be done?" class="task-input-field">
-                                
-                                <div class="task-form-options-vertical">
-                                    <!-- Due Time -->
-                                    <div class="task-option-row">
-                                        <label><i data-lucide="clock" size="14"></i> Due Time</label>
-                                        <div class="custom-time-picker" data-target="task-due-time">
-                                            <button type="button" class="time-trigger">
-                                                <span class="time-value">--:--</span>
-                                                <i data-lucide="chevron-down" size="14"></i>
-                                            </button>
-                                            <div class="time-menu">
-                                                <div class="time-columns">
-                                                    <div class="time-option" data-hour="06">6 AM</div>
-                                                    <div class="time-option" data-hour="07">7 AM</div>
-                                                    <div class="time-option" data-hour="08">8 AM</div>
-                                                    <div class="time-option" data-hour="09">9 AM</div>
-                                                    <div class="time-option" data-hour="10">10 AM</div>
-                                                    <div class="time-option" data-hour="11">11 AM</div>
-                                                    <div class="time-option" data-hour="12">12 PM</div>
-                                                    <div class="time-option" data-hour="13">1 PM</div>
-                                                    <div class="time-option" data-hour="14">2 PM</div>
-                                                    <div class="time-option" data-hour="15">3 PM</div>
-                                                    <div class="time-option" data-hour="16">4 PM</div>
-                                                    <div class="time-option" data-hour="17">5 PM</div>
-                                                    <div class="time-option" data-hour="18">6 PM</div>
-                                                    <div class="time-option" data-hour="19">7 PM</div>
-                                                    <div class="time-option" data-hour="20">8 PM</div>
-                                                    <div class="time-option" data-hour="21">9 PM</div>
-                                                    <div class="time-option" data-hour="22">10 PM</div>
-                                                    <div class="time-option" data-hour="23">11 PM</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="task-due-time" value="">
-                                    </div>
-                                    
-                                    <!-- Priority -->
-                                    <div class="task-option-row">
-                                        <label><i data-lucide="flag" size="14"></i> Priority</label>
-                                        <div class="custom-dropdown" data-target="task-priority">
-                                            <button type="button" class="dropdown-trigger">
-                                                <span class="dropdown-value">None</span>
-                                                <i data-lucide="chevron-down" size="14"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <div class="dropdown-item" data-value="">None</div>
-                                                <div class="dropdown-item" data-value="low"><span class="dot dot-low"></span> Low</div>
-                                                <div class="dropdown-item" data-value="medium"><span class="dot dot-medium"></span> Medium</div>
-                                                <div class="dropdown-item" data-value="high"><span class="dot dot-high"></span> High</div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="task-priority" value="">
-                                    </div>
-                                    
-                                    <!-- Duration -->
-                                    <div class="task-option-row">
-                                        <label><i data-lucide="timer" size="14"></i> Duration</label>
-                                        <div class="custom-dropdown" data-target="task-duration">
-                                            <button type="button" class="dropdown-trigger">
-                                                <span class="dropdown-value">-</span>
-                                                <i data-lucide="chevron-down" size="14"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <div class="dropdown-item" data-value="">-</div>
-                                                <div class="dropdown-item" data-value="15">15 min</div>
-                                                <div class="dropdown-item" data-value="30">30 min</div>
-                                                <div class="dropdown-item" data-value="60">1 hour</div>
-                                                <div class="dropdown-item" data-value="120">2 hours</div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="task-duration" value="">
-                                    </div>
-                                    
-                                    <!-- Tag -->
-                                    <div class="task-option-row">
-                                        <label><i data-lucide="tag" size="14"></i> Tag</label>
-                                        <div class="custom-dropdown" data-target="task-tag">
-                                            <button type="button" class="dropdown-trigger">
-                                                <span class="dropdown-value">None</span>
-                                                <i data-lucide="chevron-down" size="14"></i>
-                                            </button>
-                                            <div class="dropdown-menu">
-                                                <div class="dropdown-item" data-value="">None</div>
-                                                <div class="dropdown-item" data-value="work"><span class="dot dot-work"></span> Work</div>
-                                                <div class="dropdown-item" data-value="personal"><span class="dot dot-personal"></span> Personal</div>
-                                                <div class="dropdown-item" data-value="health"><span class="dot dot-health"></span> Health</div>
-                                                <div class="dropdown-item" data-value="learning"><span class="dot dot-learning"></span> Learning</div>
-                                            </div>
-                                        </div>
-                                        <input type="hidden" id="task-tag" value="">
-                                    </div>
-                                </div>
-                                
-                                <button id="add-task-btn" class="btn-primary w-full" style="margin-top: 1rem;">
-                                    <i data-lucide="plus" size="18"></i>
-                                    Add Task
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Right: Task List -->
-                        <div class="task-list-panel">
-                            <div class="task-list-header">
-                                <i data-lucide="list-todo" style="width: 20px; height: 20px;"></i>
-                                <span>Your Tasks</span>
-                            </div>
-                            <div id="tasks-list-container" class="task-list-body">
-                                <!-- Tasks injected here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DAILY VIEW (Stack of Boxes) -->
-                <div id="view-daily" class="view-section hidden">
-                    <div class="flex justify-between items-center mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold">Today's Timeline</h2>
-                            <p class="text-sm text-muted">Track every hour of your day</p>
-                        </div>
-                        <div class="glass px-5 py-3 font-semibold flex items-center gap-3" id="current-date-display">
-                            <i data-lucide="calendar" style="width: 18px; height: 18px; color: hsl(var(--color-primary));"></i>
-                            <span><!-- JS will populate date --></span>
-                        </div>
-                    </div>
-                    
-                    <div class="hour-stack" id="hour-stack">
-                        <!-- JS will populate 24 hour boxes here -->
-                    </div>
-                </div>
-
-                <!-- SETTINGS VIEW -->
-                <div id="view-settings" class="view-section hidden">
-                    <div class="mb-6">
-                        <h2 class="text-xl font-bold">Preferences</h2>
-                        <p class="text-sm text-muted">Customize your pyTron experience</p>
-                    </div>
-                    
-                    <div class="settings-card max-w-lg">
-                        <form id="settings-form">
-                            <div class="mb-6">
-                                <label class="block text-sm font-semibold text-muted mb-3">Your Name</label>
-                                <input type="text" id="setting-user-name" class="settings-input" placeholder="Enter your name">
-                                <p class="text-xs text-muted mt-2">Personalize your welcome message and avatar</p>
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-semibold text-muted mb-3">Avatar Style</label>
-                                <div class="flex gap-3 flex-wrap" id="avatar-style-options">
-                                    <label class="avatar-style-option">
-                                        <input type="radio" name="avatar-style" value="initials" checked>
-                                        <div class="avatar-style-preview" style="background: linear-gradient(135deg, hsl(18, 75%, 55%), hsl(145, 35%, 45%)); color: white; font-weight: 700;">G</div>
-                                        <span>Initials</span>
-                                    </label>
-                                    <label class="avatar-style-option">
-                                        <input type="radio" name="avatar-style" value="adventurer">
-                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/adventurer/svg?seed=Garvit&backgroundColor=ffd5dc,c0aede,d1d4f9" alt="Adventurer">
-                                        <span>Adventurer</span>
-                                    </label>
-                                    <label class="avatar-style-option">
-                                        <input type="radio" name="avatar-style" value="big-smile">
-                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/big-smile/svg?seed=Garvit&backgroundColor=ffd5dc" alt="Big Smile">
-                                        <span>Big Smile</span>
-                                    </label>
-                                    <label class="avatar-style-option">
-                                        <input type="radio" name="avatar-style" value="personas">
-                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/personas/svg?seed=Garvit" alt="Personas">
-                                        <span>Personas</span>
-                                    </label>
-                                    <label class="avatar-style-option">
-                                        <input type="radio" name="avatar-style" value="fun-emoji">
-                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=Garvit" alt="Fun Emoji">
-                                        <span>Fun Emoji</span>
-                                    </label>
-                                    <label class="avatar-style-option">
-                                        <input type="radio" name="avatar-style" value="micah">
-                                        <img class="avatar-style-preview" src="https://api.dicebear.com/7.x/micah/svg?seed=Garvit&backgroundColor=ffd5dc,c0aede" alt="Micah">
-                                        <span>Modern</span>
-                                    </label>
-                                </div>
-                                <p class="text-xs text-muted mt-2">Choose your avatar style</p>
-                            </div>
-
-                            <div class="mb-6">
-                                <label class="block text-sm font-semibold text-muted mb-3">Daily Deep Work Target (Hours)</label>
-                                <input type="number" id="setting-target-hours" min="1" max="24" class="settings-input" placeholder="8">
-                                <p class="text-xs text-muted mt-2">Goal for daily deep work sessions</p>
-                            </div>
-
-                            <div class="mb-8">
-                                <label class="block text-sm font-semibold text-muted mb-3">Streak Efficiency Threshold</label>
-                                <div class="flex items-center gap-4">
-                                    <input type="range" id="setting-streak-threshold" min="0" max="100" step="5" style="flex: 1;">
-                                    <span id="streak-threshold-value" class="font-bold text-lg" style="width: 50px; text-align: right;">80%</span>
-                                </div>
-                                <p class="text-xs text-muted mt-2">Minimum efficiency required to maintain streak</p>
-                            </div>
-
-                            <!-- Theme Toggle -->
-                            <div class="mb-8">
-                                <label class="block text-sm font-semibold text-muted mb-3">Appearance</label>
-                                <div class="theme-toggle">
-                                    <div class="theme-icons">
-                                        <i data-lucide="sun" id="theme-icon-light"></i>
-                                    </div>
-                                    <div class="theme-switch" id="theme-switch"></div>
-                                    <div class="theme-icons">
-                                        <i data-lucide="moon" id="theme-icon-dark"></i>
-                                    </div>
-                                    <span class="text-sm text-muted ml-2" id="theme-label">Light Mode</span>
-                                </div>
-                                <p class="text-xs text-muted mt-2">Switch between light and dark themes</p>
-                            </div>
-
-                            <!-- Data Management -->
-                            <div class="mb-8">
-                                <label class="block text-sm font-semibold text-muted mb-3">Data Management</label>
-                                <div class="data-actions">
-                                    <button type="button" class="btn-outline" id="export-data-btn">
-                                        <i data-lucide="download"></i>
-                                        Export Data
-                                    </button>
-                                    <label class="btn-outline" for="import-data-input">
-                                        <i data-lucide="upload"></i>
-                                        Import Data
-                                    </label>
-                                    <input type="file" id="import-data-input" class="hidden-input" accept=".json">
-                                </div>
-                                <p class="text-xs text-muted mt-2">Backup or restore your data (JSON format)</p>
-                            </div>
-
-                            <!-- Notifications Settings -->
-                            <div class="mb-8">
-                                <label class="block text-sm font-semibold text-muted mb-3">🔔 Notifications & Reminders</label>
-                                
-                                <!-- Enable Notifications -->
-                                <div class="mb-4 p-4 bg-surface rounded-xl border border-glass" style="background: hsl(var(--background)); border-color: hsl(var(--glass-border));">
-                                    <label class="flex items-center justify-between">
-                                        <span class="text-sm font-medium">Enable Notifications</span>
-                                        <input type="checkbox" id="notifications-enabled">
-                                    </label>
-                                    <p class="text-xs text-muted mt-2">Get reminders to stay on track</p>
-                                    <button type="button" class="btn-outline mt-3 text-xs" id="request-notification-permission" style="font-size: 0.8125rem; padding: 8px 12px;">
-                                        <i data-lucide="bell"></i>
-                                        Request Permission
-                                    </button>
-                                    <button type="button" class="btn-outline mt-3 ml-2 text-xs" id="test-notification-btn" style="font-size: 0.8125rem; padding: 8px 12px; margin-left: 8px;">
-                                        <i data-lucide="volume-2"></i>
-                                        Test
-                                    </button>
-                                </div>
-
-                                <!-- Daily Reminder -->
-                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
-                                    <label class="flex items-center justify-between mb-3">
-                                        <span class="text-sm font-medium">Daily Log Reminder</span>
-                                        <input type="checkbox" id="daily-reminder-enabled">
-                                    </label>
-                                    <label class="block text-xs text-muted mb-2" style="color: hsl(var(--foreground-muted));">Reminder Time</label>
-                                    <input type="time" id="daily-reminder-time" class="settings-input" value="18:00">
-                                </div>
-
-                                <!-- Task Deadlines -->
-                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
-                                    <label class="flex items-center justify-between">
-                                        <span class="text-sm font-medium">Task Deadline Alerts</span>
-                                        <input type="checkbox" id="task-deadlines-enabled">
-                                    </label>
-                                    <p class="text-xs text-muted mt-2">Get notified before tasks are due</p>
-                                </div>
-
-                                <!-- Streak Alerts -->
-                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
-                                    <label class="flex items-center justify-between">
-                                        <span class="text-sm font-medium">Streak Risk Alerts</span>
-                                        <input type="checkbox" id="streak-alerts-enabled">
-                                    </label>
-                                    <p class="text-xs text-muted mt-2">Alert when your streak is at risk</p>
-                                </div>
-
-                                <!-- Quiet Hours -->
-                                <div class="mb-4 p-4" style="background: hsl(var(--background)); border: 1px solid hsl(var(--glass-border)); border-radius: var(--radius-lg);">
-                                    <label class="flex items-center justify-between mb-3">
-                                        <span class="text-sm font-medium">Quiet Hours</span>
-                                        <input type="checkbox" id="quiet-hours-enabled">
-                                    </label>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                        <div>
-                                            <label class="block text-xs text-muted mb-2">Start</label>
-                                            <input type="time" id="quiet-hours-start" class="settings-input" value="22:00">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs text-muted mb-2">End</label>
-                                            <input type="time" id="quiet-hours-end" class="settings-input" value="08:00">
-                                        </div>
-                                    </div>
-                                    <p class="text-xs text-muted mt-2">No notifications during sleep hours</p>
-                                </div>
-                            </div>
-
-
-
-                            <!-- Install App -->
-                            <div class="mb-8" id="install-app-section">
-                                <label class="block text-sm font-semibold text-muted mb-3">Install App</label>
-                                <button type="button" class="btn-outline" id="install-app-btn">
-                                    <i data-lucide="download"></i>
-                                    Install pyTron
-                                </button>
-                                <p class="text-xs text-muted mt-2">Install as a standalone app on your device</p>
-                            </div>
-
-                            <button type="submit" class="btn-primary w-full">
-                                <i data-lucide="save" style="width: 18px; height: 18px;"></i>
-                                Save Preferences
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
+          <!-- Task Performance -->
+          <div class="bg-glass border border-glass-border rounded-xl p-6">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="check-square" style="width: 16px; height: 16px"></i>
+              <h3 class="font-semibold">Task Performance</h3>
             </div>
-        </main>
+            <div id="analytics-task-stats" class="text-sm">
+              <!-- Task stats will be dynamically inserted here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ACHIEVEMENTS VIEW -->
+        <div id="view-achievements" class="view-section hidden">
+          <!-- Achievements Header -->
+          <div class="flex justify-between items-center mb-8">
+            <div>
+              <h2 class="text-xl font-bold">
+                <i data-lucide="trophy" style="width: 20px; height: 20px"></i>
+                Your Achievements
+              </h2>
+              <p class="text-sm text-muted">Unlock badges by reaching milestones</p>
+            </div>
+          </div>
+
+          <!-- Achievement Stats Grid -->
+          <div class="achievement-stats-grid mb-8">
+            <div class="achievement-stat-card">
+              <div class="stat-card-icon unlocked">
+                <i data-lucide="star"></i>
+              </div>
+              <div class="stat-card-content">
+                <p class="stat-card-value" id="achievements-unlocked-count">0</p>
+                <p class="stat-card-label">Unlocked</p>
+              </div>
+            </div>
+            <div class="achievement-stat-card">
+              <div class="stat-card-icon total">
+                <i data-lucide="target"></i>
+              </div>
+              <div class="stat-card-content">
+                <p class="stat-card-value" id="achievements-total-count">13</p>
+                <p class="stat-card-label">Total Badges</p>
+              </div>
+            </div>
+            <div class="achievement-stat-card">
+              <div class="stat-card-icon progress">
+                <i data-lucide="zap"></i>
+              </div>
+              <div class="stat-card-content">
+                <p class="stat-card-value" id="achievements-progress">0%</p>
+                <p class="stat-card-label">Complete</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Filters -->
+          <div class="achievement-category-filters mb-8">
+            <button class="achievement-category-btn active" data-category="all">All Badges</button>
+            <button class="achievement-category-btn" data-category="streak">Streaks</button>
+            <button class="achievement-category-btn" data-category="deepwork">Deep Work</button>
+            <button class="achievement-category-btn" data-category="tasks">Tasks</button>
+            <button class="achievement-category-btn" data-category="special">Special</button>
+          </div>
+
+          <!-- Badges Grid -->
+          <div class="achievement-showcase">
+            <div id="achievements-container" class="badges-showcase-grid">
+              <!-- Badges will be rendered here -->
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- LOG MODAL -->
     <div id="log-modal" class="modal hidden">
-        <div class="modal-content glass">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold">Log Activity</h3>
-                <button id="close-modal" class="p-2 hover:bg-[hsl(var(--foreground)/0.05)] rounded-full transition-colors">
-                    <i data-lucide="x" size="20"></i>
-                </button>
-            </div>
-            
-            <form id="log-form">
-                <input type="hidden" id="log-hour">
-                
-                <div class="mb-6">
-                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-3">Category</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="category-radio">
-                            <input type="radio" name="category" value="DEEP_WORK" checked>
-                            <span class="radio-tile color-primary">
-                                <i data-lucide="zap" size="18"></i>
-                                <span>Deep Work</span>
-                            </span>
-                        </label>
-                        <label class="category-radio">
-                            <input type="radio" name="category" value="SHALLOW">
-                            <span class="radio-tile color-warning">
-                                <i data-lucide="check-square" size="18"></i>
-                                <span>Shallow</span>
-                            </span>
-                        </label>
-                        <label class="category-radio">
-                            <input type="radio" name="category" value="DISTRACTION">
-                            <span class="radio-tile color-danger">
-                                <i data-lucide="alert-circle" size="18"></i>
-                                <span>Distraction</span>
-                            </span>
-                        </label>
-                        <label class="category-radio">
-                            <input type="radio" name="category" value="REST">
-                            <span class="radio-tile color-accent">
-                                <i data-lucide="coffee" size="18"></i>
-                                <span>Rest</span>
-                            </span>
-                        </label>
-                        
-                        <label class="category-radio">
-                            <input type="radio" name="category" value="SLEEP">
-                            <span class="radio-tile color-sleep">
-                                <i data-lucide="moon" size="18"></i>
-                                <span>Sleep</span>
-                            </span>
-                        </label>
-
-                        <label class="category-radio">
-                            <input type="radio" name="category" value="EXERCISE">
-                            <span class="radio-tile color-exercise">
-                                <i data-lucide="dumbbell" size="18"></i>
-                                <span>Exercise</span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label class="block text-xs uppercase tracking-wider text-muted font-bold mb-3">Task / Note</label>
-                    <textarea id="log-note" rows="3" class="settings-input" style="resize: none;" placeholder="What did you work on?"></textarea>
-                </div>
-
-                <button type="submit" class="btn-primary w-full">
-                    <i data-lucide="check" style="width: 18px; height: 18px;"></i>
-                    Save Entry
-                </button>
-            </form>
+      <div class="modal-content glass">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-lg font-bold">Log Activity</h3>
+          <button
+            id="close-modal"
+            class="p-2 hover:bg-[hsl(var(--foreground)/0.05)] rounded-full transition-colors"
+          >
+            <i data-lucide="x" size="20"></i>
+          </button>
         </div>
-    </div>
 
+        <form id="log-form">
+          <input type="hidden" id="log-hour" />
 
+          <div class="mb-6">
+            <label
+              class="block text-xs uppercase tracking-wider text-muted font-bold mb-3"
+              >Category</label
+            >
+            <div class="grid grid-cols-2 gap-3">
+              <label class="category-radio">
+                <input type="radio" name="category" value="DEEP_WORK" checked />
+                <span class="radio-tile color-primary">
+                  <i data-lucide="zap" size="18"></i>
+                  <span>Deep Work</span>
+                </span>
+              </label>
+              <label class="category-radio">
+                <input type="radio" name="category" value="SHALLOW" />
+                <span class="radio-tile color-warning">
+                  <i data-lucide="check-square" size="18"></i>
+                  <span>Shallow</span>
+                </span>
+              </label>
+              <label class="category-radio">
+                <input type="radio" name="category" value="DISTRACTION" />
+                <span class="radio-tile color-danger">
+                  <i data-lucide="alert-circle" size="18"></i>
+                  <span>Distraction</span>
+                </span>
+              </label>
+              <label class="category-radio">
+                <input type="radio" name="category" value="REST" />
+                <span class="radio-tile color-accent">
+                  <i data-lucide="coffee" size="18"></i>
+                  <span>Rest</span>
+                </span>
+              </label>
 
+              <label class="category-radio">
+                <input type="radio" name="category" value="SLEEP" />
+                <span class="radio-tile color-sleep">
+                  <i data-lucide="moon" size="18"></i>
+                  <span>Sleep</span>
+                </span>
+              </label>
 
-                <!-- ANALYTICS VIEW -->
-                <div id="view-analytics" class="view-section hidden">
-                    <div class="analytics-header">
-                        <div>
-                            <h2 class="text-xl font-bold">Analytics & Insights</h2>
-                            <p class="text-sm text-muted">Deep dive into your productivity patterns</p>
-                        </div>
-                        <div class="analytics-controls">
-                            <button class="analytics-range-btn active" data-range="7">7 Days</button>
-                            <button class="analytics-range-btn" data-range="30">30 Days</button>
-                        </div>
-                    </div>
+              <label class="category-radio">
+                <input type="radio" name="category" value="EXERCISE" />
+                <span class="radio-tile color-exercise">
+                  <i data-lucide="dumbbell" size="18"></i>
+                  <span>Exercise</span>
+                </span>
+              </label>
+            </div>
+          </div>
 
-                    <!-- KPIs -->
-                    <div class="analytics-kpi-grid">
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Total Deep Work</p>
-                                <div class="stat-icon primary"><i data-lucide="zap"></i></div>
-                            </div>
-                            <p class="stat-value" id="analytics-total-deep">0h</p>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Avg Efficiency</p>
-                                <div class="stat-icon success"><i data-lucide="activity"></i></div>
-                            </div>
-                            <p class="stat-value" id="analytics-avg-efficiency">0%</p>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <p class="stat-label">Focus Sessions</p>
-                                <div class="stat-icon accent"><i data-lucide="layers"></i></div>
-                            </div>
-                            <p class="stat-value" id="analytics-focus-sessions">0</p>
-                        </div>
-                    </div>
+          <div class="mb-6">
+            <label
+              class="block text-xs uppercase tracking-wider text-muted font-bold mb-3"
+              >Task / Note</label
+            >
+            <textarea
+              id="log-note"
+              rows="3"
+              class="settings-input"
+              style="resize: none"
+              placeholder="What did you work on?"
+            ></textarea>
+          </div>
 
-                    <!-- Trend Chart -->
-                    <div class="analytics-chart-container">
-                        <h3 class="mb-4 text-sm font-bold text-muted uppercase tracking-wider">Productivity Trend</h3>
-                        <div class="chart-wrapper">
-                            <canvas id="analytics-trend-chart"></canvas>
-                        </div>
-                    </div>
+          <button type="submit" class="btn-primary w-full">
+            <i data-lucide="check" style="width: 18px; height: 18px"></i>
+            Save Entry
+          </button>
+        </form>
+      </div>
 
-                    <!-- Row: Breakdown + Heatmap -->
-                    <div class="analytics-chart-row">
-                        <!-- Heatmap -->
-                        <div>
-                            <h3 class="mb-4 text-sm font-bold text-muted uppercase tracking-wider">Focus Heatmap (Best Hours)</h3>
-                            <div id="analytics-heatmap"></div>
-                        </div>
-                        <!-- Breakdown -->
-                        <div class="analytics-chart-container" style="height: auto; min-height: 380px;">
-                            <h3 class="mb-4 text-sm font-bold text-muted uppercase tracking-wider">Distribution</h3>
-                            <div class="chart-wrapper" style="height: 280px;">
-                                <canvas id="analytics-breakdown-chart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-    <!-- Scripts -->
+    </main>
     <script src="js/pomodoro.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/goals.js"></script>
@@ -772,125 +1303,164 @@
     <script src="js/analytics.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Initialize Icons
-        lucide.createIcons();
-        
-        // Initialize Pomodoro Timer - wait for app to be ready
-        function initPomodoro() {
-            if (window.app) {
-                console.log('[Init] Initializing Pomodoro Timer');
-                window.pomodoroTimer = new PomodoroTimer(window.app);
-            } else {
-                console.log('[Init] Waiting for app... retrying in 100ms');
-                setTimeout(initPomodoro, 100);
-            }
-        }
-        
-        // Initialize Notification Service
-        function initNotifications() {
-            if (window.app) {
-                console.log('[Init] Initializing Notification Service');
-                window.notificationService = new NotificationService(window.app);
-                
-                // Bind notification settings events
-                bindNotificationSettings();
-            } else {
-                console.log('[Init] Waiting for app for notifications... retrying in 100ms');
-                setTimeout(initNotifications, 100);
-            }
-        }
-        
-        // Initialize Goals & Badges
-        function initGoalsAndBadges() {
-            if (window.app) {
-                console.log('[Init] Initializing Goals & Badges');
-                window.goalsManager = new GoalsManager(window.app);
-                window.badgeSystem = new BadgeSystem(window.app);
-                window.analyticsManager = new AnalyticsManager(window.app);
-                
-                // Check for new badge unlocks on page load
-                window.badgeSystem.checkAllBadges();
-                
-                // Update all goal progress
-                window.goalsManager.updateAllGoalProgress();
-                
-                // Hook into data changes to check badges and goals
-                const originalSaveData = window.app.saveData;
-                window.app.saveData = function() {
-                    originalSaveData.call(window.app);
-                    
-                    // Check for badge unlocks
-                    if (window.badgeSystem) {
-                        window.badgeSystem.checkAllBadges();
-                    }
-                    
-                    // Update goal progress
-                    if (window.goalsManager) {
-                        window.goalsManager.updateAllGoalProgress();
-                    }
-                };
-                
-                console.log('[Goals & Badges] System active');
-            } else {
-                console.log('[Init] Waiting for app for goals/badges... retrying in 100ms');
-                setTimeout(initGoalsAndBadges, 100);
-            }
-        }
-        
-        function bindNotificationSettings() {
-            const service = window.notificationService;
-            
-            // Load settings
-            document.getElementById('notifications-enabled').checked = service.settings.enabled;
-            document.getElementById('daily-reminder-enabled').checked = service.settings.dailyReminderEnabled;
-            document.getElementById('daily-reminder-time').value = service.settings.dailyReminderTime;
-            document.getElementById('task-deadlines-enabled').checked = service.settings.taskDeadlinesEnabled;
-            document.getElementById('streak-alerts-enabled').checked = service.settings.streakAlertsEnabled;
-           document.getElementById('quiet-hours-enabled').checked = service.settings.quietHoursEnabled;
-            document.getElementById('quiet-hours-start').value = service.settings.quietHoursStart;
-            document.getElementById('quiet-hours-end').value = service.settings.quietHoursEnd;
-            
-            // Request permission button
-            document.getElementById('request-notification-permission').addEventListener('click', () => {
-                service.requestPermission();
-            });
-            
-            // Test notification button
-            document.getElementById('test-notification-btn').addEventListener('click', () => {
-                service.sendTestNotification();
-            });
-            
-            // Save on change
-            function saveNotificationSettings() {
-                service.updateSettings({
-                    enabled: document.getElementById('notifications-enabled').checked,
-                    dailyReminderEnabled: document.getElementById('daily-reminder-enabled').checked,
-                    dailyReminderTime: document.getElementById('daily-reminder-time').value,
-                    taskDeadlinesEnabled: document.getElementById('task-deadlines-enabled').checked,
-                    streakAlertsEnabled: document.getElementById('streak-alerts-enabled').checked,
-                    quietHoursEnabled: document.getElementById('quiet-hours-enabled').checked,
-                    quietHoursStart: document.getElementById('quiet-hours-start').value,
-                    quietHoursEnd: document.getElementById('quiet-hours-end').value
-                });
-                window.app.showToast('Notification settings saved!', 'success');
-            }
-            
-            // Add change listeners
-            document.getElementById('notifications-enabled').addEventListener('change', saveNotificationSettings);
-            document.getElementById('daily-reminder-enabled').addEventListener('change', saveNotificationSettings);
-            document.getElementById('daily-reminder-time').addEventListener('change', saveNotificationSettings);
-            document.getElementById('task-deadlines-enabled').addEventListener('change', saveNotificationSettings);
-            document.getElementById('streak-alerts-enabled').addEventListener('change', saveNotificationSettings);
-            document.getElementById('quiet-hours-enabled').addEventListener('change', saveNotificationSettings);
-            document.getElementById('quiet-hours-start').addEventListener('change', saveNotificationSettings);
-            document.getElementById('quiet-hours-end').addEventListener('change', saveNotificationSettings);
-        }
-        
-        // Wait a bit for DOMContentLoaded to finish
-        setTimeout(initPomodoro, 300);
-        setTimeout(initNotifications, 400);
-        setTimeout(initGoalsAndBadges, 500);
-    </script>
+      // Initialize Icons
+      lucide.createIcons();
 
-</body>
+      // Initialize Pomodoro Timer - wait for app to be ready
+      function initPomodoro() {
+        if (window.app) {
+          console.log("[Init] Initializing Pomodoro Timer");
+          window.pomodoroTimer = new PomodoroTimer(window.app);
+        } else {
+          console.log("[Init] Waiting for app... retrying in 100ms");
+          setTimeout(initPomodoro, 100);
+        }
+      }
+
+      // Initialize Notification Service
+      function initNotifications() {
+        if (window.app) {
+          console.log("[Init] Initializing Notification Service");
+          window.notificationService = new NotificationService(window.app);
+
+          // Bind notification settings events
+          bindNotificationSettings();
+        } else {
+          console.log(
+            "[Init] Waiting for app for notifications... retrying in 100ms",
+          );
+          setTimeout(initNotifications, 100);
+        }
+      }
+
+      // Initialize Goals & Badges
+      function initGoalsAndBadges() {
+        if (window.app) {
+          console.log("[Init] Initializing Goals & Badges");
+          window.goalsManager = new GoalsManager(window.app);
+          window.badgeSystem = new BadgeSystem(window.app);
+          window.analyticsManager = new AnalyticsManager(window.app);
+
+          // Check for new badge unlocks on page load
+          window.badgeSystem.checkAllBadges();
+
+          // Update all goal progress
+          window.goalsManager.updateAllGoalProgress();
+
+          // Hook into data changes to check badges and goals
+          const originalSaveData = window.app.saveData;
+          window.app.saveData = function () {
+            originalSaveData.call(window.app);
+
+            // Check for badge unlocks
+            if (window.badgeSystem) {
+              window.badgeSystem.checkAllBadges();
+            }
+
+            // Update goal progress
+            if (window.goalsManager) {
+              window.goalsManager.updateAllGoalProgress();
+            }
+          };
+
+          console.log("[Goals & Badges] System active");
+        } else {
+          console.log(
+            "[Init] Waiting for app for goals/badges... retrying in 100ms",
+          );
+          setTimeout(initGoalsAndBadges, 100);
+        }
+      }
+
+      function bindNotificationSettings() {
+        const service = window.notificationService;
+
+        // Load settings
+        document.getElementById("notifications-enabled").checked =
+          service.settings.enabled;
+        document.getElementById("daily-reminder-enabled").checked =
+          service.settings.dailyReminderEnabled;
+        document.getElementById("daily-reminder-time").value =
+          service.settings.dailyReminderTime;
+        document.getElementById("task-deadlines-enabled").checked =
+          service.settings.taskDeadlinesEnabled;
+        document.getElementById("streak-alerts-enabled").checked =
+          service.settings.streakAlertsEnabled;
+        document.getElementById("quiet-hours-enabled").checked =
+          service.settings.quietHoursEnabled;
+        document.getElementById("quiet-hours-start").value =
+          service.settings.quietHoursStart;
+        document.getElementById("quiet-hours-end").value =
+          service.settings.quietHoursEnd;
+
+        // Request permission button
+        document
+          .getElementById("request-notification-permission")
+          .addEventListener("click", () => {
+            service.requestPermission();
+          });
+
+        // Test notification button
+        document
+          .getElementById("test-notification-btn")
+          .addEventListener("click", () => {
+            service.sendTestNotification();
+          });
+
+        // Save on change
+        function saveNotificationSettings() {
+          service.updateSettings({
+            enabled: document.getElementById("notifications-enabled").checked,
+            dailyReminderEnabled: document.getElementById(
+              "daily-reminder-enabled",
+            ).checked,
+            dailyReminderTime: document.getElementById("daily-reminder-time")
+              .value,
+            taskDeadlinesEnabled: document.getElementById(
+              "task-deadlines-enabled",
+            ).checked,
+            streakAlertsEnabled: document.getElementById(
+              "streak-alerts-enabled",
+            ).checked,
+            quietHoursEnabled: document.getElementById("quiet-hours-enabled")
+              .checked,
+            quietHoursStart: document.getElementById("quiet-hours-start").value,
+            quietHoursEnd: document.getElementById("quiet-hours-end").value,
+          });
+          window.app.showToast("Notification settings saved!", "success");
+        }
+
+        // Add change listeners
+        document
+          .getElementById("notifications-enabled")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("daily-reminder-enabled")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("daily-reminder-time")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("task-deadlines-enabled")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("streak-alerts-enabled")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("quiet-hours-enabled")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("quiet-hours-start")
+          .addEventListener("change", saveNotificationSettings);
+        document
+          .getElementById("quiet-hours-end")
+          .addEventListener("change", saveNotificationSettings);
+      }
+
+      // Wait a bit for DOMContentLoaded to finish
+      setTimeout(initPomodoro, 300);
+      setTimeout(initNotifications, 400);
+      setTimeout(initGoalsAndBadges, 500);
+    </script>
+  </body>
 </html>
