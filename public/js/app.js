@@ -14,6 +14,9 @@ class DailyTracker {
       this.data = this.loadData();
       this.tasks = this.loadTasks();
       this.settings = this.loadSettings();
+      this.activeTaskFilter = "all";
+      this.currentViewName = "dashboard";
+      this.isTaskModalOpen = false;
       this.charts = {};
 
       this.init();
@@ -46,6 +49,10 @@ class DailyTracker {
     } catch (e) {
       console.error("View Init Failed", e);
     }
+
+    // Hide FAB by default — only shown on Tasks view
+    const fab = document.getElementById("task-fab-btn");
+    if (fab) fab.style.display = "none";
     try {
       this.initMobileNav();
     } catch (e) {
@@ -147,26 +154,31 @@ class DailyTracker {
   }
 
   showInstallButton() {
-    // Show floating install button
-    let installBtn = document.getElementById("pwa-install-btn");
-    if (!installBtn) {
-      installBtn = document.createElement("button");
-      installBtn.id = "pwa-install-btn";
-      installBtn.className = "btn-primary";
-      installBtn.innerHTML = '<i data-lucide="download"></i> Install App';
-      installBtn.style.cssText =
-        "position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 12px 20px; font-size: 14px;";
+    const installSection = document.getElementById("install-app-section");
+    const installBtn = document.getElementById("install-app-btn");
 
-      installBtn.addEventListener("click", () => this.installApp());
-
-      document.body.appendChild(installBtn);
-      lucide.createIcons();
+    if (installSection) {
+      installSection.classList.remove("hidden");
     }
+
+    if (installBtn) {
+      installBtn.disabled = false;
+    }
+
+    console.log("[PWA] Install available — shown in Settings");
   }
 
   hideInstallButton() {
-    const btn = document.getElementById("pwa-install-btn");
-    if (btn) btn.remove();
+    const installSection = document.getElementById("install-app-section");
+    const installBtn = document.getElementById("install-app-btn");
+
+    if (installBtn) {
+      installBtn.disabled = true;
+    }
+
+    if (installSection) {
+      installSection.classList.add("hidden");
+    }
   }
 
   // --- Theme / Dark Mode ---
@@ -501,12 +513,19 @@ class DailyTracker {
   initTasks() {
     const input = document.getElementById("new-task-input");
     const addBtn = document.getElementById("add-task-btn");
+    const fabBtn = document.getElementById("task-fab-btn");
+    const modalOverlay = document.getElementById("task-modal-overlay");
+    const modalCloseBtn = document.getElementById("task-modal-close");
+    const filterButtons = document.querySelectorAll(".task-filter-btn");
 
     const handleAdd = () => {
+      if (!input) return;
+
       const text = input.value.trim();
       if (text) {
         this.addTask(text);
         input.value = "";
+        this.closeTaskModal();
       }
     };
 
@@ -520,7 +539,42 @@ class DailyTracker {
       addBtn.addEventListener("click", handleAdd);
     }
 
+    if (fabBtn) {
+      fabBtn.addEventListener("click", () => this.openTaskModal());
+    }
+
+    const headerAddBtn = document.getElementById("task-add-header-btn");
+    if (headerAddBtn) {
+      headerAddBtn.addEventListener("click", () => this.openTaskModal());
+    }
+
+    if (modalCloseBtn) {
+      modalCloseBtn.addEventListener("click", () => this.closeTaskModal());
+    }
+
+    if (modalOverlay) {
+      modalOverlay.addEventListener("click", (event) => {
+        if (event.target === modalOverlay) {
+          this.closeTaskModal();
+        }
+      });
+    }
+
+    filterButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const { filter } = button.dataset;
+        this.setTaskFilter(filter || "all");
+      });
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && this.isTaskModalOpen) {
+        this.closeTaskModal();
+      }
+    });
+
     this.initCustomDropdowns();
+    this.updateTaskFilterUI();
     this.renderTasksView();
   }
 
@@ -531,7 +585,7 @@ class DailyTracker {
       const trigger = dropdown.querySelector(".dropdown-trigger");
       const items = dropdown.querySelectorAll(".dropdown-item");
       const valueDisplay = dropdown.querySelector(".dropdown-value");
-      const targetId = dropdown.dataset.target;
+      const { target: targetId } = dropdown.dataset;
       const hiddenInput = document.getElementById(targetId);
 
       if (trigger) {
@@ -546,7 +600,7 @@ class DailyTracker {
 
       items.forEach((item) => {
         item.addEventListener("click", () => {
-          const value = item.dataset.value;
+          const { value } = item.dataset;
           const text = item.textContent.trim();
 
           if (valueDisplay) valueDisplay.textContent = text;
@@ -579,7 +633,7 @@ class DailyTracker {
       const trigger = picker.querySelector(".time-trigger");
       const options = picker.querySelectorAll(".time-option");
       const valueDisplay = picker.querySelector(".time-value");
-      const targetId = picker.dataset.target;
+      const { target: targetId } = picker.dataset;
       const hiddenInput = document.getElementById(targetId);
 
       if (trigger) {
@@ -598,7 +652,7 @@ class DailyTracker {
       options.forEach((option) => {
         option.addEventListener("click", (e) => {
           e.stopPropagation();
-          const hour = option.dataset.hour;
+          const { hour } = option.dataset;
           const text = option.textContent.trim();
 
           if (valueDisplay) valueDisplay.textContent = text;
@@ -609,6 +663,166 @@ class DailyTracker {
           picker.classList.remove("open");
         });
       });
+    });
+  }
+
+  openTaskModal() {
+    const modalOverlay = document.getElementById("task-modal-overlay");
+    if (!modalOverlay) return;
+
+    modalOverlay.classList.remove("hidden");
+    document.body.classList.add("overflow-hidden");
+    this.isTaskModalOpen = true;
+
+    requestAnimationFrame(() => {
+      document.getElementById("new-task-input")?.focus();
+    });
+  }
+
+  closeTaskModal() {
+    const modalOverlay = document.getElementById("task-modal-overlay");
+    if (!modalOverlay) return;
+
+    modalOverlay.classList.add("hidden");
+    document.body.classList.remove("overflow-hidden");
+    this.isTaskModalOpen = false;
+  }
+
+  setTaskFilter(filter) {
+    this.activeTaskFilter = filter;
+    this.updateTaskFilterUI();
+    this.renderTasksView();
+  }
+
+  updateTaskFilterUI() {
+    document.querySelectorAll(".task-filter-btn").forEach((button) => {
+      button.classList.toggle(
+        "active",
+        button.dataset.filter === this.activeTaskFilter,
+      );
+    });
+  }
+
+  getFilteredTasks() {
+    switch (this.activeTaskFilter) {
+      case "today":
+        return this.tasks.filter((task) => !task.completed);
+      case "high":
+        return this.tasks.filter(
+          (task) => task.priority === "high" && !task.completed,
+        );
+      case "done":
+        return this.tasks.filter((task) => task.completed);
+      case "all":
+      default:
+        return [...this.tasks];
+    }
+  }
+
+  sortTasks(tasks) {
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+
+    return [...tasks].sort((taskA, taskB) => {
+      if (taskA.completed !== taskB.completed) {
+        return taskA.completed ? 1 : -1;
+      }
+
+      const taskAPriority = priorityOrder[taskA.priority] ?? 3;
+      const taskBPriority = priorityOrder[taskB.priority] ?? 3;
+      if (taskAPriority !== taskBPriority) {
+        return taskAPriority - taskBPriority;
+      }
+
+      if (taskA.dueTime && taskB.dueTime && taskA.dueTime !== taskB.dueTime) {
+        return taskA.dueTime.localeCompare(taskB.dueTime);
+      }
+
+      if (taskA.dueTime || taskB.dueTime) {
+        return taskA.dueTime ? -1 : 1;
+      }
+
+      return taskB.id - taskA.id;
+    });
+  }
+
+  updateTaskProgress() {
+    const totalTasks = this.tasks.length;
+    const completedTasks = this.tasks.filter((task) => task.completed).length;
+    const completionPercent = totalTasks
+      ? Math.round((completedTasks / totalTasks) * 100)
+      : 0;
+
+    const tasksCompletedEl = document.getElementById("tasks-completed-count");
+    const progressFill = document.getElementById("task-progress-fill");
+    const progressText = document.getElementById("task-progress-text");
+
+    if (tasksCompletedEl) {
+      tasksCompletedEl.textContent = completedTasks;
+    }
+
+    if (progressFill) {
+      progressFill.style.width = `${completionPercent}%`;
+    }
+
+    if (progressText) {
+      progressText.textContent = totalTasks
+        ? `${completionPercent}% complete`
+        : "No tasks yet";
+    }
+  }
+
+  renderTaskEmptyState(container) {
+    const emptyCopy = {
+      all: {
+        title: "All clear!",
+        subtitle: "Add your first task and start structuring the day.",
+      },
+      today: {
+        title: "Today's queue is clear",
+        subtitle: "No active tasks are waiting right now.",
+      },
+      high: {
+        title: "No high-priority items",
+        subtitle: "Nothing urgent is currently marked high priority.",
+      },
+      done: {
+        title: "No completed tasks yet",
+        subtitle: "Check tasks off to build visible momentum here.",
+      },
+    };
+
+    const copy = emptyCopy[this.activeTaskFilter] || emptyCopy.all;
+
+    container.innerHTML = `
+      <div class="empty-state">
+        <img src="/illustrations/empty-tasks.png" alt="No tasks" class="empty-state-illustration" />
+        <p class="empty-state-title">${copy.title}</p>
+        <p class="empty-state-subtitle">${copy.subtitle}</p>
+      </div>
+    `;
+  }
+
+  resetTaskComposer() {
+    ["task-due-time", "task-priority", "task-duration", "task-tag"].forEach(
+      (id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      },
+    );
+
+    document.querySelectorAll(".custom-dropdown").forEach((dropdown) => {
+      const valueDisplay = dropdown.querySelector(".dropdown-value");
+      const items = dropdown.querySelectorAll(".dropdown-item");
+      items.forEach((item) => item.classList.remove("selected"));
+      items[0]?.classList.add("selected");
+      if (valueDisplay && items[0]) {
+        valueDisplay.textContent = items[0].textContent.trim();
+      }
+    });
+
+    document.querySelectorAll(".custom-time-picker").forEach((picker) => {
+      const valueDisplay = picker.querySelector(".time-value");
+      if (valueDisplay) valueDisplay.textContent = "--:--";
     });
   }
 
@@ -630,31 +844,7 @@ class DailyTracker {
     };
     this.tasks.push(task);
     this.saveTasks();
-
-    // Reset form
-    ["task-due-time", "task-priority", "task-duration", "task-tag"].forEach(
-      (id) => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-      },
-    );
-
-    // Reset dropdown displays
-    document.querySelectorAll(".custom-dropdown").forEach((dropdown) => {
-      const valueDisplay = dropdown.querySelector(".dropdown-value");
-      const items = dropdown.querySelectorAll(".dropdown-item");
-      items.forEach((i) => i.classList.remove("selected"));
-      items[0]?.classList.add("selected");
-      if (valueDisplay && items[0])
-        valueDisplay.textContent = items[0].textContent.trim();
-    });
-
-    // Reset time picker
-    document.querySelectorAll(".custom-time-picker").forEach((picker) => {
-      const valueDisplay = picker.querySelector(".time-value");
-      if (valueDisplay) valueDisplay.textContent = "--:--";
-    });
-
+    this.resetTaskComposer();
     this.renderTasksView();
   }
 
@@ -677,29 +867,15 @@ class DailyTracker {
   renderTasksView() {
     const container = document.getElementById("tasks-list-container");
     if (!container) return;
+
+    this.updateTaskProgress();
     container.innerHTML = "";
 
-    const sortedTasks = [...this.tasks].sort((a, b) => {
-      if (a.completed === b.completed) return 0;
-      return a.completed ? 1 : -1;
-    });
-
-    // Update completed count
-    const tasksCompletedEl = document.getElementById("tasks-completed-count");
-    if (tasksCompletedEl) {
-      tasksCompletedEl.textContent = this.tasks.filter(
-        (t) => t.completed,
-      ).length;
-    }
+    const filteredTasks = this.getFilteredTasks();
+    const sortedTasks = this.sortTasks(filteredTasks);
 
     if (sortedTasks.length === 0) {
-      container.innerHTML = `
-                <div class="empty-state">
-                    <img src="/illustrations/empty-tasks.png" alt="No tasks" class="empty-state-illustration" />
-                    <p class="empty-state-title">All clear! ✨</p>
-                    <p class="empty-state-subtitle">Add your first task and start conquering your day.</p>
-                </div>
-            `;
+      this.renderTaskEmptyState(container);
       lucide.createIcons();
       return;
     }
@@ -794,12 +970,51 @@ class DailyTracker {
         );
         if (activeNav) activeNav.classList.add("active");
 
-        // Update Views
-        Object.values(views).forEach((el) => el && el.classList.add("hidden"));
-        views[viewName].classList.remove("hidden");
+        // Find the currently visible view
+        const currentView = Object.values(views).find(
+          (el) => el && !el.classList.contains("hidden"),
+        );
 
-        // Update Header
-        this.updateHeaderForView(viewName);
+        const showNewView = () => {
+          Object.values(views).forEach((el) => {
+            if (el) {
+              el.classList.add("hidden");
+              el.classList.remove("view-exit");
+            }
+          });
+          views[viewName].classList.remove("hidden");
+          this.currentViewName = viewName;
+
+          // Show FAB only on tasks view
+          const fab = document.getElementById("task-fab-btn");
+          if (fab) fab.style.display = viewName === "tasks" ? "flex" : "none";
+
+          if (viewName === "tasks") {
+            this.renderTasksView();
+          }
+
+          if (viewName === "daily") {
+            this.renderDailyView();
+            requestAnimationFrame(() => {
+              this.scrollDailyTimelineToCurrentHour();
+            });
+          }
+
+          // Re-trigger entrance animation
+          views[viewName].style.animation = "none";
+          views[viewName].offsetHeight; // force reflow
+          views[viewName].style.animation = "";
+        };
+
+        // If there's a visible view that's different, play exit anim
+        if (currentView && currentView !== views[viewName]) {
+          currentView.classList.add("view-exit");
+          setTimeout(showNewView, 200);
+        } else {
+          showNewView();
+        }
+
+        // Header is now scoped inside Dashboard — no need to update it per view
 
         // Initialize Achievements if needed
         if (viewName === "achievements" && window.renderAchievementsPage) {
@@ -821,6 +1036,8 @@ class DailyTracker {
         this.showToast("AI Coach coming in Phase 3! 🤖", "info");
       }
     };
+
+    this.switchView = switchView;
 
     // Nav items
     navItems.forEach((item) => {
@@ -845,29 +1062,29 @@ class DailyTracker {
 
   // --- Mobile Navigation ---
   initMobileNav() {
-    const menuBtn = document.getElementById('mobile-menu-btn');
-    const closeBtn = document.getElementById('sidebar-close-btn');
-    const overlay = document.getElementById('sidebar-overlay');
-    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.getElementById("mobile-menu-btn");
+    const closeBtn = document.getElementById("sidebar-close-btn");
+    const overlay = document.getElementById("sidebar-overlay");
+    const sidebar = document.getElementById("sidebar");
 
     if (menuBtn) {
-      menuBtn.addEventListener('click', () => {
-        sidebar?.classList.add('open');
-        overlay?.classList.add('active');
-        document.body.style.overflow = 'hidden';
+      menuBtn.addEventListener("click", () => {
+        sidebar?.classList.add("open");
+        overlay?.classList.add("active");
+        document.body.style.overflow = "hidden";
       });
     }
 
     if (closeBtn) {
-      closeBtn.addEventListener('click', () => this.closeMobileSidebar());
+      closeBtn.addEventListener("click", () => this.closeMobileSidebar());
     }
 
     if (overlay) {
-      overlay.addEventListener('click', () => this.closeMobileSidebar());
+      overlay.addEventListener("click", () => this.closeMobileSidebar());
     }
 
     // Close on resize above mobile breakpoint
-    window.addEventListener('resize', () => {
+    window.addEventListener("resize", () => {
       if (window.innerWidth > 768) {
         this.closeMobileSidebar();
       }
@@ -875,34 +1092,33 @@ class DailyTracker {
   }
 
   closeMobileSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebar-overlay');
-    sidebar?.classList.remove('open');
-    overlay?.classList.remove('active');
-    document.body.style.overflow = '';
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    sidebar?.classList.remove("open");
+    overlay?.classList.remove("active");
+    document.body.style.overflow = "";
   }
 
-  updateHeaderForView(viewName) {
-    const header = document.getElementById("page-header");
-    const quickStats = document.getElementById("quick-stats");
-
-    if (viewName === "dashboard") {
-      if (header) header.style.display = "block";
-      if (quickStats) quickStats.style.display = "flex";
-    } else {
-      if (quickStats) quickStats.style.display = "none";
-    }
+  updateHeaderForView() {
+    // Header is scoped to the dashboard markup.
   }
 
   // --- Daily View ---
   renderDailyView() {
     const container = document.getElementById("hour-stack");
-    if (!container) return;
+    const futurePanel = document.getElementById("future-hours-panel");
+    const futureList = document.getElementById("future-hours-list");
+    const futureCount = document.getElementById("future-hours-count");
+
+    if (!container || !futureList || !futurePanel) return;
+
     container.innerHTML = "";
+    futureList.innerHTML = "";
 
     const todayData = this.getTodayLog();
     const now = new Date();
     const currentHour = now.getHours();
+    let futureHours = 0;
 
     for (let i = 0; i < 24; i++) {
       const hour = i;
@@ -916,7 +1132,9 @@ class DailyTracker {
       });
 
       const box = document.createElement("div");
-      box.className = `hour-box ${isLogged ? log.category.toLowerCase().replace("_", "-") : ""} ${isFuture ? "future" : ""}`;
+      box.className =
+        `hour-box ${isLogged ? log.category.toLowerCase().replace("_", "-") : ""} ${isFuture ? "future" : ""} ${hour === currentHour ? "current-hour" : ""}`.trim();
+      box.dataset.hour = String(hour);
 
       if (!isFuture) {
         box.onclick = () => this.openModal(hour, log);
@@ -959,10 +1177,45 @@ class DailyTracker {
         box.appendChild(line);
       }
 
-      container.appendChild(box);
+      if (isFuture) {
+        futureHours++;
+        futureList.appendChild(box);
+      } else {
+        container.appendChild(box);
+      }
+    }
+
+    if (futureHours === 0) {
+      futurePanel.classList.add("hidden");
+    } else {
+      futurePanel.classList.remove("hidden");
+      futurePanel.open = false;
+      if (futureCount) {
+        futureCount.textContent = `${futureHours} upcoming hour${futureHours === 1 ? "" : "s"}`;
+      }
     }
 
     lucide.createIcons();
+  }
+
+  scrollDailyTimelineToCurrentHour() {
+    if (this.currentViewName !== "daily") return;
+
+    const currentHourBox = document.querySelector(
+      "#hour-stack .hour-box.current-hour",
+    );
+
+    if (currentHourBox) {
+      // Calculate target scroll so the element is centered in the viewport
+      const boxRect = currentHourBox.getBoundingClientRect();
+      const targetScrollY =
+        window.scrollY +
+        boxRect.top -
+        window.innerHeight / 2 +
+        boxRect.height / 2;
+
+      window.scrollTo({ top: Math.max(0, targetScrollY), behavior: "smooth" });
+    }
   }
 
   // --- Modal ---
@@ -1256,8 +1509,8 @@ class DailyTracker {
     const startTime = performance.now();
 
     // Add bounce class
-    el.classList.add('stat-value-animating');
-    setTimeout(() => el.classList.remove('stat-value-animating'), duration);
+    el.classList.add("stat-value-animating");
+    setTimeout(() => el.classList.remove("stat-value-animating"), duration);
 
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
@@ -1265,9 +1518,12 @@ class DailyTracker {
 
       // Spring easing with slight overshoot
       const c4 = (2 * Math.PI) / 3;
-      const easeOutBack = progress === 1
-        ? 1
-        : 1 + 2.7 * Math.pow(progress - 1, 3) + 1.7 * Math.pow(progress - 1, 2);
+      const easeOutBack =
+        progress === 1
+          ? 1
+          : 1 +
+            2.7 * Math.pow(progress - 1, 3) +
+            1.7 * Math.pow(progress - 1, 2);
       const easedProgress = Math.min(easeOutBack, 1.08);
 
       const currentValue = Math.round(
@@ -1296,8 +1552,8 @@ class DailyTracker {
     if (sortedDates.length === 0) return 0;
 
     let streak = 0;
-    const targetHours = this.settings.targetHours;
-    const thresholdPercent = this.settings.streakThreshold / 100;
+    const { targetHours, streakThreshold } = this.settings;
+    const thresholdPercent = streakThreshold / 100;
     const requiredHours = targetHours * thresholdPercent;
 
     const today = new Date();

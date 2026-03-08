@@ -45,28 +45,23 @@ class PomodoroTimer {
     }
 
     createUI() {
-        // Try to find the quick stats container
-        let container = document.getElementById('quick-stats');
+        // Render Pomodoro in the sidebar for persistent access
+        const sidebar = document.getElementById('sidebar');
         
-        if (!container) {
-            // Fallback: try to find page-header
-            container = document.getElementById('page-header');
-        }
-        
-        if (!container) {
-            console.warn('[Pomodoro] Could not find container for timer widget');
+        if (!sidebar) {
+            console.warn('[Pomodoro] Could not find sidebar for timer widget');
             return;
         }
 
         const timerWidget = document.createElement('div');
         timerWidget.id = 'pomodoro-widget';
-        timerWidget.className = 'pomodoro-widget';
+        timerWidget.className = 'pomodoro-widget sidebar-pomodoro';
         timerWidget.innerHTML = `
             <div class="pomodoro-display">
                 <div class="pomodoro-ring">
-                    <svg width="80" height="80" viewBox="0 0 80 80">
-                        <circle cx="40" cy="40" r="36" class="ring-bg"></circle>
-                        <circle cx="40" cy="40" r="36" class="ring-progress" id="pomodoro-progress"></circle>
+                    <svg width="52" height="52" viewBox="0 0 52 52">
+                        <circle cx="26" cy="26" r="23" class="ring-bg" stroke-width="4"></circle>
+                        <circle cx="26" cy="26" r="23" class="ring-progress" id="pomodoro-progress" stroke-width="4"></circle>
                     </svg>
                     <div class="pomodoro-time" id="pomodoro-time">25:00</div>
                 </div>
@@ -91,7 +86,13 @@ class PomodoroTimer {
             </div>
         `;
 
-        container.parentElement.insertBefore(timerWidget, container.nextSibling);
+        // Insert before the user-profile section at the bottom of the sidebar
+        const userSection = sidebar.querySelector('.mt-auto');
+        if (userSection) {
+            sidebar.insertBefore(timerWidget, userSection);
+        } else {
+            sidebar.appendChild(timerWidget);
+        }
         
         // Re-initialize icons after adding new elements
         if (typeof lucide !== 'undefined' && lucide.createIcons) {
@@ -249,10 +250,10 @@ class PomodoroTimer {
                 ? this.state.longBreakDuration : this.state.breakDuration) * 60
             : this.state.workDuration * 60;
         
-        const progress = (this.state.timeRemaining / totalSeconds) * 226; // circumference
+        const progress = (this.state.timeRemaining / totalSeconds) * 144.5; // circumference for r=23
         const progressEl = document.getElementById('pomodoro-progress');
         if (progressEl) {
-            progressEl.style.strokeDashoffset = 226 - progress;
+            progressEl.style.strokeDashoffset = 144.5 - progress;
         }
         
         // Update session counter

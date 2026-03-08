@@ -15,16 +15,16 @@ class CelebrationManager {
 
   init() {
     // Create confetti canvas
-    this.canvas = document.createElement('canvas');
-    this.canvas.id = 'confetti-canvas';
+    this.canvas = document.createElement("canvas");
+    this.canvas.id = "confetti-canvas";
     this.canvas.style.cssText = `
       position: fixed; inset: 0; z-index: 99998;
       pointer-events: none; width: 100%; height: 100%;
     `;
     document.body.appendChild(this.canvas);
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas.getContext("2d");
     this.resize();
-    window.addEventListener('resize', () => this.resize());
+    window.addEventListener("resize", () => this.resize());
 
     // Init scroll reveal
     this.initScrollReveal();
@@ -39,7 +39,7 @@ class CelebrationManager {
     this.initGreetingIcon();
 
     // Add illustration to initial dashboard view
-    this.enhanceView('dashboard');
+    this.enhanceView("dashboard");
   }
 
   resize() {
@@ -56,15 +56,15 @@ class CelebrationManager {
   enhanceView(viewName) {
     const config = {
       dashboard: null, // Dashboard uses greeting icon only
-      tasks: null,     // Tasks has empty-state illustration already wired in app.js
+      tasks: null, // Tasks has empty-state illustration already wired in app.js
       daily: null, // View has hero card integrated in HTML
       analytics: null, // Analytics has empty-state illustration wired in analytics.js
-      'ai-coach': {
-        selector: '#view-dashboard', // AI Coach doesn't have its own view yet
-        src: '/illustrations/ai-coach.png'
+      "ai-coach": {
+        selector: "#view-dashboard", // AI Coach doesn't have its own view yet
+        src: "/illustrations/ai-coach.png",
       },
       achievements: null, // View has hero card integrated in HTML
-      settings: null // View has hero card integrated in HTML
+      settings: null, // View has hero card integrated in HTML
     };
 
     const viewConfig = config[viewName];
@@ -73,21 +73,21 @@ class CelebrationManager {
     const container = document.querySelector(viewConfig.selector);
     if (!container) return;
 
-    if (viewConfig.position === 'header-right') {
+    if (viewConfig.position === "header-right") {
       // Find the first heading area in the view and inject illustration
       const header = container.querySelector('.flex, h2, [class*="header"]');
       if (!header) return;
 
       const headerParent = header.parentElement || header;
-      if (headerParent.querySelector('.view-illustration')) return;
+      if (headerParent.querySelector(".view-illustration")) return;
 
-      headerParent.style.position = 'relative';
-      headerParent.style.overflow = 'hidden';
+      headerParent.style.position = "relative";
+      headerParent.style.overflow = "hidden";
 
-      const img = document.createElement('img');
+      const img = document.createElement("img");
       img.src = viewConfig.src;
-      img.alt = '';
-      img.className = 'view-illustration';
+      img.alt = "";
+      img.className = "view-illustration";
       headerParent.appendChild(img);
 
       this.illustrationsApplied[viewName] = true;
@@ -97,8 +97,14 @@ class CelebrationManager {
   // --- Confetti System ---
   confetti(x, y, count = 50) {
     const colors = [
-      '#D97741', '#C8652F', '#B8860B', '#6B8E23',
-      '#DAA520', '#F4A460', '#E8B87A', '#90C67C'
+      "#D97741",
+      "#C8652F",
+      "#B8860B",
+      "#6B8E23",
+      "#DAA520",
+      "#F4A460",
+      "#E8B87A",
+      "#90C67C",
     ];
 
     for (let i = 0; i < count; i++) {
@@ -115,7 +121,7 @@ class CelebrationManager {
         gravity: 0.3,
         friction: 0.99,
         opacity: 1,
-        decay: Math.random() * 0.01 + 0.005
+        decay: Math.random() * 0.01 + 0.005,
       });
     }
 
@@ -128,7 +134,7 @@ class CelebrationManager {
   animateConfetti() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    this.particles = this.particles.filter(p => {
+    this.particles = this.particles.filter((p) => {
       p.vx *= p.friction;
       p.vy += p.gravity;
       p.vy *= p.friction;
@@ -142,7 +148,7 @@ class CelebrationManager {
       this.ctx.save();
       this.ctx.globalAlpha = p.opacity;
       this.ctx.translate(p.x, p.y);
-      this.ctx.rotate(p.rotation * Math.PI / 180);
+      this.ctx.rotate((p.rotation * Math.PI) / 180);
       this.ctx.fillStyle = p.color;
       this.ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       this.ctx.restore();
@@ -160,7 +166,7 @@ class CelebrationManager {
 
   // Full screen celebration
   celebrate() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     this.confetti(this.canvas.width * 0.3, 0, 40);
     setTimeout(() => this.confetti(this.canvas.width * 0.7, 0, 40), 150);
     setTimeout(() => this.confetti(this.canvas.width * 0.5, 0, 30), 300);
@@ -168,7 +174,7 @@ class CelebrationManager {
 
   // Small burst at a point
   burst(element) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rect = element.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
@@ -177,38 +183,41 @@ class CelebrationManager {
 
   // --- Scroll Reveal ---
   initScrollReveal() {
-    const mainContent = document.querySelector('.main-content');
+    const mainContent = document.querySelector(".main-content");
     if (!mainContent) return;
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-        }
-      });
-    }, {
-      root: mainContent,
-      threshold: 0.1,
-      rootMargin: '0px 0px -40px 0px'
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("revealed");
+          }
+        });
+      },
+      {
+        root: mainContent,
+        threshold: 0.1,
+        rootMargin: "0px 0px -40px 0px",
+      },
+    );
 
     const revealElements = document.querySelectorAll(
-      '.chart-card, .pomodoro-widget, .settings-card'
+      ".chart-card, .pomodoro-widget, .settings-card",
     );
-    revealElements.forEach(el => {
-      el.classList.add('reveal-on-scroll');
+    revealElements.forEach((el) => {
+      el.classList.add("reveal-on-scroll");
       observer.observe(el);
     });
   }
 
   // --- Ripple Effect ---
   initRippleEffect() {
-    document.addEventListener('click', (e) => {
-      const target = e.target.closest('.btn-primary, .btn-outline, .nav-item');
+    document.addEventListener("click", (e) => {
+      const target = e.target.closest(".btn-primary, .btn-outline, .nav-item");
       if (!target) return;
 
-      const ripple = document.createElement('span');
-      ripple.classList.add('ripple-effect');
+      const ripple = document.createElement("span");
+      ripple.classList.add("ripple-effect");
 
       const rect = target.getBoundingClientRect();
       const size = Math.max(rect.width, rect.height);
@@ -217,16 +226,16 @@ class CelebrationManager {
       ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
 
       target.appendChild(ripple);
-      ripple.addEventListener('animationend', () => ripple.remove());
+      ripple.addEventListener("animationend", () => ripple.remove());
     });
   }
 
   // --- Checkbox Celebration Particles ---
   initCheckboxCelebrations() {
-    document.addEventListener('change', (e) => {
-      if (!e.target.classList.contains('task-checkbox')) return;
+    document.addEventListener("change", (e) => {
+      if (!e.target.classList.contains("task-checkbox")) return;
       if (!e.target.checked) return;
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
       this.burst(e.target);
     });
@@ -234,33 +243,33 @@ class CelebrationManager {
 
   // --- Greeting Icon ---
   initGreetingIcon() {
-    const welcomeMsg = document.getElementById('welcome-message');
+    const welcomeMsg = document.getElementById("welcome-message");
     if (!welcomeMsg) return;
 
     const hour = new Date().getHours();
     let emoji;
 
     if (hour < 12) {
-      emoji = '☀️';
+      emoji = "☀️";
     } else if (hour < 17) {
-      emoji = '🌤️';
+      emoji = "🌤️";
     } else {
-      emoji = '🌙';
+      emoji = "🌙";
     }
 
     const firstText = welcomeMsg.childNodes[0];
     if (firstText && firstText.nodeType === 3) {
-      firstText.textContent = emoji + ' ' + firstText.textContent.trim();
+      firstText.textContent = emoji + " " + firstText.textContent.trimStart();
     }
   }
 }
 
 // --- Splash Screen ---
 function hideSplashScreen() {
-  const splash = document.getElementById('splash-screen');
+  const splash = document.getElementById("splash-screen");
   if (splash) {
     setTimeout(() => {
-      splash.classList.add('hidden');
+      splash.classList.add("hidden");
       setTimeout(() => splash.remove(), 500);
     }, 800);
   }
@@ -269,7 +278,7 @@ function hideSplashScreen() {
 // Initialize on DOM ready
 const celebrationManager = new CelebrationManager();
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   celebrationManager.init();
   hideSplashScreen();
 });

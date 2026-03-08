@@ -139,67 +139,67 @@
 
       <!-- Main Content -->
       <main class="main-content md:ml-72">
-        <!-- Premium Header with Welcome Message -->
-        <header class="page-header" id="page-header">
-          <h1 id="welcome-message">
-            Welcome back,
-            <span class="gradient-text" id="header-user-name">Champion</span>
-          </h1>
-          <p class="text-muted" id="header-subtitle">
-            Here's your performance overview for today
-          </p>
-
-          <!-- Quick Stats Row (Crextio-style) -->
-          <div class="quick-stats" id="quick-stats">
-            <div class="quick-stat">
-              <div class="quick-stat-icon">
-                <i data-lucide="hourglass"></i>
-              </div>
-              <div>
-                <div class="quick-stat-value" id="qs-hours">0</div>
-                <div class="quick-stat-label">Hours Tracked</div>
-              </div>
-            </div>
-            <div class="quick-stat">
-              <div class="quick-stat-icon">
-                <i data-lucide="flame"></i>
-              </div>
-              <div>
-                <div class="quick-stat-value" id="qs-streak">0</div>
-                <div class="quick-stat-label">Day Streak</div>
-              </div>
-            </div>
-            <div class="quick-stat">
-              <div class="quick-stat-icon">
-                <i data-lucide="circle-check-big"></i>
-              </div>
-              <div>
-                <div class="quick-stat-value" id="qs-tasks">0</div>
-                <div class="quick-stat-label">Tasks Done</div>
-              </div>
-            </div>
-            <div
-              class="quick-stat"
-              id="badges-widget"
-              style="cursor: pointer"
-              title="Click to view badges"
-              onclick="window.openBadgeModal && window.openBadgeModal()"
-            >
-              <div class="quick-stat-icon">
-                <i data-lucide="trophy"></i>
-              </div>
-              <div>
-                <div class="quick-stat-value" id="qs-badges">0/13</div>
-                <div class="quick-stat-label">Badges</div>
-              </div>
-            </div>
-          </div>
-        </header>
-
         <!-- Views Container -->
         <div id="view-container">
           <!-- DASHBOARD VIEW -->
           <div id="view-dashboard" class="view-section active">
+            <!-- Premium Header — scoped to Dashboard only -->
+            <header class="page-header" id="page-header">
+              <h1 id="welcome-message">
+                Welcome back,
+                <span class="gradient-text" id="header-user-name">Champion</span>
+              </h1>
+              <p class="text-muted" id="header-subtitle">
+                Here's your performance overview for today
+              </p>
+
+              <!-- Quick Stats Row (Crextio-style) -->
+              <div class="quick-stats" id="quick-stats">
+                <div class="quick-stat">
+                  <div class="quick-stat-icon">
+                    <i data-lucide="hourglass"></i>
+                  </div>
+                  <div>
+                    <div class="quick-stat-value" id="qs-hours">0</div>
+                    <div class="quick-stat-label">Hours Tracked</div>
+                  </div>
+                </div>
+                <div class="quick-stat">
+                  <div class="quick-stat-icon">
+                    <i data-lucide="flame"></i>
+                  </div>
+                  <div>
+                    <div class="quick-stat-value" id="qs-streak">0</div>
+                    <div class="quick-stat-label">Day Streak</div>
+                  </div>
+                </div>
+                <div class="quick-stat">
+                  <div class="quick-stat-icon">
+                    <i data-lucide="circle-check-big"></i>
+                  </div>
+                  <div>
+                    <div class="quick-stat-value" id="qs-tasks">0</div>
+                    <div class="quick-stat-label">Tasks Done</div>
+                  </div>
+                </div>
+                <div
+                  class="quick-stat"
+                  id="badges-widget"
+                  style="cursor: pointer"
+                  title="Click to view badges"
+                  onclick="window.openBadgeModal && window.openBadgeModal()"
+                >
+                  <div class="quick-stat-icon">
+                    <i data-lucide="trophy"></i>
+                  </div>
+                  <div>
+                    <div class="quick-stat-value" id="qs-badges">0/13</div>
+                    <div class="quick-stat-label">Badges</div>
+                  </div>
+                </div>
+              </div>
+            </header>
+
             <!-- Premium Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               <!-- Stat Card 1: Efficiency -->
@@ -387,60 +387,75 @@
 
           <!-- TASKS VIEW -->
           <div id="view-tasks" class="view-section hidden">
-            <div class="flex justify-between items-center mb-6">
-              <div>
-                <h2 class="text-xl font-bold">Task Command Center</h2>
-                <p class="text-sm text-muted">
-                  Organize and conquer your to-dos
-                </p>
-              </div>
-              <div class="flex items-center gap-3">
-                <div
-                  class="glass px-4 py-2 text-sm font-medium flex items-center gap-2"
-                >
-                  <i
-                    data-lucide="check-circle-2"
-                    style="
-                      width: 16px;
-                      height: 16px;
-                      color: hsl(var(--color-success));
-                    "
-                  ></i>
-                  <span id="tasks-completed-count">0</span> completed
+            <!-- Tasks Header with Progress -->
+            <div class="tasks-header-section mb-6">
+              <div class="flex justify-between items-center mb-4">
+                <div>
+                  <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i data-lucide="check-square" style="width: 22px; height: 22px; color: hsl(var(--color-primary));"></i>
+                    Task Command Center
+                  </h2>
+                  <p class="text-sm text-muted">Organize and conquer your to-dos</p>
                 </div>
+                <div class="flex items-center gap-3">
+                  <div class="glass px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
+                    <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: hsl(var(--color-success));"></i>
+                    <span id="tasks-completed-count">0</span> completed
+                  </div>
+                  <button type="button" class="task-add-header-btn" id="task-add-header-btn" title="Add New Task">
+                    <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                    <span>New Task</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="task-progress-container">
+                <div class="task-progress-bar">
+                  <div class="task-progress-fill" id="task-progress-fill" style="width: 0%"></div>
+                </div>
+                <span class="task-progress-text" id="task-progress-text">0% complete</span>
               </div>
             </div>
 
-            <!-- Two Column Layout -->
-            <div class="tasks-layout">
-              <!-- Left: Add Task Panel -->
-              <div class="task-form-panel">
-                <div class="task-form-header">
-                  <i
-                    data-lucide="plus-circle"
-                    style="width: 20px; height: 20px"
-                  ></i>
-                  <span>Add New Task</span>
+            <!-- Filter Tabs -->
+            <div class="task-filter-tabs mb-4">
+              <button type="button" class="task-filter-btn active" data-filter="all">All</button>
+              <button type="button" class="task-filter-btn" data-filter="today">Today</button>
+              <button type="button" class="task-filter-btn" data-filter="high">High Priority</button>
+              <button type="button" class="task-filter-btn" data-filter="done">Completed</button>
+            </div>
+
+            <!-- Full-Width Task List -->
+            <div id="tasks-list-container" class="task-list-full">
+              <!-- Tasks injected here -->
+            </div>
+
+            <!-- FAB Button for Adding Tasks -->
+            <button type="button" class="task-fab" id="task-fab-btn" title="Add New Task">
+              <i data-lucide="plus" style="width: 24px; height: 24px"></i>
+            </button>
+
+            <!-- Add Task Modal Overlay -->
+            <div class="task-modal-overlay hidden" id="task-modal-overlay">
+              <div class="task-modal-sheet glass">
+                <div class="task-modal-header">
+                  <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i data-lucide="plus-circle" style="width: 20px; height: 20px"></i>
+                    Add New Task
+                  </h3>
+                  <button type="button" class="task-modal-close" id="task-modal-close">
+                    <i data-lucide="x" size="20"></i>
+                  </button>
                 </div>
 
-                <div class="task-form-body">
-                  <input
-                    type="text"
-                    id="new-task-input"
-                    placeholder="What needs to be done?"
-                    class="task-input-field"
-                  />
+                <div class="task-modal-body">
+                  <input type="text" id="new-task-input" placeholder="What needs to be done?" class="task-input-field" />
 
                   <div class="task-form-options-vertical">
-                    <!-- Due Time -->
                     <div class="task-option-row">
-                      <label
-                        ><i data-lucide="clock" size="14"></i> Due Time</label
-                      >
-                      <div
-                        class="custom-time-picker"
-                        data-target="task-due-time"
-                      >
+                      <label><i data-lucide="clock" size="14"></i> Due Time</label>
+                      <div class="custom-time-picker" data-target="task-due-time">
                         <button type="button" class="time-trigger">
                           <span class="time-value">--:--</span>
                           <i data-lucide="chevron-down" size="14"></i>
@@ -470,12 +485,8 @@
                       </div>
                       <input type="hidden" id="task-due-time" value="" />
                     </div>
-
-                    <!-- Priority -->
                     <div class="task-option-row">
-                      <label
-                        ><i data-lucide="flag" size="14"></i> Priority</label
-                      >
+                      <label><i data-lucide="flag" size="14"></i> Priority</label>
                       <div class="custom-dropdown" data-target="task-priority">
                         <button type="button" class="dropdown-trigger">
                           <span class="dropdown-value">None</span>
@@ -483,25 +494,15 @@
                         </button>
                         <div class="dropdown-menu">
                           <div class="dropdown-item" data-value="">None</div>
-                          <div class="dropdown-item" data-value="low">
-                            <span class="dot dot-low"></span> Low
-                          </div>
-                          <div class="dropdown-item" data-value="medium">
-                            <span class="dot dot-medium"></span> Medium
-                          </div>
-                          <div class="dropdown-item" data-value="high">
-                            <span class="dot dot-high"></span> High
-                          </div>
+                          <div class="dropdown-item" data-value="low"><span class="dot dot-low"></span> Low</div>
+                          <div class="dropdown-item" data-value="medium"><span class="dot dot-medium"></span> Medium</div>
+                          <div class="dropdown-item" data-value="high"><span class="dot dot-high"></span> High</div>
                         </div>
                       </div>
                       <input type="hidden" id="task-priority" value="" />
                     </div>
-
-                    <!-- Duration -->
                     <div class="task-option-row">
-                      <label
-                        ><i data-lucide="timer" size="14"></i> Duration</label
-                      >
+                      <label><i data-lucide="timer" size="14"></i> Duration</label>
                       <div class="custom-dropdown" data-target="task-duration">
                         <button type="button" class="dropdown-trigger">
                           <span class="dropdown-value">-</span>
@@ -509,24 +510,14 @@
                         </button>
                         <div class="dropdown-menu">
                           <div class="dropdown-item" data-value="">-</div>
-                          <div class="dropdown-item" data-value="15">
-                            15 min
-                          </div>
-                          <div class="dropdown-item" data-value="30">
-                            30 min
-                          </div>
-                          <div class="dropdown-item" data-value="60">
-                            1 hour
-                          </div>
-                          <div class="dropdown-item" data-value="120">
-                            2 hours
-                          </div>
+                          <div class="dropdown-item" data-value="15">15 min</div>
+                          <div class="dropdown-item" data-value="30">30 min</div>
+                          <div class="dropdown-item" data-value="60">1 hour</div>
+                          <div class="dropdown-item" data-value="120">2 hours</div>
                         </div>
                       </div>
                       <input type="hidden" id="task-duration" value="" />
                     </div>
-
-                    <!-- Tag -->
                     <div class="task-option-row">
                       <label><i data-lucide="tag" size="14"></i> Tag</label>
                       <div class="custom-dropdown" data-target="task-tag">
@@ -536,50 +527,23 @@
                         </button>
                         <div class="dropdown-menu">
                           <div class="dropdown-item" data-value="">None</div>
-                          <div class="dropdown-item" data-value="work">
-                            <span class="dot dot-work"></span> Work
-                          </div>
-                          <div class="dropdown-item" data-value="personal">
-                            <span class="dot dot-personal"></span> Personal
-                          </div>
-                          <div class="dropdown-item" data-value="health">
-                            <span class="dot dot-health"></span> Health
-                          </div>
-                          <div class="dropdown-item" data-value="learning">
-                            <span class="dot dot-learning"></span> Learning
-                          </div>
+                          <div class="dropdown-item" data-value="work"><span class="dot dot-work"></span> Work</div>
+                          <div class="dropdown-item" data-value="personal"><span class="dot dot-personal"></span> Personal</div>
+                          <div class="dropdown-item" data-value="health"><span class="dot dot-health"></span> Health</div>
+                          <div class="dropdown-item" data-value="learning"><span class="dot dot-learning"></span> Learning</div>
                         </div>
                       </div>
                       <input type="hidden" id="task-tag" value="" />
                     </div>
                   </div>
 
-                  <button
-                    id="add-task-btn"
-                    class="btn-primary w-full"
-                    style="margin-top: 1rem"
-                  >
-                    <i data-lucide="plus" size="18"></i>
-                    Add Task
+                  <button id="add-task-btn" class="btn-primary w-full" style="margin-top: 1rem">
+                    <i data-lucide="plus" size="18"></i> Add Task
                   </button>
-                </div>
-              </div>
-
-              <!-- Right: Task List -->
-              <div class="task-list-panel">
-                <div class="task-list-header">
-                  <i
-                    data-lucide="list-todo"
-                    style="width: 20px; height: 20px"
-                  ></i>
-                  <span>Your Tasks</span>
-                </div>
-                <div id="tasks-list-container" class="task-list-body">
-                  <!-- Tasks injected here -->
-                </div>
-              </div>
-            </div>
-          </div>
+                </div><!-- /task-modal-body -->
+              </div><!-- /task-modal-sheet -->
+            </div><!-- /task-modal-overlay -->
+          </div><!-- /view-tasks -->
 
           <!-- DAILY VIEW (Stack of Boxes) -->
           <div id="view-daily" class="view-section hidden">
@@ -599,9 +563,29 @@
               </div>
             </div>
 
+            <div class="daily-legend mb-6" aria-label="Activity legend">
+              <span class="daily-legend-item"><span class="daily-legend-swatch deep-work"></span>Deep Work</span>
+              <span class="daily-legend-item"><span class="daily-legend-swatch shallow"></span>Shallow Work</span>
+              <span class="daily-legend-item"><span class="daily-legend-swatch distraction"></span>Distraction</span>
+              <span class="daily-legend-item"><span class="daily-legend-swatch rest"></span>Rest</span>
+              <span class="daily-legend-item"><span class="daily-legend-swatch sleep"></span>Sleep</span>
+              <span class="daily-legend-item"><span class="daily-legend-swatch exercise"></span>Exercise</span>
+            </div>
+
             <div class="hour-stack" id="hour-stack">
               <!-- JS will populate 24 hour boxes here -->
             </div>
+
+            <details class="future-hours-panel hidden" id="future-hours-panel">
+              <summary class="future-hours-summary">
+                <div>
+                  <span class="future-hours-title">Upcoming Hours</span>
+                  <span class="future-hours-count" id="future-hours-count">0 upcoming hours</span>
+                </div>
+                <i data-lucide="chevron-down" class="future-hours-chevron"></i>
+              </summary>
+              <div class="future-hours-list" id="future-hours-list"></div>
+            </details>
           </div>
 
           <!-- SETTINGS VIEW -->
@@ -616,8 +600,16 @@
               </div>
             </div>
 
-            <div class="settings-card max-w-lg">
+            <div class="settings-card">
               <form id="settings-form">
+                <!-- 👤 Profile -->
+                <details class="settings-accordion" open>
+                  <summary class="settings-accordion-header">
+                    <span class="settings-accordion-icon">👤</span>
+                    <span class="settings-accordion-title">Profile</span>
+                    <i data-lucide="chevron-down" class="settings-accordion-chevron"></i>
+                  </summary>
+                  <div class="settings-accordion-body">
                 <div class="mb-6">
                   <label class="block text-sm font-semibold text-muted mb-3"
                     >Your Name</label
@@ -727,6 +719,17 @@
                     Choose your avatar style
                   </p>
                 </div>
+                  </div>
+                </details>
+
+                <!-- 🎯 Goals & Targets -->
+                <details class="settings-accordion">
+                  <summary class="settings-accordion-header">
+                    <span class="settings-accordion-icon">🎯</span>
+                    <span class="settings-accordion-title">Goals & Targets</span>
+                    <i data-lucide="chevron-down" class="settings-accordion-chevron"></i>
+                  </summary>
+                  <div class="settings-accordion-body">
 
                 <div class="mb-6">
                   <label class="block text-sm font-semibold text-muted mb-3"
@@ -769,7 +772,17 @@
                     Minimum efficiency required to maintain streak
                   </p>
                 </div>
+                  </div>
+                </details>
 
+                <!-- 🎨 Appearance -->
+                <details class="settings-accordion">
+                  <summary class="settings-accordion-header">
+                    <span class="settings-accordion-icon">🎨</span>
+                    <span class="settings-accordion-title">Appearance</span>
+                    <i data-lucide="chevron-down" class="settings-accordion-chevron"></i>
+                  </summary>
+                  <div class="settings-accordion-body">
                 <!-- Theme Toggle -->
                 <div class="mb-8">
                   <label class="block text-sm font-semibold text-muted mb-3"
@@ -791,7 +804,17 @@
                     Switch between light and dark themes
                   </p>
                 </div>
+                  </div>
+                </details>
 
+                <!-- 💾 Data Management -->
+                <details class="settings-accordion">
+                  <summary class="settings-accordion-header">
+                    <span class="settings-accordion-icon">💾</span>
+                    <span class="settings-accordion-title">Data Management</span>
+                    <i data-lucide="chevron-down" class="settings-accordion-chevron"></i>
+                  </summary>
+                  <div class="settings-accordion-body">
                 <!-- Data Management -->
                 <div class="mb-8">
                   <label class="block text-sm font-semibold text-muted mb-3"
@@ -821,9 +844,18 @@
                     Backup or restore your data (JSON format)
                   </p>
                 </div>
+                  </div>
+                </details>
 
+                <!-- 🔔 Notifications -->
+                <details class="settings-accordion">
+                  <summary class="settings-accordion-header">
+                    <span class="settings-accordion-icon">🔔</span>
+                    <span class="settings-accordion-title">Notifications & Reminders</span>
+                    <i data-lucide="chevron-down" class="settings-accordion-chevron"></i>
+                  </summary>
+                  <div class="settings-accordion-body">
                 <!-- Notifications Settings -->
-                <div class="mb-8">
                   <label class="block text-sm font-semibold text-muted mb-3"
                     >🔔 Notifications & Reminders</label
                   >
@@ -982,10 +1014,19 @@
                       No notifications during sleep hours
                     </p>
                   </div>
-                </div>
+                  </div><!-- /settings-accordion-body -->
+                </details>
 
+                <!-- 📱 App -->
+                <details class="settings-accordion">
+                  <summary class="settings-accordion-header">
+                    <span class="settings-accordion-icon">📱</span>
+                    <span class="settings-accordion-title">App</span>
+                    <i data-lucide="chevron-down" class="settings-accordion-chevron"></i>
+                  </summary>
+                  <div class="settings-accordion-body">
+                <div id="install-app-section" class="hidden">
                 <!-- Install App -->
-                <div class="mb-8" id="install-app-section">
                   <label class="block text-sm font-semibold text-muted mb-3"
                     >Install App</label
                   >
@@ -1001,6 +1042,9 @@
                     Install as a standalone app on your device
                   </p>
                 </div>
+                </div>
+                  </div>
+                </details>
 
                 <button type="submit" class="btn-primary w-full">
                   <i data-lucide="save" style="width: 18px; height: 18px"></i>
@@ -1009,7 +1053,6 @@
               </form>
             </div>
           </div>
-        </div>
 
           <!-- ANALYTICS VIEW -->
           <div id="view-analytics" class="view-section hidden">
@@ -1162,9 +1205,9 @@
               <!-- Task stats will be dynamically inserted here -->
             </div>
           </div>
-        </div>
+          </div><!-- /view-analytics -->
 
-        <!-- ACHIEVEMENTS VIEW -->
+          <!-- ACHIEVEMENTS VIEW -->
         <div id="view-achievements" class="view-section hidden">
           <!-- Achievements Header -->
           <div class="view-hero-card glass mb-8">
@@ -1226,7 +1269,8 @@
               <!-- Badges will be rendered here -->
             </div>
           </div>
-        </div>
+        </div><!-- /view-achievements -->
+        </div><!-- /view-container -->
       </main>
     </div>
 
