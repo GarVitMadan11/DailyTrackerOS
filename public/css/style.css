@@ -4870,6 +4870,12 @@ kbd {
   line-height: 1.6;
 }
 
+.pomo-settings-hint {
+  font-size: 0.75rem;
+  color: hsl(var(--foreground-muted));
+  margin-top: 0.35rem;
+}
+
 /* Responsive: stack on mobile */
 @media (max-width: 768px) {
   .pomo-view-layout {
