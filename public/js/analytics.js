@@ -890,12 +890,12 @@ class AnalyticsManager {
 
     if (insights.length === 0) {
       container.innerHTML = `
-                <div class="empty-state">
-                    <i data-lucide="brain" style="width: 48px; height: 48px; color: hsl(var(--foreground-muted));"></i>
-                    <p class="empty-message">No insights available yet</p>
-                    <p class="empty-subtitle">Continue logging your activities to unlock personalized insights</p>
-                </div>
-            `;
+              <div class="empty-state">
+                  <img src="/illustrations/empty-analytics.png" alt="No insights yet" class="empty-state-illustration" />
+                  <p class="empty-state-title">Insights are brewing ☕</p>
+                  <p class="empty-state-subtitle">Continue logging your activities to unlock personalized insights</p>
+              </div>
+          `;
       lucide.createIcons();
       return;
     }

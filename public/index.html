@@ -22,6 +22,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
 
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/transitions.css" />
     <link rel="stylesheet" href="css/premium-badges.css" />
     <link rel="stylesheet" href="css/achievements.css" />
     <link rel="manifest" href="manifest.json" />
@@ -41,6 +42,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   </head>
   <body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splash-screen">
+      <div class="splash-logo">
+        <i data-lucide="target"></i>
+      </div>
+      <div class="splash-title">pyTron</div>
+      <div class="splash-subtitle">Performance OS</div>
+      <div class="splash-loader">
+        <div class="splash-loader-bar"></div>
+      </div>
+    </div>
+
     <div class="flex min-h-screen">
       <!-- Mobile Hamburger Button -->
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
@@ -570,24 +583,19 @@
 
           <!-- DAILY VIEW (Stack of Boxes) -->
           <div id="view-daily" class="view-section hidden">
-            <div class="flex justify-between items-center mb-6">
-              <div>
-                <h2 class="text-xl font-bold">Today's Timeline</h2>
-                <p class="text-sm text-muted">Track every hour of your day</p>
+            <div class="view-hero-card glass mb-8">
+              <div class="view-hero-content">
+                <h2 class="text-2xl font-bold mb-2">Today's Timeline</h2>
+                <p class="text-base text-muted">Track every hour of your day, chart your path to success, and stay focused on the journey ahead.</p>
+                <div class="mt-5 flex items-center">
+                  <div class="glass px-5 py-3 font-semibold flex items-center gap-3 inline-flex" id="current-date-display">
+                    <i data-lucide="calendar" style="width: 18px; height: 18px; color: hsl(var(--color-primary));"></i>
+                    <span><!-- JS will populate date --></span>
+                  </div>
+                </div>
               </div>
-              <div
-                class="glass px-5 py-3 font-semibold flex items-center gap-3"
-                id="current-date-display"
-              >
-                <i
-                  data-lucide="calendar"
-                  style="
-                    width: 18px;
-                    height: 18px;
-                    color: hsl(var(--color-primary));
-                  "
-                ></i>
-                <span><!-- JS will populate date --></span>
+              <div class="illustration-container">
+                <img src="illustrations/daily-header.png" alt="Daily Journey" class="floating-illustration" />
               </div>
             </div>
 
@@ -598,9 +606,14 @@
 
           <!-- SETTINGS VIEW -->
           <div id="view-settings" class="view-section hidden">
-            <div class="mb-6">
-              <h2 class="text-xl font-bold">Preferences</h2>
-              <p class="text-sm text-muted">Customize your pyTron experience</p>
+            <div class="view-hero-card glass mb-8">
+              <div class="view-hero-content">
+                <h2 class="text-2xl font-bold mb-2">Preferences</h2>
+                <p class="text-base text-muted">Customize your pyTron experience, tune your engine, and optimize your environment for peak performance.</p>
+              </div>
+              <div class="illustration-container">
+                <img src="illustrations/settings.png" alt="Settings Gears" class="floating-illustration" />
+              </div>
             </div>
 
             <div class="settings-card max-w-lg">
@@ -1154,13 +1167,16 @@
         <!-- ACHIEVEMENTS VIEW -->
         <div id="view-achievements" class="view-section hidden">
           <!-- Achievements Header -->
-          <div class="flex justify-between items-center mb-8">
-            <div>
-              <h2 class="text-xl font-bold">
-                <i data-lucide="trophy" style="width: 20px; height: 20px"></i>
+          <div class="view-hero-card glass mb-8">
+            <div class="view-hero-content">
+              <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+                <i data-lucide="trophy" style="width: 32px; height: 32px; color: hsl(var(--color-secondary));"></i>
                 Your Achievements
               </h2>
-              <p class="text-sm text-muted">Unlock badges by reaching milestones</p>
+              <p class="text-base text-muted">Unlock badges, conquer milestones, and become an elite performer. Celebrate every victory on your path.</p>
+            </div>
+            <div class="illustration-container">
+              <img src="illustrations/achievements.png" alt="Achievements Trophy" class="floating-illustration" />
             </div>
           </div>
 
@@ -1473,5 +1489,7 @@
       setTimeout(initNotifications, 400);
       setTimeout(initGoalsAndBadges, 500);
     </script>
+    <script src="js/celebrations.js"></script>
   </body>
 </html>
+ 

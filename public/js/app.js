@@ -695,10 +695,9 @@ class DailyTracker {
     if (sortedTasks.length === 0) {
       container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i data-lucide="check-circle-2"></i>
-                    </div>
-                    <p class="empty-state-text">No tasks yet. Add one to get started!</p>
+                    <img src="/illustrations/empty-tasks.png" alt="No tasks" class="empty-state-illustration" />
+                    <p class="empty-state-title">All clear! ✨</p>
+                    <p class="empty-state-subtitle">Add your first task and start conquering your day.</p>
                 </div>
             `;
       lucide.createIcons();
@@ -813,6 +812,11 @@ class DailyTracker {
         }
         // Close sidebar on mobile
         this.closeMobileSidebar();
+
+        // Enhance view with illustrations
+        if (window.celebrationManager) {
+          window.celebrationManager.enhanceView(viewName);
+        }
       } else if (viewName === "ai-coach") {
         this.showToast("AI Coach coming in Phase 3! 🤖", "info");
       }
@@ -1248,17 +1252,26 @@ class DailyTracker {
     if (!el) return;
 
     const startValue = parseInt(el.textContent) || 0;
-    const duration = 800;
+    const duration = 900;
     const startTime = performance.now();
+
+    // Add bounce class
+    el.classList.add('stat-value-animating');
+    setTimeout(() => el.classList.remove('stat-value-animating'), duration);
 
     const animate = (currentTime) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Ease out cubic
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+      // Spring easing with slight overshoot
+      const c4 = (2 * Math.PI) / 3;
+      const easeOutBack = progress === 1
+        ? 1
+        : 1 + 2.7 * Math.pow(progress - 1, 3) + 1.7 * Math.pow(progress - 1, 2);
+      const easedProgress = Math.min(easeOutBack, 1.08);
+
       const currentValue = Math.round(
-        startValue + (endValue - startValue) * easeOut,
+        startValue + (endValue - startValue) * Math.min(easedProgress, 1),
       );
 
       el.textContent = currentValue + suffix;
