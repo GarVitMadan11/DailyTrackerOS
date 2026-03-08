@@ -47,6 +47,11 @@ class DailyTracker {
       console.error("View Init Failed", e);
     }
     try {
+      this.initMobileNav();
+    } catch (e) {
+      console.error("Mobile Nav Init Failed", e);
+    }
+    try {
       this.initSettings();
     } catch (e) {
       console.error("Settings Init Failed", e);
@@ -806,6 +811,8 @@ class DailyTracker {
         if (viewName === "analytics" && window.analyticsManager) {
           window.analyticsManager.render();
         }
+        // Close sidebar on mobile
+        this.closeMobileSidebar();
       } else if (viewName === "ai-coach") {
         this.showToast("AI Coach coming in Phase 3! 🤖", "info");
       }
@@ -830,6 +837,45 @@ class DailyTracker {
         });
       }
     });
+  }
+
+  // --- Mobile Navigation ---
+  initMobileNav() {
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('sidebar-close-btn');
+    const overlay = document.getElementById('sidebar-overlay');
+    const sidebar = document.getElementById('sidebar');
+
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        sidebar?.classList.add('open');
+        overlay?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.closeMobileSidebar());
+    }
+
+    if (overlay) {
+      overlay.addEventListener('click', () => this.closeMobileSidebar());
+    }
+
+    // Close on resize above mobile breakpoint
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) {
+        this.closeMobileSidebar();
+      }
+    });
+  }
+
+  closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    sidebar?.classList.remove('open');
+    overlay?.classList.remove('active');
+    document.body.style.overflow = '';
   }
 
   updateHeaderForView(viewName) {

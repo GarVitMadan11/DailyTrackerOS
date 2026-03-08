@@ -42,8 +42,16 @@
   </head>
   <body>
     <div class="flex min-h-screen">
+      <!-- Mobile Hamburger Button -->
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+        <i data-lucide="menu"></i>
+      </button>
+
+      <!-- Sidebar Overlay -->
+      <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
       <!-- Premium Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <div class="flex items-center gap-3 mb-8">
           <div class="logo-icon">
             <i data-lucide="target"></i>
@@ -52,6 +60,9 @@
             <h1 class="text-lg font-bold gradient-text">pyTron</h1>
             <p class="text-xs text-muted">Performance OS</p>
           </div>
+          <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close menu">
+            <i data-lucide="x"></i>
+          </button>
         </div>
 
         <nav class="flex-1 overflow-y-auto custom-scrollbar">

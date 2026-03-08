@@ -3739,3 +3739,663 @@ kbd {
     font-size: 0.8125rem;
   }
 }
+
+/* ==============================================
+   RESPONSIVE DESIGN SYSTEM
+   Mobile-first refinements for all screen sizes
+   ============================================== */
+
+/* --- Mobile Hamburger Button --- */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  background: hsl(var(--glass-bg));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius-md);
+  color: hsl(var(--foreground));
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.mobile-menu-btn:hover {
+  background: hsl(var(--foreground));
+  color: hsl(var(--foreground-inverted));
+}
+
+.mobile-menu-btn svg,
+.mobile-menu-btn i {
+  width: 22px;
+  height: 22px;
+}
+
+/* --- Sidebar Overlay --- */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: hsl(0 0% 0% / 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* --- Sidebar Close Button --- */
+.sidebar-close-btn {
+  display: none;
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid hsl(var(--glass-border));
+  border-radius: var(--radius-sm);
+  color: hsl(var(--foreground-muted));
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sidebar-close-btn:hover {
+  background: hsl(var(--foreground) / 0.08);
+  color: hsl(var(--foreground));
+}
+
+.sidebar-close-btn svg,
+.sidebar-close-btn i {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== TABLET BREAKPOINT (≤1024px) ===== */
+@media (max-width: 1024px) {
+  /* Stats grid: 4 → 2 columns */
+  .grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Quick stats: tighter */
+  .quick-stats {
+    gap: var(--space-5);
+  }
+
+  /* Tasks layout: single column */
+  .tasks-layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .task-list-body {
+    max-height: 400px;
+  }
+
+  /* Settings card: remove max-width */
+  .settings-card.max-w-lg,
+  .max-w-lg {
+    max-width: 100%;
+  }
+
+  /* Page header slightly smaller */
+  .page-header h1 {
+    font-size: 1.75rem;
+  }
+}
+
+/* ===== MOBILE BREAKPOINT (≤768px) - Enhanced ===== */
+@media (max-width: 768px) {
+  /* Show mobile navigation elements */
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .sidebar-close-btn {
+    display: flex;
+  }
+
+  /* Sidebar: slide-in from left */
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transition-base);
+    z-index: 150;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 8px 0 32px hsl(0 0% 0% / 0.15);
+  }
+
+  /* Main content: full width with top padding for hamburger */
+  .main-content {
+    margin-left: 0 !important;
+    padding: var(--space-4);
+    padding-top: calc(44px + var(--space-4) + var(--space-4));
+  }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: var(--space-6);
+  }
+
+  .page-header h1 {
+    font-size: 1.375rem;
+  }
+
+  .page-header p {
+    font-size: 0.875rem;
+  }
+
+  /* Quick stats: 2x2 grid */
+  .quick-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+  }
+
+  .quick-stat {
+    background: hsl(var(--glass-bg));
+    border: 1px solid hsl(var(--glass-border));
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+
+  .quick-stat-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .quick-stat-value {
+    font-size: 1.375rem;
+  }
+
+  .quick-stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* Stat cards */
+  .stat-card {
+    padding: var(--space-4);
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  /* Charts */
+  .chart-card {
+    padding: var(--space-4);
+  }
+
+  .chart-card h3 {
+    font-size: 1rem;
+    margin-bottom: var(--space-3);
+  }
+
+  /* Tasks layout */
+  .tasks-layout {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: var(--space-4);
+  }
+
+  .task-list-body {
+    max-height: 350px;
+  }
+
+  /* Tasks view header */
+  #view-tasks > .flex.justify-between {
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  /* Daily view */
+  #view-daily > .flex.justify-between {
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  .hour-box {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-3);
+  }
+
+  .hour-time {
+    width: 4rem;
+    font-size: 0.8125rem;
+  }
+
+  .hour-content p:last-child {
+    max-width: 180px !important;
+  }
+
+  /* Analytics view header */
+  #view-analytics > .flex.justify-between {
+    flex-direction: column;
+    gap: var(--space-3);
+    align-items: flex-start;
+  }
+
+  #view-analytics > .flex.justify-between > .flex.items-center {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Settings */
+  .settings-card {
+    padding: var(--space-5);
+  }
+
+  /* Buttons: full width on mobile */
+  .data-actions {
+    flex-direction: column;
+  }
+
+  .data-actions .btn-outline {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Delete button always visible on touch */
+  .delete-task-btn {
+    opacity: 1 !important;
+  }
+
+  /* Modal improvements */
+  .modal {
+    padding: var(--space-3);
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: var(--space-5);
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  /* Category tiles in modal */
+  .modal .grid-cols-2 {
+    gap: var(--space-2);
+  }
+
+  .radio-tile {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.8125rem;
+  }
+
+  /* Avatar style options wrap nicely */
+  #avatar-style-options {
+    justify-content: center;
+  }
+
+  /* Achievements header */
+  #view-achievements > .flex.justify-between {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* Achievement stats in view */
+  .achievement-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-3);
+  }
+
+  .achievement-stat-card {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--space-3);
+  }
+
+  .stat-card-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .stat-card-value {
+    font-size: 1.375rem;
+  }
+
+  /* Quick actions grid */
+  .grid.md\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    flex-wrap: wrap;
+  }
+}
+
+/* ===== SMALL PHONE BREAKPOINT (≤480px) ===== */
+@media (max-width: 480px) {
+  /* Even smaller padding */
+  .main-content {
+    padding: var(--space-3);
+    padding-top: calc(44px + var(--space-3) + var(--space-3));
+  }
+
+  /* Smaller header */
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header p {
+    font-size: 0.8125rem;
+  }
+
+  /* Quick stats: single column */
+  .quick-stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+
+  .quick-stat-value {
+    font-size: 1.25rem;
+  }
+
+  /* Stat cards: single column */
+  .grid.md\:grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-card .stat-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  /* Chart height reduction */
+  .chart-card div[style*="height: 280px"] {
+    height: 200px !important;
+  }
+
+  /* Hour boxes: more compact */
+  .hour-box {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .hour-time {
+    width: 3.5rem;
+    font-size: 0.75rem;
+  }
+
+  .hour-content p:first-child {
+    font-size: 0.8125rem !important;
+  }
+
+  .hour-content p:last-child {
+    max-width: 120px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .hour-content > div:first-child {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+  }
+
+  .hour-content > div:first-child i {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Task items compact */
+  .task-item {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .task-text {
+    font-size: 0.875rem;
+  }
+
+  .task-badge {
+    font-size: 0.625rem;
+    padding: 1px 6px;
+  }
+
+  /* Form */
+  .task-form-body {
+    padding: var(--space-3);
+  }
+
+  .task-form-header,
+  .task-list-header {
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  /* Settings */
+  .settings-card {
+    padding: var(--space-4);
+  }
+
+  .settings-input {
+    padding: var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  .btn-outline {
+    padding: var(--space-3) var(--space-4);
+    font-size: 0.875rem;
+  }
+
+  /* Modal: full bottom sheet */
+  .modal {
+    padding: 0;
+  }
+
+  .modal-content {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding: var(--space-4);
+    max-height: 90vh;
+  }
+
+  .modal-content h3 {
+    font-size: 1rem;
+  }
+
+  /* Category radio tiles: tighter */
+  .radio-tile {
+    padding: var(--space-2);
+    font-size: 0.75rem;
+    gap: var(--space-1);
+  }
+
+  .radio-tile i,
+  .radio-tile svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Analytics */
+  #view-analytics {
+    padding: 0;
+  }
+
+  .analytics-range-btn {
+    padding: 4px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Achievement stats: stack */
+  .achievement-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-2);
+  }
+
+  .achievement-stat-card {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .stat-card-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .stat-card-value {
+    font-size: 1.25rem;
+  }
+
+  /* Achievement category filters: horizontal scroll */
+  .achievement-category-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: var(--space-3);
+    gap: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .achievement-category-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .achievement-category-btn {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+  }
+
+  /* Badges grid */
+  .badges-showcase-grid,
+  #view-achievements .badges-showcase-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    gap: var(--space-3);
+  }
+
+  .achievement-badge-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.75rem;
+  }
+
+  .achievement-badge-name {
+    font-size: 0.9375rem;
+  }
+
+  .achievement-badge-description {
+    font-size: 0.7rem;
+  }
+
+  /* Pomodoro widget compact */
+  .pomodoro-timer {
+    font-size: 2.5rem;
+  }
+
+  /* Toast */
+  .toast {
+    left: var(--space-3);
+    right: var(--space-3);
+    transform: translateY(100px);
+    text-align: center;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+  }
+
+  /* Heatmap: scroll horizontal */
+  .heatmap-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .heatmap-grid {
+    min-width: 500px;
+  }
+
+  /* Empty state compact */
+  .empty-state {
+    padding: var(--space-6);
+  }
+
+  .empty-state-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .empty-state-text {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ===== TOUCH-FRIENDLY SIZING ===== */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger tap targets */
+  .nav-item {
+    padding: var(--space-3) var(--space-4);
+    min-height: 44px;
+  }
+
+  .dropdown-trigger,
+  .time-trigger {
+    min-height: 40px;
+  }
+
+  .dropdown-item,
+  .time-option {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Delete button always visible */
+  .delete-task-btn {
+    opacity: 1 !important;
+  }
+
+  /* Disable hover effects that don't make sense on touch */
+  .stat-card:hover {
+    transform: none;
+  }
+
+  .hour-box:hover {
+    transform: none;
+  }
+
+  .task-item:hover {
+    transform: none;
+  }
+
+  .glass-card:hover {
+    transform: none;
+  }
+
+  .achievement-badge-card:not(.locked):hover {
+    transform: none;
+  }
+}
