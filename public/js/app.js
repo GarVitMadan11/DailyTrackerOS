@@ -964,12 +964,11 @@ class DailyTracker {
 
     const switchView = (viewName) => {
       if (views[viewName]) {
-        // Update Nav
+        // Update Nav — mark active on ALL matching items (sidebar + bottom nav)
         navItems.forEach((nav) => nav.classList.remove("active"));
-        const activeNav = document.querySelector(
-          `.nav-item[data-view="${viewName}"]`,
-        );
-        if (activeNav) activeNav.classList.add("active");
+        document
+          .querySelectorAll(`.nav-item[data-view="${viewName}"]`)
+          .forEach((nav) => nav.classList.add("active"));
 
         // Find the currently visible view
         const currentView = Object.values(views).find(

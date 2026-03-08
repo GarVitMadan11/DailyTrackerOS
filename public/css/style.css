@@ -3902,37 +3902,14 @@ kbd {
 
 /* ===== MOBILE BREAKPOINT (≤768px) - Enhanced ===== */
 @media (max-width: 768px) {
-  /* Show mobile navigation elements */
-  .mobile-menu-btn {
-    display: flex;
-  }
+  /* Bottom nav handles mobile navigation — sidebar/hamburger hidden via bottom-nav section */
 
-  .sidebar-overlay {
-    display: block;
-  }
-
-  .sidebar-close-btn {
-    display: flex;
-  }
-
-  /* Sidebar: slide-in from left */
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform var(--transition-base);
-    z-index: 150;
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-    box-shadow: 8px 0 32px hsl(0 0% 0% / 0.15);
-  }
-
-  /* Main content: full width with top padding for hamburger */
+  /* Main content: full width, no top offset needed (no hamburger) */
   .main-content {
     margin-left: 0 !important;
     padding: var(--space-4);
-    padding-top: calc(44px + var(--space-4) + var(--space-4));
-    padding-right: calc(44px + var(--space-4) + var(--space-2));
+    padding-top: var(--space-5);
+    padding-right: var(--space-4);
   }
 
   /* Page header */
@@ -4137,7 +4114,7 @@ kbd {
   /* Even smaller padding */
   .main-content {
     padding: var(--space-3);
-    padding-top: calc(44px + var(--space-3) + var(--space-3));
+    padding-top: var(--space-4);
   }
 
   /* Smaller header */
@@ -4627,11 +4604,6 @@ kbd {
 }
 
 @media (max-width: 768px) {
-  .sidebar-pomodoro {
-    margin: var(--space-3) var(--space-3) 0;
-  }
-}
-
   .sidebar-pomodoro {
     margin: var(--space-3) var(--space-3) 0;
   }
@@ -5302,4 +5274,450 @@ h4,
   .future-hours-summary {
     padding: var(--space-4);
   }
+}
+
+/* =============================================
+   MOBILE BOTTOM NAVIGATION BAR
+   Replaces hamburger + sidebar on mobile
+   ============================================= */
+
+/* --- Desktop: hide bottom nav, show sidebar normally --- */
+.mobile-bottom-nav {
+  display: none;
+}
+
+/* --- Mobile (≤768px): show bottom nav, hide sidebar & hamburger --- */
+@media (max-width: 768px) {
+  /* Hide hamburger button — bottom nav takes over */
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  /* Hide sidebar overlay — no longer needed */
+  .sidebar-overlay {
+    display: none !important;
+  }
+
+  /* Sidebar: fully hidden on mobile, bottom nav replaces it */
+  .sidebar {
+    display: none !important;
+  }
+
+  /* Bottom nav: show it */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: hsl(var(--background) / 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid hsl(var(--glass-border));
+    box-shadow: 0 -4px 20px hsl(0 0% 0% / 0.08);
+    padding: var(--space-2) var(--space-2);
+    padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+    gap: 0;
+    justify-content: space-around;
+    align-items: stretch;
+  }
+
+  /* Bottom nav items — stack icon + label vertically */
+  .mobile-bottom-nav .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: var(--space-2) var(--space-1);
+    border-radius: var(--radius-md);
+    color: hsl(var(--foreground-muted));
+    font-size: 0.625rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+    background: transparent;
+    box-shadow: none;
+    transition:
+      color var(--transition-fast),
+      background var(--transition-fast);
+  }
+
+  .mobile-bottom-nav .bottom-nav-item svg,
+  .mobile-bottom-nav .bottom-nav-item i {
+    width: 22px;
+    height: 22px;
+    transition: transform var(--transition-bounce);
+  }
+
+  .mobile-bottom-nav .bottom-nav-item span {
+    font-size: 0.6rem;
+    line-height: 1;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-bottom-nav .bottom-nav-item:hover {
+    color: hsl(var(--foreground));
+    background: hsl(var(--foreground) / 0.04);
+  }
+
+  .mobile-bottom-nav .bottom-nav-item.active {
+    color: hsl(var(--color-primary));
+    background: hsl(var(--color-primary) / 0.1);
+    box-shadow: none;
+    font-weight: 700;
+  }
+
+  .mobile-bottom-nav .bottom-nav-item.active svg,
+  .mobile-bottom-nav .bottom-nav-item.active i {
+    color: hsl(var(--color-primary));
+    transform: scale(1.1) translateY(-1px);
+  }
+
+  .mobile-bottom-nav .bottom-nav-item.active span {
+    color: hsl(var(--color-primary));
+  }
+
+  /* Main content: reset top padding (no more hamburger), add bottom padding for nav bar */
+  .main-content {
+    margin-left: 0 !important;
+    padding: var(--space-4);
+    padding-top: var(--space-5) !important;
+    padding-right: var(--space-4) !important;
+    padding-bottom: calc(70px + var(--space-4)) !important;
+  }
+
+  /* Task FAB sits above bottom nav */
+  .task-fab {
+    bottom: calc(70px + var(--space-4));
+  }
+}
+
+/* Dark mode bottom nav */
+[data-theme="dark"] .mobile-bottom-nav {
+  background: hsl(225 20% 10% / 0.97);
+}
+
+[data-theme="dark"] .mobile-bottom-nav .bottom-nav-item.active {
+  background: hsl(var(--color-primary) / 0.15);
+}
+
+/* =====================================================
+   MOBILE PER-TAB UI REFINEMENTS  (≤768px)
+   Polished layout for every view on phones
+   ===================================================== */
+@media (max-width: 768px) {
+
+  /* ---- GLOBAL: prevent horizontal scroll ---- */
+  .main-content {
+    overflow-x: hidden;
+  }
+
+  /* ---- GLOBAL: Hero cards — hide illustration, compact padding ---- */
+  .view-hero-card {
+    flex-direction: column !important;
+    padding: var(--space-4) var(--space-5) !important;
+    gap: var(--space-3) !important;
+    margin-bottom: var(--space-5) !important;
+  }
+
+  .illustration-container {
+    display: none !important;
+  }
+
+  .view-hero-content h2 {
+    font-size: 1.25rem;
+  }
+
+  .view-hero-content p {
+    font-size: 0.875rem;
+  }
+
+  /* ========== DASHBOARD TAB ========== */
+
+  /* Quick stats: horizontal scrollable pill row (more mobile-native) */
+  .quick-stats {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    grid-template-columns: unset !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: var(--space-3);
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    /* Extend to edge for scroll feel */
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .quick-stats::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quick-stat {
+    flex: 0 0 auto !important;
+    scroll-snap-align: start;
+    min-width: 130px;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .quick-stat-icon {
+    flex-shrink: 0;
+  }
+
+  /* Stat cards: 2-column on mobile */
+  .grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--space-3) !important;
+  }
+
+  /* Charts: single column, reduced height */
+  .grid.md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-4) !important;
+  }
+
+  .chart-card div[style*="height: 280px"],
+  .chart-card div[style*="height:280px"] {
+    height: 180px !important;
+  }
+
+  /* Quick action cards: icon left, text right */
+  .grid.md\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-3) !important;
+  }
+
+  /* ========== TASKS TAB ========== */
+
+  /* Stack: title row on top, actions row on bottom */
+  .tasks-header-section .flex.justify-between.items-center {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: var(--space-3);
+  }
+
+  /* Actions row: completed counter + new task button side by side */
+  .tasks-header-section .flex.justify-between.items-center > .flex.items-center.gap-3 {
+    display: flex;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  /* "New Task" button: compact on mobile */
+  .task-add-header-btn {
+    flex: none;
+    justify-content: center;
+    padding: 7px 14px;
+  }
+
+  /* Progress bar: less padding */
+  .task-progress-container {
+    gap: var(--space-2);
+  }
+
+  .task-progress-text {
+    min-width: 72px;
+    font-size: 0.75rem;
+  }
+
+  /* FAB above bottom nav */
+  .task-fab {
+    bottom: calc(64px + var(--space-5));
+    right: var(--space-5);
+  }
+
+  /* ========== DAILY TAB ========== */
+
+  /* Date display: compact */
+  #current-date-display {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.875rem;
+  }
+
+  /* Legend: horizontal scroll, no wrap */
+  .daily-legend {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: var(--space-3) !important;
+    padding: var(--space-2) var(--space-4);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+  }
+
+  .daily-legend::-webkit-scrollbar {
+    display: none;
+  }
+
+  .daily-legend-item {
+    flex: 0 0 auto !important;
+    scroll-snap-align: start;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Hour boxes: compact rows with readable time label */
+  .hour-box {
+    padding: var(--space-2) var(--space-3) !important;
+    gap: var(--space-2) !important;
+  }
+
+  .hour-time {
+    font-size: 0.75rem !important;
+    width: 3.5rem !important;
+    min-width: 3.5rem;
+  }
+
+  /* Upcoming hours panel: compact */
+  .future-hours-summary {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  /* ========== FOCUS (POMODORO) TAB ========== */
+
+  /* Mode pills: wrap to 2 rows gracefully */
+  .pomo-mode-pills {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .pomo-pill {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    flex: 1;
+    text-align: center;
+    min-width: 80px;
+    white-space: nowrap;
+  }
+
+  /* Ring: center and right size */
+  .pomo-ring-card {
+    padding: var(--space-5) var(--space-4) !important;
+    gap: var(--space-4) !important;
+  }
+
+  .pomo-ring-wrap {
+    width: 160px !important;
+    height: 160px !important;
+  }
+
+  .pomo-svg {
+    width: 160px !important;
+    height: 160px !important;
+  }
+
+  .pomo-time {
+    font-size: 2rem !important;
+  }
+
+  /* Stats: horizontal scroll row */
+  .pomo-stats-col {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto;
+    gap: var(--space-3);
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-left: calc(-1 * var(--space-4));
+    margin-right: calc(-1 * var(--space-4));
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+
+  .pomo-stats-col::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pomo-stat-card {
+    flex: 0 0 auto !important;
+    min-width: 140px;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center;
+    padding: var(--space-3) var(--space-4) !important;
+    gap: var(--space-2);
+  }
+
+  .pomo-stat-icon {
+    margin: 0 auto;
+  }
+
+  /* Tip card: full width */
+  .pomo-tip-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* ========== SETTINGS TAB ========== */
+
+  /* Buttons in settings: full width */
+  .settings-card .btn-primary,
+  .settings-card .btn-outline,
+  .settings-card button.btn-primary,
+  .settings-card button.btn-outline {
+    width: 100% !important;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  /* Data action buttons: already handled via .data-actions but reinforce */
+  .data-actions {
+    gap: var(--space-2);
+  }
+
+  /* Avatar style options: center wrap */
+  #avatar-style-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+
+  /* Settings hero card: compact */
+  #view-settings .view-hero-card {
+    margin-bottom: var(--space-4) !important;
+  }
+
+  /* Accordion body: tighter padding */
+  .settings-accordion-body {
+    padding: 0 var(--space-4) var(--space-4);
+  }
+
+  /* Settings input: larger tap target */
+  .settings-input {
+    min-height: 44px;
+  }
+
+  /* Theme toggle: wrap */
+  .theme-toggle {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: flex-start;
+  }
+}
+
+/* Dark mode adjustments per-tab */
+[data-theme="dark"] .quick-stat {
+  background: hsl(225 18% 16% / 0.8);
 }
