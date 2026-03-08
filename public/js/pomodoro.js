@@ -385,13 +385,14 @@ class PomodoroTimer {
     }
 
     showSettings() {
-        // Create modal for Pomodoro settings
-        let modal = document.getElementById('pomodoro-settings-modal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'pomodoro-settings-modal';
-            modal.className = 'modal';
-            modal.innerHTML = `
+        // Remove stale modal so inputs always reflect current state
+        const existing = document.getElementById('pomodoro-settings-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'pomodoro-settings-modal';
+        modal.className = 'modal';
+        modal.innerHTML = `
                 <div class="modal-content" style="max-width: 400px;">
                     <div class="modal-header">
                         <h3>⏱️ Pomodoro Settings</h3>
@@ -413,6 +414,11 @@ class PomodoroTimer {
                             <input type="number" id="pomodoro-long-break" class="settings-input" value="${this.state.longBreakDuration}" min="1" max="60">
                         </div>
                         <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-2">Sessions until Long Break</label>
+                            <input type="number" id="pomodoro-sessions-until-long-break" class="settings-input" value="${this.state.sessionsUntilLongBreak}" min="1" max="10">
+                            <p class="pomo-settings-hint">Complete this many focus sessions before a long break.</p>
+                        </div>
+                        <div class="mb-4">
                             <label class="flex items-center gap-2">
                                 <input type="checkbox" id="pomodoro-sound" ${this.state.soundEnabled ? 'checked' : ''}>
                                 <span class="text-sm">Enable sound notifications</span>
@@ -424,9 +430,8 @@ class PomodoroTimer {
                     </div>
                 </div>
             `;
-            document.body.appendChild(modal);
-            lucide.createIcons();
-        }
+        document.body.appendChild(modal);
+        lucide.createIcons();
         modal.classList.remove('hidden');
     }
 
@@ -434,11 +439,13 @@ class PomodoroTimer {
         const workDuration = parseInt(document.getElementById('pomodoro-work-duration').value);
         const breakDuration = parseInt(document.getElementById('pomodoro-break-duration').value);
         const longBreakDuration = parseInt(document.getElementById('pomodoro-long-break').value);
+        const sessionsUntilLongBreak = parseInt(document.getElementById('pomodoro-sessions-until-long-break').value);
         const soundEnabled = document.getElementById('pomodoro-sound').checked;
         
         this.state.workDuration = workDuration;
         this.state.breakDuration = breakDuration;
         this.state.longBreakDuration = longBreakDuration;
+        this.state.sessionsUntilLongBreak = Math.max(1, sessionsUntilLongBreak);
         this.state.soundEnabled = soundEnabled;
         
         // Reset timer with new duration
