@@ -45,61 +45,116 @@ class PomodoroTimer {
     }
 
     createUI() {
-        // Render Pomodoro in the sidebar for persistent access
-        const sidebar = document.getElementById('sidebar');
-        
-        if (!sidebar) {
-            console.warn('[Pomodoro] Could not find sidebar for timer widget');
+        const container = document.getElementById('pomodoro-view-container');
+        if (!container) {
+            console.warn('[Pomodoro] Could not find #pomodoro-view-container');
             return;
         }
 
-        const timerWidget = document.createElement('div');
-        timerWidget.id = 'pomodoro-widget';
-        timerWidget.className = 'pomodoro-widget sidebar-pomodoro';
-        timerWidget.innerHTML = `
-            <div class="pomodoro-display">
-                <div class="pomodoro-ring">
-                    <svg width="52" height="52" viewBox="0 0 52 52">
-                        <circle cx="26" cy="26" r="23" class="ring-bg" stroke-width="4"></circle>
-                        <circle cx="26" cy="26" r="23" class="ring-progress" id="pomodoro-progress" stroke-width="4"></circle>
-                    </svg>
-                    <div class="pomodoro-time" id="pomodoro-time">25:00</div>
+        container.innerHTML = `
+          <div class="pomo-view-layout">
+            <!-- Left: Big ring -->
+            <div class="pomo-ring-card glass">
+              <div class="pomo-mode-pills" id="pomo-mode-pills">
+                <button class="pomo-pill active" data-mode="work">Focus</button>
+                <button class="pomo-pill" data-mode="break">Short Break</button>
+                <button class="pomo-pill" data-mode="longbreak">Long Break</button>
+              </div>
+
+              <div class="pomo-ring-wrap">
+                <svg class="pomo-svg" viewBox="0 0 160 160">
+                  <defs>
+                    <linearGradient id="pomoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="hsl(var(--color-primary))" />
+                      <stop offset="100%" stop-color="hsl(var(--color-secondary))" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="80" cy="80" r="68" class="pomo-ring-track" />
+                  <circle cx="80" cy="80" r="68" class="pomo-ring-fill" id="pomodoro-progress" />
+                </svg>
+                <div class="pomo-ring-inner">
+                  <div class="pomo-time" id="pomodoro-time">25:00</div>
+                  <div class="pomo-label" id="pomodoro-status">Ready to focus</div>
                 </div>
-                <div class="pomodoro-info">
-                    <div class="pomodoro-status" id="pomodoro-status">Ready to focus</div>
-                    <div class="pomodoro-session" id="pomodoro-session">Session 0/4</div>
+              </div>
+
+              <div class="pomo-controls">
+                <button class="pomo-ctrl-btn pomo-ctrl-reset" id="pomodoro-reset" title="Reset">
+                  <i data-lucide="rotate-ccw"></i>
+                </button>
+                <button class="pomo-ctrl-btn pomo-ctrl-play" id="pomodoro-start" title="Start">
+                  <i data-lucide="play"></i>
+                </button>
+                <button class="pomo-ctrl-btn pomo-ctrl-play hidden" id="pomodoro-pause" title="Pause">
+                  <i data-lucide="pause"></i>
+                </button>
+                <button class="pomo-ctrl-btn pomo-ctrl-settings" id="pomodoro-settings" title="Settings">
+                  <i data-lucide="settings-2"></i>
+                </button>
+              </div>
+
+              <div class="pomo-session-dots" id="pomodoro-session">
+                Session 0/4
+              </div>
+            </div>
+
+            <!-- Right: Stats -->
+            <div class="pomo-stats-col">
+              <div class="pomo-stat-card glass">
+                <div class="pomo-stat-icon primary"><i data-lucide="zap"></i></div>
+                <div>
+                  <div class="pomo-stat-value" id="pomo-today-sessions">0</div>
+                  <div class="pomo-stat-label">Sessions Today</div>
                 </div>
+              </div>
+              <div class="pomo-stat-card glass">
+                <div class="pomo-stat-icon success"><i data-lucide="clock"></i></div>
+                <div>
+                  <div class="pomo-stat-value" id="pomo-today-minutes">0m</div>
+                  <div class="pomo-stat-label">Focus Time Today</div>
+                </div>
+              </div>
+              <div class="pomo-stat-card glass">
+                <div class="pomo-stat-icon accent"><i data-lucide="flame"></i></div>
+                <div>
+                  <div class="pomo-stat-value" id="pomo-total-sessions">0</div>
+                  <div class="pomo-stat-label">Total Sessions</div>
+                </div>
+              </div>
+
+              <div class="pomo-tip-card glass">
+                <div class="pomo-tip-title"><i data-lucide="lightbulb" style="width:14px;height:14px"></i> Focus tip</div>
+                <p class="pomo-tip-text" id="pomo-tip">Work in 25-minute sprints for peak concentration. Your brain thrives on focused bursts.</p>
+              </div>
             </div>
-            <div class="pomodoro-controls">
-                <button class="pomodoro-btn pomodoro-btn-start" id="pomodoro-start">
-                    <i data-lucide="play"></i>
-                </button>
-                <button class="pomodoro-btn pomodoro-btn-pause hidden" id="pomodoro-pause">
-                    <i data-lucide="pause"></i>
-                </button>
-                <button class="pomodoro-btn pomodoro-btn-reset" id="pomodoro-reset">
-                    <i data-lucide="rotate-ccw"></i>
-                </button>
-                <button class="pomodoro-btn pomodoro-btn-settings" id="pomodoro-settings">
-                    <i data-lucide="settings"></i>
-                </button>
-            </div>
+          </div>
         `;
 
-        // Insert before the user-profile section at the bottom of the sidebar
-        const userSection = sidebar.querySelector('.mt-auto');
-        if (userSection) {
-            sidebar.insertBefore(timerWidget, userSection);
-        } else {
-            sidebar.appendChild(timerWidget);
-        }
-        
-        // Re-initialize icons after adding new elements
+        // Mode pill switching
+        container.querySelectorAll('.pomo-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                container.querySelectorAll('.pomo-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                const mode = pill.dataset.mode;
+                if (mode === 'work') {
+                    this.state.isBreak = false;
+                    this.state.timeRemaining = this.state.workDuration * 60;
+                } else if (mode === 'break') {
+                    this.state.isBreak = true;
+                    this.state.timeRemaining = this.state.breakDuration * 60;
+                } else {
+                    this.state.isBreak = true;
+                    this.state.timeRemaining = this.state.longBreakDuration * 60;
+                }
+                this.reset();
+            });
+        });
+
         if (typeof lucide !== 'undefined' && lucide.createIcons) {
             lucide.createIcons();
         }
-        
-        console.log('[Pomodoro] Timer widget created successfully');
+        this.updateStatsDisplay();
+        console.log('[Pomodoro] View section created successfully');
     }
 
     bindEvents() {
@@ -250,17 +305,33 @@ class PomodoroTimer {
                 ? this.state.longBreakDuration : this.state.breakDuration) * 60
             : this.state.workDuration * 60;
         
-        const progress = (this.state.timeRemaining / totalSeconds) * 144.5; // circumference for r=23
+        // Circumference for r=68: 2*π*68 ≈ 427.3
+        const circ = 427.3;
+        const progress = (this.state.timeRemaining / totalSeconds) * circ;
         const progressEl = document.getElementById('pomodoro-progress');
         if (progressEl) {
-            progressEl.style.strokeDashoffset = 144.5 - progress;
+            progressEl.style.strokeDasharray = circ;
+            progressEl.style.strokeDashoffset = circ - progress;
         }
         
         // Update session counter
         const sessionEl = document.getElementById('pomodoro-session');
         if (sessionEl) {
-            sessionEl.textContent = `Session ${this.state.currentSession % this.state.sessionsUntilLongBreak}/${this.state.sessionsUntilLongBreak}`;
+            const sessNum = this.state.currentSession % this.state.sessionsUntilLongBreak;
+            sessionEl.textContent = `Session ${sessNum}/${this.state.sessionsUntilLongBreak}`;
         }
+
+        this.updateStatsDisplay();
+    }
+
+    updateStatsDisplay() {
+        const stats = this.getTodayStats();
+        const todayEl = document.getElementById('pomo-today-sessions');
+        const minsEl = document.getElementById('pomo-today-minutes');
+        const totalEl = document.getElementById('pomo-total-sessions');
+        if (todayEl) todayEl.textContent = stats.sessionsCompleted;
+        if (minsEl) minsEl.textContent = stats.totalMinutes + 'm';
+        if (totalEl) totalEl.textContent = this.state.totalWorkSessions;
     }
 
     updateStatus() {

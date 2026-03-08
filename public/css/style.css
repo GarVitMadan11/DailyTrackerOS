@@ -3791,7 +3791,8 @@ kbd {
   display: none;
   position: fixed;
   top: var(--space-4);
-  left: var(--space-4);
+  right: var(--space-4);
+  left: auto;
   z-index: 200;
   width: 44px;
   height: 44px;
@@ -3931,6 +3932,7 @@ kbd {
     margin-left: 0 !important;
     padding: var(--space-4);
     padding-top: calc(44px + var(--space-4) + var(--space-4));
+    padding-right: calc(44px + var(--space-4) + var(--space-2));
   }
 
   /* Page header */
@@ -4443,33 +4445,58 @@ kbd {
 
 /* ===== Sidebar Pomodoro Timer ===== */
 .sidebar-pomodoro {
-  margin: var(--space-4) var(--space-4) 0;
-  padding: var(--space-4);
+  margin: var(--space-4) var(--space-3) 0;
+  padding: var(--space-5) var(--space-4) var(--space-4);
   background: hsl(var(--glass-bg));
   border: 1px solid hsl(var(--glass-border));
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 12px hsl(0 0% 0% / 0.06);
 }
 
+/* Gradient accent bar on top */
+.sidebar-pomodoro::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    hsl(var(--color-primary)),
+    hsl(var(--color-secondary))
+  );
+}
+
+/* Vertical stack layout */
 .sidebar-pomodoro .pomodoro-display {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: var(--space-3);
 }
 
+/* Bigger ring — CSS overrides HTML width/height attrs */
 .sidebar-pomodoro .pomodoro-ring {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 90px;
+  height: 90px;
   flex-shrink: 0;
 }
 
 .sidebar-pomodoro .pomodoro-ring svg {
+  width: 90px;
+  height: 90px;
   transform: rotate(-90deg);
+  filter: drop-shadow(0 2px 6px hsl(var(--color-primary) / 0.2));
 }
 
 .sidebar-pomodoro .ring-bg {
   fill: none;
-  stroke: hsl(var(--glass-border));
+  stroke: hsl(var(--foreground) / 0.08);
+  stroke-width: 4;
 }
 
 .sidebar-pomodoro .ring-progress {
@@ -4478,60 +4505,65 @@ kbd {
   stroke-linecap: round;
   stroke-dasharray: 144.5;
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.5s ease-out;
+  transition: stroke-dashoffset 0.5s ease-out, stroke 0.3s ease;
 }
 
+/* Time inside ring — larger and sharper */
 .sidebar-pomodoro .pomodoro-time {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 1.0625rem;
+  font-weight: 800;
   font-feature-settings: "tnum";
+  letter-spacing: -0.03em;
   color: hsl(var(--foreground));
 }
 
+/* Info block centered below ring */
 .sidebar-pomodoro .pomodoro-info {
-  flex: 1;
+  text-align: center;
   min-width: 0;
 }
 
 .sidebar-pomodoro .pomodoro-status {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: hsl(var(--foreground-muted));
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: hsl(var(--foreground));
+  letter-spacing: 0.01em;
 }
 
 .sidebar-pomodoro .pomodoro-session {
   font-size: 0.6875rem;
-  color: hsl(var(--foreground-light));
-  margin-top: 2px;
+  color: hsl(var(--foreground-muted));
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
+/* Controls row — centered, spaced */
 .sidebar-pomodoro .pomodoro-controls {
   display: flex;
+  align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
   justify-content: center;
 }
 
 .sidebar-pomodoro .pomodoro-btn {
-  width: 2rem;
-  height: 2rem;
-  border-radius: var(--radius-md);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid hsl(var(--glass-border));
-  background: transparent;
+  background: hsl(var(--background) / 0.6);
   color: hsl(var(--foreground-muted));
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
 }
 
 .sidebar-pomodoro .pomodoro-btn svg,
@@ -4541,12 +4573,17 @@ kbd {
 }
 
 .sidebar-pomodoro .pomodoro-btn:hover {
-  background: hsl(var(--color-primary) / 0.08);
-  border-color: hsl(var(--color-primary) / 0.3);
+  background: hsl(var(--color-primary) / 0.1);
+  border-color: hsl(var(--color-primary) / 0.4);
   color: hsl(var(--color-primary));
+  transform: translateY(-1px);
 }
 
+/* Start button — prominent */
 .sidebar-pomodoro .pomodoro-btn-start {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-lg);
   background: linear-gradient(
     135deg,
     hsl(var(--color-primary)),
@@ -4554,17 +4591,331 @@ kbd {
   );
   color: white;
   border: none;
-  box-shadow: 0 2px 6px hsl(var(--color-primary) / 0.3);
+  box-shadow: 0 3px 10px hsl(var(--color-primary) / 0.35);
+}
+
+.sidebar-pomodoro .pomodoro-btn-start svg,
+.sidebar-pomodoro .pomodoro-btn-start i {
+  width: 16px;
+  height: 16px;
 }
 
 .sidebar-pomodoro .pomodoro-btn-start:hover {
-  transform: scale(1.05);
-  box-shadow: 0 3px 10px hsl(var(--color-primary) / 0.4);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 5px 16px hsl(var(--color-primary) / 0.45);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--color-primary)),
+    hsl(var(--color-secondary))
+  );
+}
+
+.sidebar-pomodoro .pomodoro-btn-pause {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-lg);
+  background: hsl(var(--color-warning) / 0.12);
+  border-color: hsl(var(--color-warning) / 0.4);
+  color: hsl(var(--color-warning));
+}
+
+.sidebar-pomodoro .pomodoro-btn-pause:hover {
+  background: hsl(var(--color-warning) / 0.2);
+  border-color: hsl(var(--color-warning));
+  color: hsl(var(--color-warning));
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
   .sidebar-pomodoro {
-    margin: var(--space-3);
+    margin: var(--space-3) var(--space-3) 0;
+  }
+}
+
+  .sidebar-pomodoro {
+    margin: var(--space-3) var(--space-3) 0;
+  }
+}
+
+/* ===== Pomodoro Full View ===== */
+.pomo-view-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+/* Ring card */
+.pomo-ring-card {
+  padding: var(--space-8) var(--space-6);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.pomo-ring-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, hsl(var(--color-primary)), hsl(var(--color-secondary)));
+}
+
+/* Mode pills */
+.pomo-mode-pills {
+  display: flex;
+  gap: var(--space-2);
+  background: hsl(var(--foreground) / 0.06);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+}
+
+.pomo-pill {
+  padding: 6px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: hsl(var(--foreground-muted));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pomo-pill.active {
+  background: hsl(var(--color-primary));
+  color: white;
+  box-shadow: 0 2px 8px hsl(var(--color-primary) / 0.3);
+}
+
+/* SVG Ring */
+.pomo-ring-wrap {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+
+.pomo-svg {
+  width: 200px;
+  height: 200px;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 4px 16px hsl(var(--color-primary) / 0.25));
+}
+
+.pomo-ring-track {
+  fill: none;
+  stroke: hsl(var(--foreground) / 0.08);
+  stroke-width: 10;
+}
+
+.pomo-ring-fill {
+  fill: none;
+  stroke: url(#pomoGrad);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 427.3;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pomo-ring-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.pomo-time {
+  font-size: 2.75rem;
+  font-weight: 800;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.04em;
+  color: hsl(var(--foreground));
+  line-height: 1;
+}
+
+.pomo-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: hsl(var(--foreground-muted));
+  letter-spacing: 0.02em;
+}
+
+/* Controls row */
+.pomo-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pomo-ctrl-btn {
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--glass-border));
+  background: hsl(var(--background) / 0.7);
+  color: hsl(var(--foreground-muted));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pomo-ctrl-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pomo-ctrl-btn:hover {
+  background: hsl(var(--color-primary) / 0.1);
+  border-color: hsl(var(--color-primary) / 0.4);
+  color: hsl(var(--color-primary));
+  transform: translateY(-2px);
+}
+
+/* Big play button */
+.pomo-ctrl-play {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, hsl(var(--color-primary)), hsl(var(--color-secondary)));
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px hsl(var(--color-primary) / 0.4);
+}
+
+.pomo-ctrl-play svg {
+  width: 22px;
+  height: 22px;
+}
+
+.pomo-ctrl-play:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 0 6px 24px hsl(var(--color-primary) / 0.5);
+  background: linear-gradient(135deg, hsl(var(--color-primary)), hsl(var(--color-secondary)));
+  color: white;
+  border: none;
+}
+
+/* Session label */
+.pomo-session-dots {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: hsl(var(--foreground-muted));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Right stats column */
+.pomo-stats-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pomo-stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-xl);
+}
+
+.pomo-stat-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pomo-stat-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.pomo-stat-icon.primary {
+  background: hsl(var(--color-primary) / 0.12);
+  color: hsl(var(--color-primary));
+}
+
+.pomo-stat-icon.success {
+  background: hsl(var(--color-success) / 0.12);
+  color: hsl(var(--color-success));
+}
+
+.pomo-stat-icon.accent {
+  background: hsl(var(--color-secondary) / 0.15);
+  color: hsl(var(--color-secondary));
+}
+
+.pomo-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: hsl(var(--foreground));
+  line-height: 1;
+}
+
+.pomo-stat-label {
+  font-size: 0.75rem;
+  color: hsl(var(--foreground-muted));
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+/* Tip card */
+.pomo-tip-card {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-xl);
+  border-left: 3px solid hsl(var(--color-primary));
+}
+
+.pomo-tip-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: hsl(var(--color-primary));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.pomo-tip-text {
+  font-size: 0.875rem;
+  color: hsl(var(--foreground-muted));
+  line-height: 1.6;
+}
+
+/* Responsive: stack on mobile */
+@media (max-width: 768px) {
+  .pomo-view-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .pomo-ring-wrap {
+    width: 180px;
+    height: 180px;
+  }
+
+  .pomo-svg {
+    width: 180px;
+    height: 180px;
+  }
+
+  .pomo-time {
+    font-size: 2.25rem;
   }
 }
 

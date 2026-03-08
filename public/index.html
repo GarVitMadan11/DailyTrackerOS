@@ -95,9 +95,9 @@
             <i data-lucide="bar-chart-2"></i>
             <span>Analytics</span>
           </a>
-          <a href="#" class="nav-item" data-view="ai-coach">
-            <i data-lucide="sparkles"></i>
-            <span>AI Coach</span>
+          <a href="#" class="nav-item" data-view="pomodoro">
+            <i data-lucide="timer"></i>
+            <span>Focus Timer</span>
           </a>
           <a href="#" class="nav-item" data-view="achievements">
             <i data-lucide="trophy"></i>
@@ -1269,6 +1269,26 @@
             </div>
           </div>
         </div><!-- /view-achievements -->
+
+          <!-- POMODORO VIEW -->
+          <div id="view-pomodoro" class="view-section hidden">
+            <!-- Hero Header -->
+            <div class="view-hero-card glass mb-8">
+              <div class="view-hero-content">
+                <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+                  <i data-lucide="timer" style="width:32px;height:32px;color:hsl(var(--color-primary));"></i>
+                  Focus Timer
+                </h2>
+                <p class="text-base text-muted">Stay locked in with Pomodoro sessions. Deep work, tracked and celebrated.</p>
+              </div>
+              <div class="illustration-container">
+                <img src="illustrations/analytics.png" alt="Focus Timer" class="floating-illustration" />
+              </div>
+            </div>
+
+            <!-- Timer card -->
+            <div id="pomodoro-view-container"></div>
+          </div><!-- /view-pomodoro -->
         </div><!-- /view-container -->
       </main>
     </div>

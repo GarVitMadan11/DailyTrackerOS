@@ -948,6 +948,7 @@ class DailyTracker {
       settings: document.getElementById("view-settings"),
       analytics: document.getElementById("view-analytics"),
       achievements: document.getElementById("view-achievements"),
+      pomodoro: document.getElementById("view-pomodoro"),
     };
 
     // Date Display
@@ -1032,8 +1033,6 @@ class DailyTracker {
         if (window.celebrationManager) {
           window.celebrationManager.enhanceView(viewName);
         }
-      } else if (viewName === "ai-coach") {
-        this.showToast("AI Coach coming in Phase 3! 🤖", "info");
       }
     };
 
